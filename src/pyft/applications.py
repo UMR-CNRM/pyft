@@ -94,7 +94,7 @@ def addMPPDB_CHECKS(doc):
                 # Look for all intent arrays only
                 arraysIn, arraysInOut, arraysOut = [], [], []
                 for var in varList:
-                     if var['arg'] and var['as']:
+                     if var['arg'] and var['as'] and 'TYPE' not in var['t'] and 'CHARACTER' not in var['t'] and 'LOGICAL' not in var['t']:
                          if var['i']=='IN':
                              arraysIn.append(var)
                          if var['i']=='INOUT':
