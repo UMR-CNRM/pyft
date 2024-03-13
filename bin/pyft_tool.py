@@ -246,7 +246,7 @@ if __name__ == '__main__':
                        help='Maximum number of upper elements in the plot tree')
     gTree.add_argument('--plotMaxLower', default=None, type=int,
                        help='Maximum number of lower elements in the plot tree')
-    gTree.add_argument('--addArgInTree', default=None, action='append', nargs=5,
+    gTree.add_argument('--addArgInTree', default=None, action='append', nargs=4,
                        metavar=('WHERE', 'VARNAME', 'DECLARATION', 'POSITION'),
                        help='Add an argument variable. The argument is the scope (as for ' + \
                             'the --removeVariable option. The second is the variable ' + \
