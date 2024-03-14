@@ -10,7 +10,7 @@ from pyft.variables import (removeVarIfUnused, getVarList, addVar, findVar,
                             findArrayBounds, arrayR2parensR, varSpec2stmt, renameVar,
                             addArrayParenthesesInNode, addExplicitArrayBounds, addModuleVar)
 from pyft.expressions import createExprPart, createArrayBounds
-from pyft.cosmetics import changeIfStatementsInIfConstructs     
+from pyft.cosmetics import changeIfStatementsInIfConstructs, removeEmptyCONTAINS
 import re
 import logging
 import copy
@@ -910,6 +910,9 @@ def inlineContainedSubroutines(doc, descTree=None, simplify=False, loopVar=None)
                     del descTree['execution_tree'][loc[0]]
                     # And in the list of scopes
                     descTree['scopes'][getFileName(doc)].remove(loc[0])
+
+    if simplify:
+        removeEmptyCONTAINS(doc)
 
 @debugDecor
 def inline(doc, subContained, callStmt, mainScope, subScope, varList, descTree, simplify=False, loopVar=None):
