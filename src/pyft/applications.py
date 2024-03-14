@@ -3,7 +3,7 @@ This module implements functions for high-to-moderate level transformation
 """
 
 import xml.etree.ElementTree as ET
-from pyft.cosmetics import indent
+from pyft.cosmetics import indent 
 from pyft.util import (copy_doc, debugDecor, alltext, getParent, fortran2xml,
                        getFileName, n2name, isStmt, PYFTError)
 from pyft.statements import (removeCall, setFalseIfStmt, removeStmtNode,
@@ -218,7 +218,7 @@ def addStack(doc, descTree, model, stopScopes, parser=None, parserOptions=None, 
                 #__FILE__ and __LINE__ because it breaks future reading with fxtran
                 nb = modifyAutomaticArrays(doc,
                             declTemplate="{type}, DIMENSION({shape}) :: {name}; POINTER(IP_{name}_, {name})",
-                            startTemplate="IP_{name}_=YDSTACK%L;YDSTACK%L=YDSTACK%L+KIND({name})*SIZE({name});IF(YDSTACK%L>YDSTACK%U)CALL SOF('" + getFileName(doc) + ":{name}', 0)",
+                            startTemplate="IP_{name}_=YDSTACK%L;YDSTACK%L=YDSTACK%L+CEILING(KIND({name})*SIZE({name})/8.)*8;IF(YDSTACK%L>YDSTACK%U)CALL SOF('" + getFileName(doc) + ":{name}', 0)",
                             scopes=scope)
     
                 if nb > 0:
