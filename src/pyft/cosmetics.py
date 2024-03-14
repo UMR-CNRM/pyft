@@ -886,6 +886,22 @@ def changeIfStatementsInIfConstructs(doc, singleItem=None, parent=None):
             for cnt in item.findall('./{*}cnt'):
                 item.remove(cnt)
 
+@debugDecor
+def removeEmptyCONTAINS(doc):
+    """
+    Remove the CONTAINS statement if this section is empty
+    :param doc: element tree
+    """
+    for contains in doc.findall('.//{*}contains-stmt'):
+        par = getParent(doc, contains)
+        index = list(par).index(contains)
+        nextStmt = index + 1
+        while par[nextStmt].tag.split('}')[1] == 'C':
+            nextStmt += 1
+        if par[nextStmt].tag.split('}')[1] in ('end-subroutine-stmt', 'end-function-stmt', 'end-module-stmt'):
+            #CONTAINS bloc is empty
+            par.remove(contains)
+
 class Cosmetics():
     @copy_doc(upperCase)
     def upperCase(self):
@@ -918,3 +934,7 @@ class Cosmetics():
     @copy_doc(changeIfStatementsInIfConstructs)
     def changeIfStatementsInIfConstructs(self):
         return changeIfStatementsInIfConstructs(doc=self._xml)
+
+    @copy_doc(removeEmptyCONTAINS)
+    def removeEmptyCONTAINS(self, *args, **kwargs):
+        return removeEmptyCONTAINS(doc=self._xml, *args, **kwargs)

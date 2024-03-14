@@ -157,6 +157,8 @@ if __name__ == '__main__':
                             help='Prettify the source code (indentation, spaces...)')
     gCosmetics.add_argument('--minify', default=False, action='store_true',
                             help='Simplify the source code (indentation, spaces...)')
+    gCosmetics.add_argument('--removeEmptyCONTAINS', default=False, action='store_true',
+                            help='Remove useless CONTAINS statements')
     
     #Applications
     gApplications = parser.add_argument_group('Options to apply upper level transformation')
@@ -375,6 +377,7 @@ if __name__ == '__main__':
                 pft.removeEmptyLines()
                 pft.updateSpaces()
                 pft.updateContinuation(align=False, removeALL=True, addBegin=False)
+            if arg == '--removeEmptyCONTAINS': pft.removeEmptyCONTAINS()
     
             #Checks
             if arg == '--checkIMPLICIT': pft.checkImplicitNone(args.checkIMPLICIT == 'Err')

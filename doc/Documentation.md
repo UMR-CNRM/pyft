@@ -166,6 +166,8 @@ surrounded by spaces...
 **\--minify** equivalent to --removeIndent --upperCase --removeEmptyLines --removeComments
 --updateSpaces --removeALLContinuation
 
+**\--removeEmptyCONTAINS** removes CONTAINS statement when the section is empty
+
 ### Checks
 
 **\--checkIMPLICIT=Warn\|Err** if the 'IMPLICIT NONE' statment is missing,
