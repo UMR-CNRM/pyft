@@ -194,8 +194,13 @@ if __name__ == '__main__':
     gApplications.add_argument('--addMPPDB_CHECKS', default=False, action='store_true',
                                help='Add MPPDB_CHEKS bit-repro checking routines of MesoNH for all in and ' + \
                                    'inout arrays in subroutines')
-    gApplications.add_argument('--addACC_data', default=False, action='store_true',
-                               help='Add !$acc data present and !$acc end data directives')
+
+    #openACC
+    gOpenACC = parser.add_argument_group('OpenACC')
+    gOpenACC.add_argument('--addACC_data', default=False, action='store_true',
+                          help='Add !$acc data present and !$acc end data directives')
+    gOpenACC.add_argument('--addACC_routine_seq', default=False, action='store_true',
+                          help='Add "!$acc routine seq" to routines under stopScopes')
    
     #Checks
     gChecks = parser.add_argument_group('Check options')
@@ -342,11 +347,14 @@ if __name__ == '__main__':
             if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(descTree=descTree, **simplify)
             if arg == '--expandAllArrays': pft.removeArraySyntax()
             if arg == '--expandAllArraysPHYEX': pft.expandAllArraysPHYEX()
-            if arg == '--addACC_data': pft.addACC_data()
             if arg == '--removeIJDim': pft.removeIJDim(descTree, args.stopScopes.split('#'),
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
     
+            #OpenACC
+            if arg == '--addACC_data': pft.addACC_data()
+            if arg == '--addACC_routine_seq': pft.addACC_routine_seq(descTree, args.stopScopes.split('#'))
+
             #Cosmetics
             if arg == '--upperCase': pft.upperCase()
             if arg == '--lowerCase': pft.lowerCase()

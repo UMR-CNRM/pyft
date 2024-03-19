@@ -7,4 +7,5 @@ from . import scope
 from . import statements
 from . import tree
 from . import cpp
+from . import openacc
 from .pyft import PYFT

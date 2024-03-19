@@ -10,10 +10,11 @@ from pyft.scope import Scope
 from pyft.statements import Statements
 from pyft.tree import Tree
 from pyft.cpp import Cpp
+from pyft.openacc import Openacc
 from pyft.util import (tostring, tofortran, fortran2xml, set_verbosity, print_infos, PYFTError,
                        cacheParents)
 
-class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp):
+class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Openacc):
     DEFAULT_FXTRAN_OPTIONS = ['-construct-tag', '-no-include', '-no-cpp', '-line-length', '9999']
     MANDATORY_FXTRAN_OPTIONS = ['-construct-tag']
 

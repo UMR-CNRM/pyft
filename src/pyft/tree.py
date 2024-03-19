@@ -409,12 +409,13 @@ def calledByScope(scope, descTree, level=1):
     """
     return _recurList(scope, jsonToDescTree(descTree)['execution_tree'], level, False)
 
-def isUnderStopScopes(scope, descTree, stopScopes, includeInterfaces=False):
+def isUnderStopScopes(scope, descTree, stopScopes, includeInterfaces=False, includeStopScopes=False):
     """
     :param scope: scope to test
     :param descTree: tree description file (obtained by descTree) or its json equivalence
     :param stopScopes: list of scopes
     :param includeInterfaces: if True, interfaces of positive scopes are also positive
+    :param includeInterfaces: if True, scopes that are in stopScopes return True
     :return: True if scope is called directly or indirectly by one of the scope listed in stopScopes
     """
     scopeSplt = scope.split('/')
@@ -423,12 +424,12 @@ def isUnderStopScopes(scope, descTree, stopScopes, includeInterfaces=False):
         scopeI = scopeSplt[-1]
         if scopeI in descTree['execution_tree']:
             #The actual code for the routine exists
-            return isUnderStopScopes(scopeI, descTree, stopScopes)
+            return isUnderStopScopes(scopeI, descTree, stopScopes, includeStopScopes=includeStopScopes)
         else:
             #No code found for this interface
             return False
     upperScopes = calledByScope(scope, descTree, None)
-    return any([scp in upperScopes for scp in stopScopes])
+    return any([scp in upperScopes for scp in stopScopes]) or (includeStopScopes and scope in stopScopes)
 
 @debugDecor
 def plotTree(centralNodeList, descTree, output, plotMaxUpper, plotMaxLower, kind, frame=False):

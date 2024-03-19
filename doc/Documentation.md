@@ -220,6 +220,13 @@ for the "AROME" case
 
 **\--mnhExpandConcurrent** apply the mnh\_expand directives using DO CONCURRENT loops.
 
+### OpenACC
+
+**\--addACC_data** add !$acc data present and !$acc end data directives
+
+**\--addACC_routine_seq** add "!$acc routine seq" to routines called directly or indirectly
+by scopes defined by the --stopScopes option.
+
 ### Preprocessor
 
 **\--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys.
@@ -253,9 +260,8 @@ with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower op
 **\--addArgInTree** Add an argument variable recursively. First argument is the scope (as
 described in [Concepts](#concepts), the second is the variable name, the third is the
 declarative statement to insert, the fourth is the position (python indexing) the new
-variable will have in the calling statment of the routine. The last argument is a
-\#-separated list of scopes where the recursive inclusion of the argument variable
-must stop.
+variable will have in the calling statment of the routine. The recursive inclusion of
+the argument variable stop at the scopes defined by the --stopScopes option.
 
 **\--stopScopes** #-separated list of scopes where the recursive inclusion of an
 argument variable must stop (needed for some transformations)
