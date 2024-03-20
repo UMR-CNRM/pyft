@@ -3,14 +3,15 @@ This module implements functions for high-to-moderate level transformation
 """
 
 import xml.etree.ElementTree as ET
-from pyft.cosmetics import indent 
+import copy
+from pyft.cosmetics import indent, updateContinuation
 from pyft.util import (copy_doc, debugDecor, alltext, getParent, fortran2xml,
-                       getFileName, n2name, isStmt, PYFTError)
+                       getFileName, n2name, isStmt, PYFTError, getSiblings)
 from pyft.statements import (removeCall, setFalseIfStmt,
                              removeArraySyntax, inlineContainedSubroutines, insertStatement)
 from pyft.variables import (removeUnusedLocalVar, getVarList, addVar, addModuleVar,
                             removeVar, modifyAutomaticArrays, findVar, addArrayParentheses,
-                            findIndexArrayBounds, attachArraySpecToEntity)
+                            findIndexArrayBounds, attachArraySpecToEntity,addArrayParenthesesInNode)
 from pyft.scope import getScopesList, getScopePath, getScopeChildNodes
 from pyft.tree import addArgInTree, isUnderStopScopes
 from pyft.expressions import createExpr, createExprPart
@@ -604,12 +605,202 @@ def expandAllArraysPHYEX(doc):
 
     return removeArraySyntax(doc, useMnhExpand=False, loopVar=_loopVarPHYEX, reuseLoop=False, funcList=funcList,
                              updateMemSet=True, updateCopy=True)
+
+def shumanFUNCtoCALL(doc):
+    """
+    Convert all calling of functions and gradient present in shumansGradients table into the use of subroutines
+    and use mnh_expand_directives to handle intermediate computations
+    :param doc: etree to use
+    """
     
-   
+    def FUNCtoROUTINE(doc, scope, stmt, itemFuncN, localShumansCount, zshugradwk):
+       """
+       :param doc: node on which the calling function is present before transformation
+       :param scope: scope of the node on which the function is called
+       :param stmt: statement node (a-stmt or call-stmt) that contains the function(s) to be transformed
+       :param itemFuncN: <n>FUNCTIONNAME</n> node
+       :param localShumansCount : instance of the shumansGradients dictionnary for the given scope 
+                                  (which contains the number of times a function has been called within a transformation)
+       :param zshugradwk: True if the local working variable ZSHUGRADWK was already created once
+       :return zshugradwk
+       :return callStmt: the new CALL to the routines statement
+       :return computeStmt: the a-stmt computation statement if there was an operation in the calling function in stmt
+       """ 
+       # Function name, parent and grandParent
+       parStmt = getParent(doc,stmt) 
+       parItemFuncN = getParent(stmt,itemFuncN)  #<N><n>MZM</N></n>
+       grandparItemFuncN = getParent(stmt,itemFuncN,level=2)  #<named-E><N><n>MZM</N></n> <R-LT><f:parens-R>(<f:element-LT><f:element>....
+       funcName = alltext(itemFuncN)
+       
+       # workingItem = Content of the function
+       indexForCall = list(parStmt).index(stmt)
+       siblsItemFuncN = getSiblings(doc, parItemFuncN, after=True, before=False)
+       workingItem = siblsItemFuncN[0][0][0]
+       # Case where & is present in the working item. We must look for all contents until the last ')'
+       if len(siblsItemFuncN[0][0]) > 1:
+           workingItem = updateContinuation(siblsItemFuncN[0][0], removeALL=True, align=False, addBegin=False)[0] #last [0] is to avoid getting the '( )' from the function
+       
+       # Check if the previous sibling of the stmt is a !mnh_expand_array. 
+       # Example for : ZMZMZKEFF = MXM(ZA + MZM(ZKEFF)) 
+       # The first step of the conversion gives:
+       # !$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
+       # ZSHUGRADWK = ZA + MZM(ZKEFF)   ==> The CALL statement that will be created from the conversion of this line at the second step
+       #                                    must be insterted in indexForCall - 1 (to avoid beeing within a mnh_expand_array)
+       # !$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
+       # !
+       # CALL MXM_PHY(D, ZSHUGRADWK, ZMXM_WORK1)
+       # ZMZMZKEFF = ZMXM_WORK1
+       siblStmt = getSiblings(doc, stmt, after=False, before=True)
+       if 'mnh_expand_array' in alltext(siblStmt[-1]):
+           indexForCall = indexForCall - 1  
+       
+       # Detect if the workingItem contains expressions, if so: create a compute statement embedded by mnh_expand directives
+       opE = workingItem.findall('.//{*}op-E')
+       addArrayParenthesesInNode(doc, workingItem, None, scope)
+       computeStmt = []
+       if len(opE) > 0:
+           workingVarName = 'ZSHUGRADWK'
+           fortranSource = "SUBROUTINE FOO598756\n"+ "!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
+                            workingVarName + " = " + alltext(workingItem) +"\n" + \
+                            "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)" + "\n!" + "\nEND SUBROUTINE"
+           _, cfxtran = fortran2xml(fortranSource)
+           computeStmt = cfxtran.find('.//{*}a-stmt')
+           workingItem = cfxtran.find('.//{*}E-1')
+           commentsExpand = cfxtran.findall('.//{*}C')
+           parStmt.insert(indexForCall, commentsExpand[0])
+           parStmt.insert(indexForCall+1, computeStmt)
+           parStmt.insert(indexForCall+2, commentsExpand[1])
+           parStmt.insert(indexForCall+3, commentsExpand[2]) # This is \n ! empty comment to increase readibility
+           indexForCall+=4
+           zshugradwk = True
+           
+       # Add the new CALL statement
+       workingVar = 'Z' + funcName + '_WORK' + str(localShumansCount[funcName])
+       fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+'_PHY' + "(D, " + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
+       _, cfxtran = fortran2xml(fortranSource)
+       callStmt = cfxtran.find('.//{*}call-stmt')
+       parStmt.insert(indexForCall, callStmt)
+
+       # Remove the function/gradient from the original statement
+       par_ofgrandparItemFuncN = getParent(stmt,grandparItemFuncN)
+       indexWorkingVar = list(par_ofgrandparItemFuncN).index(grandparItemFuncN)
+       savedTail = grandparItemFuncN.tail
+       par_ofgrandparItemFuncN.remove(grandparItemFuncN)
+       
+       # Add the working variable within the original statement
+       xmlWorkingvar = createExprPart(workingVar)
+       xmlWorkingvar.tail = savedTail
+       par_ofgrandparItemFuncN.insert(indexWorkingVar,xmlWorkingvar)
+       
+       return callStmt, computeStmt, zshugradwk
+       
+    shumansGradients = {'MZM':0, 'MXM':0, 'MYM':0, 'MZF':0,'MXF':0,'MYF':0, 
+                        'DZM':0, 'DXM':0, 'DYM':0, 'DZF':0,'DXF':0,'DYF':0,
+                        'GZ_M_W':0, 'GZ_W_M':0, 'GZ_U_UW':0, 'GZ_V_VW':0 }
+    shugradwkToAdd = False
+    locations  = getScopesList(doc,withNodes='tuple')
+    mod_type = locations[0][0].split('/')[-1].split(':')[1][:4]
+    if mod_type == 'MODD':
+        pass
+    else:
+        for loc in locations:
+            if 'sub:' in loc[0] and 'func' not in loc[0] and 'interface' not in loc[0]:
+                    # Init : look for all a-stmt and call-stmt which contains a shuman or gradients function, and save it into a list foundStmtandCalls
+                    foundStmtandCalls,  newWorkingVar, computeStmtforParenthesis = {}, [], []
+                    aStmt = doc.findall('.//{*}a-stmt')
+                    callStmts = doc.findall('.//{*}call-stmt')
+                    aStmtandCallStmts = aStmt + callStmts
+                    for stmt in aStmtandCallStmts:
+                        elemN = stmt.findall('.//{*}n')
+                        for el in elemN:
+                            if alltext(el) in list(shumansGradients.keys()):
+                                if str(stmt) in foundStmtandCalls.keys():
+                                    foundStmtandCalls[str(stmt)][1] += 1
+                                else:
+                                    foundStmtandCalls[str(stmt)] = [stmt, 1]
+                            
+                    for stmt in foundStmtandCalls.keys():
+                        localShumansGradients = copy.deepcopy(shumansGradients)
+                        elemToLookFor = [foundStmtandCalls[stmt][0]]   
+                        
+                        lastMnhExpandAdded = False
+                        if 'call-stmt' in stmt: lastMnhExpandAdded = True # Do not add mnh_expand because it is a call statement
+                        
+                        while len(elemToLookFor) > 0:
+                            for elem in elemToLookFor:
+                                elemN = elem.findall('.//{*}n')
+                                for el in elemN:
+                                    funcName = alltext(el)
+                                    if funcName in list(localShumansGradients.keys()):
+                                        localShumansGradients[funcName] += 1 # Add existing working variable
+                                        
+                                        # To be sure that ending !comments after the statement is not impacting the placement of the last !mnh_expand_array
+                                        if foundStmtandCalls[stmt][0].tail:
+                                            foundStmtandCalls[stmt][0].tail = foundStmtandCalls[stmt][0].tail.replace('\n','') + '\n'
+                                        else:
+                                            foundStmtandCalls[stmt][0].tail = '\n'
+                                        
+                                        newCallStmt, newComputeStmt, shugradwkToAdd = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, shugradwkToAdd)
+                                        elemToLookFor.append(newCallStmt)
+                                        if len(newComputeStmt) > 0: 
+                                            elemToLookFor.append(newComputeStmt)
+                                            computeStmtforParenthesis.append(newComputeStmt)
+                                        
+                                        # Add mnh_expand_array directives to the last computation statement
+                                        if not lastMnhExpandAdded:
+                                            fortranSource = "SUBROUTINE FOO598756\n"+ "\n!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
+                                                "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)" + "\n!" + "\nEND SUBROUTINE"
+                                            _, cfxtran = fortran2xml(fortranSource)
+                                            commentsExpand = cfxtran.findall('.//{*}C')
+                                            parStmt = getParent(doc,foundStmtandCalls[stmt][0])
+                                            indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
+                                            parStmt.insert(indexForCall+2, commentsExpand[2])
+                                            parStmt.insert(indexForCall+1, commentsExpand[1])
+                                            parStmt.insert(indexForCall, commentsExpand[0])
+                                            lastMnhExpandAdded = True
+                                        break
+
+                            # Check in old and new objects if there are still remaining shuman/gradients functions        
+                            elemToLookForNew = []
+                            for i in elemToLookFor:
+                                Ns = i.findall('.//{*}n')
+                                if len(Ns)>0:
+                                    for n in Ns:
+                                        if alltext(n) in list(localShumansGradients.keys()):
+                                            elemToLookForNew.append(i)
+                                            break
+                            elemToLookFor = elemToLookForNew
+                             
+                        # Save working variables name needed             
+                        for f in localShumansGradients.keys():
+                            if localShumansGradients[f] != 0:
+                                workingVarName = 'Z' + f + '_WORK' + str(localShumansGradients[f])
+                                newWorkingVar.append(workingVarName) if workingVarName not in newWorkingVar else newWorkingVar
+                                
+                    # Add new working variables declaration
+                    varList = []
+                    if shugradwkToAdd: newWorkingVar.append('ZSHUGRADWK')
+                    for newVar in reversed(newWorkingVar):
+                        varList.append([loc[0], newVar, 'REAL, DIMENSION(D%NIJT,D%NKT) :: ' + newVar, None])
+                    addVar(doc,varList)
+                    
+                    # Add parenthesis for the last compute statement and all saved intermediate newComputeStmt
+                    for stmt in foundStmtandCalls.keys():
+                        addArrayParenthesesInNode(doc, foundStmtandCalls[stmt][0], None, loc[0])
+                    for stmt in computeStmtforParenthesis:
+                        addArrayParenthesesInNode(doc, stmt, None, loc[0])
+                        
+                        
+                            
+                
 class Applications():
     @copy_doc(addStack)
     def addStack(self, *args, **kwargs):
         return addStack(self._xml, *args, **kwargs)  
+
+    @copy_doc(shumanFUNCtoCALL)
+    def shumanFUNCtoCALL(self, *args, **kwargs):
+        return shumanFUNCtoCALL(self._xml, *args, **kwargs)  
     
     @copy_doc(addMPPDB_CHECKS)
     def addMPPDB_CHECKS(self, *args, **kwargs):

@@ -194,6 +194,8 @@ if __name__ == '__main__':
     gApplications.add_argument('--addMPPDB_CHECKS', default=False, action='store_true',
                                help='Add MPPDB_CHEKS bit-repro checking routines of MesoNH for all in and ' + \
                                    'inout arrays in subroutines')
+    gApplications.add_argument('--shumanFUNCtoCALL', default=False, action='store_true',
+                               help='Transform shuman functions to call statements')
 
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
@@ -350,6 +352,7 @@ if __name__ == '__main__':
             if arg == '--removeIJDim': pft.removeIJDim(descTree, args.stopScopes.split('#'),
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
+            if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
     
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
