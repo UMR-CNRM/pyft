@@ -189,6 +189,8 @@ call statements must be suppressed (it is a scope as described in [Concepts](#co
 
 **\--inlineContainedSubroutines** inline containted subroutines in main routine.
 
+**\--setFalseIfStmt VAR** replace VAR by .FALSE. in if statements.
+
 ### Miscellaneous
 
 **\--showScopes** print the different scopes found in the source code.

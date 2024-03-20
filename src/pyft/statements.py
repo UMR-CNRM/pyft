@@ -123,52 +123,48 @@ def createDoConstruct(loopVariables, indent=0, concurrent=False):
     return inner, outer, 2 if concurrent else 2 * len(loopVariables)
 
 @debugDecor
-def setFalseIfStmt(doc, flags, scopePath, simplify=False):
+def setFalseIfStmt(doc, flags, scopePath=None, simplify=False):
     """
     Set to .FALSE. a given boolean fortran flag before removing the node if simplify is True
     :param doc: xml fragment to use
     :param flags: list of strings of flags to set to .FALSE.
     :param scopePath: scope to explore (None for all). This is a '/'-separated path with each element
-                         having the form 'module:<name of the module>', 'sub:<name of the subroutine>' or
-                         'func:<name of the function>'
+                      having the form 'module:<name of the module>', 'sub:<name of the subroutine>' or
+                      'func:<name of the function>'
     :param simplify: try to simplify code (if the .FALSE. was alone inside a if-then-endif construct,
                      the construct is removed, and variables used in the if condition are also
                      checked)
     """
-    FalseNode = ET.Element('{http://fxtran.net/#syntax}literal-E')
-    FalseNode.text = ' .FALSE. '
-    for flag in flags:
-        flag = flag.upper()
+    if isinstance(flags, str):
+        flags = [flags]
+    flags = [flag.upper() for flag in flags]
     if scopePath is None:
         scopePath = [loc for loc in getScopesList(doc) if loc.split('/')[-1].split(':')[0] != 'type']
-    else:
-        if isinstance(scopePath, str): scopePath = [scopePath]
-    singleFalseBlock,multipleFalseBlock = [], []
+    elif isinstance(scopePath, str):
+        scopePath = [scopePath]
+    singleFalseBlock, multipleFalseBlock = [], []
     for loc in scopePath:
         #Loop on nodes composing the scope
         for node in getScopeChildNodes(doc, getScopeNode(doc, loc)):
-            #Multiple flags conditions
-            Node_opE = node.findall('.//{*}condition-E/{*}op-E')
-            for node_opE in Node_opE:
+            #Loop on condition nodes
+            for cond in node.findall('.//{*}condition-E'):
                 found = False
-                for i,n in enumerate(node_opE):
-                    if n.tag.endswith('}named-E') and alltext(n).upper() in flags:
+                for namedE in node.findall('.//{*}condition-E//{*}named-E'):
+                    if alltext(namedE).upper() in flags:
+                        #This named-E must be replaced by .FALSE.
                         found = True
-                        if i == 0: # Append at first object of parent
-                            node_opE.insert(0,FalseNode)
-                        else:
-                            node_opE.append(FalseNode)
-                        getParent(node_opE,n).remove(n)
+                        namedE.tag = '{http://fxtran.net/#syntax}literal-E'
+                        namedE.text = '.FALSE.'
+                        for item in list(namedE):
+                            namedE.remove(item)
                 if found:
-                    multipleFalseBlock.append(node_opE)
-            #Solo condition
-            Node_namedE = node.findall('.//{*}condition-E/{*}named-E')
-            for n in Node_namedE:
-                if alltext(n).upper() in flags:
-                    par = getParent(node,n)
-                    par.append(FalseNode)
-                    par.remove(n)
-                    singleFalseBlock.append(getParent(node,getParent(node,par))) # <if-block><if-then-stmt>
+                    node_opE = cond.find('./{*}op-E')
+                    if node_opE is not None:
+                        #Multiple flags conditions
+                        multipleFalseBlock.append(node_opE)
+                    else:
+                        #Solo condition
+                        singleFalseBlock.append(getParent(node, getParent(node, cond))) # <if-block><if-then-stmt>
     if simplify:
         removeStmtNode(doc, singleFalseBlock, simplify, simplify)
         evalFalseIfStmt(doc, multipleFalseBlock, simplify)
@@ -1395,3 +1391,6 @@ class Statements():
     def inlineContainedSubroutines(self, *args, **kwargs):
         return inlineContainedSubroutines(self._xml, *args, **kwargs)
 
+    @copy_doc(setFalseIfStmt)
+    def setFalseIfStmt(self, *args, **kwargs):
+        return setFalseIfStmt(self._xml, *args, **kwargs)

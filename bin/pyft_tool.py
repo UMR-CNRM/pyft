@@ -233,6 +233,8 @@ if __name__ == '__main__':
                                  "statements regardless where there are.")
     gStatement.add_argument('--inlineContainedSubroutines', default=False, action='store_true',
                             help='Inline containted subroutines in main routine')
+    gStatement.add_argument('--setFalseIfStmt', default=None,
+                            help='Replace thi value by .FALSE. in if statements')
 
     #Misc
     gMisc = parser.add_argument_group('Miscellaneous')
@@ -399,6 +401,7 @@ if __name__ == '__main__':
                 for rc in args.removeCall: pft.removeCall(rc[1], None if rc[0] == 'ALL' else rc[0], **simplify)
             if arg == '--removePrints':
                 for rp in args.removePrints: pft.removePrints(None if rp == 'ALL' else rp, **simplify)
+            if arg == '--setFalseIfStmt': pft.setFalseIfStmt(args.setFalseIfStmt, **simplify)
     
             #Misc
             if arg == '--showScopes': pft.showScopesList()
