@@ -67,7 +67,7 @@ def deleteBudgetDDH(doc, simplify=False):
 
 def addMPPDB_CHECKS(doc):
     """
-    Add MPPDB_CHEKS on all intent arrays on subroutines. ****** Not applied on modd_ routines. ********
+    Add MPPDB_CHEKS on all intent REAL arrays on subroutines. ****** Not applied on modd_ routines. ********
     Handle optional arguments.
     Example, for a BL89 routine with 4 arguments, 1 INTENT(IN), 2 INTENT(INOUT), 1 INTENT(OUT), it produces :
     IF (MPPDB_INITIALIZED) THEN
@@ -88,12 +88,18 @@ def addMPPDB_CHECKS(doc):
     :param doc: etree to use
     """
     def addMPPDB_CHECK_statement(var, subRoutineName, strMSG='beg:'):
-        ifBeg, ifEnd = '',''
+        ifBeg, ifEnd, addD, addLastDim = '','','',''
+        # Test if the variable is declared with the PHYEX D% structure, in that case, use the PHYEX MPPDB_CHECK interface 
+        if var['as'][0][1]: # If not NoneType
+            if 'D%NIJT' in var['as'][0][1]:
+                addD = 'D,'
+                if len(var['as']) == 2: # This handle 2D arrays with the last dim either D%NKT or anything else.
+                    addLastDim = ', '+var['as'][1][1]
         if var['opt']:
-            ifBeg = "IF (PRESENT("+var['n']+')) THEN\n'
-            ifEnd = "\nEND IF"
+            ifBeg = 'IF (PRESENT('+var['n']+')) THEN\n IF (SIZE('+var['n']+',1) > 0) THEN\n'
+            ifEnd = '\nEND IF\nEND IF'
         argsMPPDB = var['n'] + ", " + "\"" + subRoutineName + " "+strMSG+var['n'] + "\""
-        fortranSource = "SUBROUTINE FOO598756\n "+ifBeg + "CALL MPPDB_CHECK(" + argsMPPDB + ")" + ifEnd + "\nEND SUBROUTINE"
+        fortranSource = "SUBROUTINE FOO598756\n "+ifBeg + "CALL MPPDB_CHECK(" + addD + argsMPPDB + addLastDim + ")" + ifEnd + "\nEND SUBROUTINE"
         _, callMPPDBfxtran = fortran2xml(fortranSource)
         if var['opt']:
             stmt = callMPPDBfxtran.find('.//{*}if-construct')
@@ -118,7 +124,7 @@ def addMPPDB_CHECKS(doc):
                 # Look for all intent arrays only
                 arraysIn, arraysInOut, arraysOut = [], [], []
                 for var in varList:
-                     if var['arg'] and var['as'] and 'TYPE' not in var['t'] and 'CHARACTER' not in var['t'] and 'LOGICAL' not in var['t']:
+                     if var['arg'] and var['as'] and 'TYPE' not in var['t'] and 'REAL' in var['t']:
                          if var['i']=='IN':
                              arraysIn.append(var)
                          if var['i']=='INOUT':
@@ -228,7 +234,7 @@ def addStack(doc, descTree, model, stopScopes, parser=None, parserOptions=None, 
     elif model == 'MESONH':
         for scope in getScopesList(doc):
             #We apply the transformation only if the routine is called from a scope within stopScopes
-            if scope in stopScopes or isUnderStopScopes(scope, descTree, stopScopes):
+            if descTree is None or scope in stopScopes or isUnderStopScopes(scope, descTree, stopScopes):
                 nb = modifyAutomaticArrays(doc,
                             declTemplate="{type}, DIMENSION({doubledotshape}), POINTER, CONTIGUOUS :: {name}",
                             startTemplate="CALL MNH_MEM_GET({name}, {lowUpList})",
