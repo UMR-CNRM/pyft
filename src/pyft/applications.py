@@ -88,20 +88,32 @@ def addMPPDB_CHECKS(doc):
     :param doc: etree to use
     """
     def addMPPDB_CHECK_statement(var, subRoutineName, strMSG='beg:'):
-        ifBeg, ifEnd, addD, addLastDim = '','','',''
+        ifBeg, ifEnd, addD, addLastDim, addSecondDimType = '','','','',''
+        lookForIf = False
         # Test if the variable is declared with the PHYEX D% structure, in that case, use the PHYEX MPPDB_CHECK interface 
         if var['as'][0][1]: # If not NoneType
             if 'D%NIJT' in var['as'][0][1]:
                 addD = 'D,'
                 if len(var['as']) == 2: # This handle 2D arrays with the last dim either D%NKT or anything else.
                     addLastDim = ', '+var['as'][1][1]
+                if len(var['as']) >= 2: # This adds information on the type of the second dimension : is it the vertical one or not, to remove extra points
+                    if 'D%NK' in var['as'][1][1]:
+                        addSecondDimType = ',' + '''"VERTICAL"'''
+                    else:
+                        addSecondDimType = ',' + '''"OTHER"'''
+            if 'MERGE' in var['as'][-1][1]: # e.g. MERGE(D%NKT,0,OCLOUDMODIFLM)
+                keyDimMerge = var['as'][-1][1].split(',')[2][:-1] # e.g. OCLOUDMODIFLM
+                ifBeg = 'IF (' + keyDimMerge + ') THEN\n'
+                ifEnd = '\nEND IF\n'
+                lookForIf = True
         if var['opt']:
-            ifBeg = 'IF (PRESENT('+var['n']+')) THEN\n IF (SIZE('+var['n']+',1) > 0) THEN\n'
-            ifEnd = '\nEND IF\nEND IF'
+            ifBeg = ifBeg + 'IF (PRESENT('+var['n']+')) THEN\n IF (SIZE('+var['n']+',1) > 0) THEN\n'
+            ifEnd = ifEnd + '\nEND IF\nEND IF'
+            lookForIf = True
         argsMPPDB = var['n'] + ", " + "\"" + subRoutineName + " "+strMSG+var['n'] + "\""
-        fortranSource = "SUBROUTINE FOO598756\n "+ifBeg + "CALL MPPDB_CHECK(" + addD + argsMPPDB + addLastDim + ")" + ifEnd + "\nEND SUBROUTINE"
+        fortranSource = "SUBROUTINE FOO598756\n "+ifBeg + "CALL MPPDB_CHECK(" + addD + argsMPPDB + addLastDim + addSecondDimType + ")" + ifEnd + "\nEND SUBROUTINE"
         _, callMPPDBfxtran = fortran2xml(fortranSource)
-        if var['opt']:
+        if lookForIf:
             stmt = callMPPDBfxtran.find('.//{*}if-construct')
         else:
             stmt = callMPPDBfxtran.find('.//{*}call-stmt')
