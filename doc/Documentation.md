@@ -229,6 +229,8 @@ for the "AROME" case
 **\--addACC_routine_seq** add "!$acc routine seq" to routines called directly or indirectly
 by scopes defined by the --stopScopes option.
 
+**\--buildACCTypeHelpers** build module files containing helpers to copy user type structures.
+
 ### Preprocessor
 
 **\--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys.
