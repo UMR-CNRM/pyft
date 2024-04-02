@@ -4,6 +4,7 @@ This module implements functions for high-to-moderate level transformation
 
 import xml.etree.ElementTree as ET
 import copy
+import os
 from pyft.cosmetics import indent, updateContinuation
 from pyft.util import (copy_doc, debugDecor, alltext, getParent, fortran2xml,
                        getFileName, n2name, isStmt, PYFTError, getSiblings)
@@ -806,8 +807,115 @@ def shumanFUNCtoCALL(doc):
                     for stmt in computeStmtforParenthesis:
                         addArrayParenthesesInNode(doc, stmt, None, loc[0])
                         
-                        
-                            
+@debugDecor
+def buildACCTypeHelpers(doc):
+    """
+    build module files containing helpers to copy user type structures
+    :param doc: element tree representing the entire file
+    """
+    for scopeName, scopeNode in getScopesList(doc, withNodes='tuple'):
+        if scopeName.split('/')[-1].split(':')[0] == 'type':
+            typeName = scopeName.split('/')[-1].split(':')[1]
+            filename = os.path.join(os.path.dirname(getFileName(doc)), "modd_util_{t}.F90".format(t=typeName.lower()))
+            varList = getVarList(doc, scopeName)
+            with open(filename, 'w') as f:
+                f.write("""
+MODULE MODD_UTIL_{t}
+USE {m}, ONLY: {t}
+CONTAINS
+SUBROUTINE COPY_{t} (YD, LDCREATED)""".format(t=typeName, m=scopeName.split('/')[-2].split(':')[1]))
+
+                for var in varList:
+                    if 'TYPE(' in var['t'].replace(' ', '').upper():
+                        f.write("""
+USE MODD_UTIL_{t}""".format(t=var['t'].replace(' ', '')[5:-1]))
+
+                f.write("""
+IMPLICIT NONE
+TYPE ({t}), INTENT(IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT(IN) :: LDCREATED
+INTEGER :: I
+LOGICAL :: LLCREATED 
+LLCREATED = .FALSE.
+IF (PRESENT (LDCREATED)) THEN
+  LLCREATED = LDCREATED
+ENDIF
+IF (.NOT. LLCREATED) THEN
+  !$acc enter data create (YD)
+  !$acc update device (YD)
+ENDIF""".format(t=typeName))
+
+                for var in varList:
+                    if var['allocatable']:
+                        f.write("""
+IF (ALLOCATED (YD%{v})) THEN
+  !$acc enter data create (YD%{v})
+  !$acc update device (YD%{v})
+  !$acc enter data attach (YD%{v})
+ENDIF""".format(v=var['n']))
+                    if 'TYPE(' in var['t'].replace(' ', '').upper():
+                        if var['as'] is not None and len(var['as']) != 0:
+                            indexes = ['LBOUND(YD%{v}, 1) + I - 1'.format(v=var['n'])]
+                            for i in range(len(var['as']) - 1):
+                                indexes.append('LBOUND(YD%{v}, {i})'.format(v=var['n'], i=str(i + 2)))
+                            f.write("""
+DO I=1, SIZE(YD%{v})
+  CALL COPY_{t}(YD%{v}({i}), LDCREATED=.TRUE.)
+ENDDO""".format(v=var['n'], t=var['t'].replace(' ', '')[5:-1], i=', '.join(indexes)))
+                        else:
+                            f.write("""
+CALL COPY_{t}(YD%{v}, LDCREATED=.TRUE.)""".format(v=var['n'], t=var['t'].replace(' ', '')[5:-1]))
+
+                f.write("""
+END SUBROUTINE COPY_{t}
+
+SUBROUTINE WIPE_{t} (YD, LDDELETED)""".format(t=typeName))
+
+                for var in varList:
+                    if 'TYPE(' in var['t'].replace(' ', '').upper():
+                        f.write("""
+USE MODD_UTIL_{t}""".format(t=var['t'].replace(' ', '')[5:-1]))
+
+                f.write("""
+IMPLICIT NONE
+TYPE ({t}), INTENT(IN), TARGET :: YD
+LOGICAL, OPTIONAL, INTENT(IN) :: LDDELETED
+INTEGER :: I
+LOGICAL :: LLDELETED
+LLDELETED = .FALSE.
+IF (PRESENT (LDDELETED)) THEN
+  LLDELETED = LDDELETED
+ENDIF""".format(t=typeName))
+
+                for var in varList:
+                    if 'TYPE(' in var['t'].replace(' ', '').upper():
+                        if var['as'] is not None and len(var['as']) != 0:
+                            indexes = ['LBOUND(YD%{v}, 1) + I - 1'.format(v=var['n'])]
+                            for i in range(len(var['as']) - 1):
+                                indexes.append('LBOUND(YD%{v}, {i})'.format(v=var['n'], i=str(i + 2)))
+                            f.write("""
+DO I=1, SIZE(YD%{v})
+  CALL WIPE_{t}(YD%{v}({i}), LDDELETED=.TRUE.)
+ENDDO""".format(v=var['n'], t=var['t'].replace(' ', '')[5:-1], i=', '.join(indexes)))
+                        else:
+                            f.write("""
+CALL WIPE_{t}(YD%{v}, LDDELETED=.TRUE.)""".format(v=var['n'], t=var['t'].replace(' ', '')[5:-1]))
+                    if var['allocatable']:
+                        f.write("""
+IF (ALLOCATED (YD%{v})) THEN
+  !$acc exit data detach (YD%{v})
+  !$acc exit data delete (YD%{v})
+ENDIF""".format(v=var['n']))
+
+                f.write("""
+IF (.NOT. LLDELETED) THEN
+  !$acc exit data delete (YD)
+ENDIF
+END SUBROUTINE WIPE_{t}
+
+END MODULE MODD_UTIL_{t}""".format(t=typeName))
+
+
                 
 class Applications():
     @copy_doc(addStack)
@@ -849,3 +957,7 @@ class Applications():
     @copy_doc(expandAllArraysPHYEX)
     def expandAllArraysPHYEX(self, *args, **kwargs):
         return expandAllArraysPHYEX(self._xml, *args, **kwargs)
+
+    @copy_doc(buildACCTypeHelpers)
+    def buildACCTypeHelpers(self, *args, **kwargs):
+        return buildACCTypeHelpers(self._xml, *args, **kwargs)

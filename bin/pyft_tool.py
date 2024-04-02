@@ -196,6 +196,8 @@ if __name__ == '__main__':
                                    'inout arrays in subroutines')
     gApplications.add_argument('--shumanFUNCtoCALL', default=False, action='store_true',
                                help='Transform shuman functions to call statements')
+    gApplications.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
+                               help='build module files containing helpers to copy user type structures')
 
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
@@ -355,6 +357,7 @@ if __name__ == '__main__':
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
             if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
+            if arg == '--buildACCTypeHelpers': pft.buildACCTypeHelpers()
     
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
