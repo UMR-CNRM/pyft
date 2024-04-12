@@ -597,10 +597,11 @@ def _loopVarPHYEX(lower_decl, upper_decl, lower_used, upper_used, name, i):
         varName = False
     return varName
 
-def expandAllArraysPHYEX(doc):
+def expandAllArraysPHYEX(doc, concurrent=False):
     """
     Transform array syntax into DO loops
     :param doc: etree to use
+    :param concurrent: use 'DO CONCURRENT' instead of simple 'DO' loops
     """
 
     #For simplicity, all functions (not only array functions) have been searched in the PHYEX source code
@@ -620,7 +621,7 @@ def expandAllArraysPHYEX(doc):
                 'SM_FOES_2D', 'SM_FOES_2D_MASK', 'SM_FOES_3D', 'SM_PMR_HU_1D', 'SM_PMR_HU_3D',
                 'TIWMX_TAB', 'TO_UPPER', 'ZRIDDR', 'GAMMLN', 'COUNTJV2D', 'COUNTJV3D', 'UPCASE']
 
-    return removeArraySyntax(doc, useMnhExpand=False, loopVar=_loopVarPHYEX, reuseLoop=False, funcList=funcList,
+    return removeArraySyntax(doc, concurrent=concurrent, useMnhExpand=False, loopVar=_loopVarPHYEX, reuseLoop=False, funcList=funcList,
                              updateMemSet=True, updateCopy=True)
 
 def shumanFUNCtoCALL(doc):

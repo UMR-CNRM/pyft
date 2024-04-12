@@ -175,9 +175,15 @@ if __name__ == '__main__':
     gApplications.add_argument('--expandAllArraysPHYEX', default=False, action='store_true',
                                help='Expand all array syntax (computing and where block) ' + \
                                'using PHYEX conventions')
+    gApplications.add_argument('--expandAllArraysPHYEXConcurrent', default=False, action='store_true',
+                               help='Expand all array syntax with DO CONCURRENT loops (computing and where block) ' + \
+                               'using PHYEX conventions')
     gApplications.add_argument('--expandAllArrays', default=False, action='store_true',
                                help='Expand all array syntax (computing and where block) ' + \
                                     'using mnh directives if present')
+    gApplications.add_argument('--expandAllArraysConcurrent', default=False, action='store_true',
+                               help='Expand all array syntax with DO CONCURRENT loops (computing and where block) ' + \
+                                    'using mnh directives if present')   
     gApplications.add_argument('--inlineContainedSubroutinesPHYEX', default=False, action='store_true',
                                help='Inline containted subroutines in main routine, using ' + \
                                     'PHYEX conventions')
@@ -352,7 +358,9 @@ if __name__ == '__main__':
             if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(descTree=descTree, **simplify)
             if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(descTree=descTree, **simplify)
             if arg == '--expandAllArrays': pft.removeArraySyntax()
+            if arg == '--expandAllArraysConcurrent': pft.removeArraySyntax(concurrent=True)
             if arg == '--expandAllArraysPHYEX': pft.expandAllArraysPHYEX()
+            if arg == '--expandAllArraysPHYEXConcurrent': pft.expandAllArraysPHYEX(concurrent=True)
             if arg == '--removeIJDim': pft.removeIJDim(descTree, args.stopScopes.split('#'),
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
