@@ -1261,25 +1261,25 @@ def inline(doc, subContained, callStmt, mainScope, subScope, varList, descTree, 
                                 offset += '-' + desc_sub[0]
 
                         #2 Update index with the offset and add indexes instead of ':'
-                        if sl.tag.split('}')[1] == 'element' or \
-                           (sl.tag.split('}')[1] == 'section-subscript' and not ':' in alltext(sl)):
-                            #Z(I) or last index of Z(:, I)
-                            bounds = sl
-                        else:
-                            low = sl.find('./{*}lower-bound')
-                            if low is None:
-                                low = ET.Element('{http://fxtran.net/#syntax}lower-bound')
-                                low.append(createExprPart(desc_sub[0]))
-                                low.tail = sl.text #':'
-                                sl.text = None
-                                sl.insert(0, low)
-                            up = sl.find('./{*}upper-bound')
-                            if up is None:
-                                up = ET.Element('{http://fxtran.net/#syntax}upper-bound')
-                                up.append(createExprPart(desc_sub[1]))
-                                sl.append(up)
-                            bounds = [low, up]
                         if offset != 0:
+                            if sl.tag.split('}')[1] == 'element' or \
+                               (sl.tag.split('}')[1] == 'section-subscript' and not ':' in alltext(sl)):
+                                #Z(I) or last index of Z(:, I)
+                                bounds = sl
+                            else:
+                                low = sl.find('./{*}lower-bound')
+                                if low is None:
+                                    low = ET.Element('{http://fxtran.net/#syntax}lower-bound')
+                                    low.append(createExprPart(desc_sub[0]))
+                                    low.tail = sl.text #':'
+                                    sl.text = None
+                                    sl.insert(0, low)
+                                up = sl.find('./{*}upper-bound')
+                                if up is None:
+                                    up = ET.Element('{http://fxtran.net/#syntax}upper-bound')
+                                    up.append(createExprPart(desc_sub[1]))
+                                    sl.append(up)
+                                bounds = [low, up]
                             for bound in bounds:
                                 #bound[-1] is a named-E, literal-E, op-E...
                                 if bound[-1].tail is None: bound[-1].tail = ''
