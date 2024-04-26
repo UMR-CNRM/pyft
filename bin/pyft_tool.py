@@ -220,6 +220,8 @@ if __name__ == '__main__':
     gChecks.add_argument('--checkINTENT', choices={'Warn', 'Err'}, default=None,
                          help='Send a warning or raise an error if the "INTENT" ' + \
                               'attribute is missing for a dummy argument')
+    gChecks.add_argument('--checkOpInCall', choices={'Warn', 'Err'}, default=None,
+                         help='Send a warning or raise an error if a call argument is an operation.')
 
     #Statements
     gStatement = parser.add_argument_group('Statements options')
@@ -406,6 +408,7 @@ if __name__ == '__main__':
             #Checks
             if arg == '--checkIMPLICIT': pft.checkImplicitNone(args.checkIMPLICIT == 'Err')
             if arg == '--checkINTENT': pft.checkIntent(args.checkINTENT == 'Err')
+            if arg == '--checkOpInCall': pft.checkOpInCall(args.checkOpInCall == 'Err')
     
             #Statements
             if arg == '--removeCall':

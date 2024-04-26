@@ -1374,6 +1374,23 @@ def insertStatement(doc, scope, stmt, first):
         scope[index - 1].tail += '\n'
     scope.insert(index, stmt)
 
+@debugDecor
+def checkOpInCall(doc, mustRaise=False): 
+    """
+    :param doc: xml fragment to use
+    :param mustRaise: True to raise
+    Issue a logging.warning if some call arguments are operations
+    If mustRaise is True, issue a logging.error instead and raise an error
+    """
+    ok = True
+    l = logging.error if mustRaise else logging.warn
+    for arg in doc.findall('.//{*}call-stmt/{*}arg-spec/{*}arg/{*}op-E'):
+        l("The call argument {} is an operation, in file '{}'".format(alltext(arg).replace('\n', ' \\n '), getFileName(doc)))
+        ok = False
+    if not ok and mustRaise:
+        raise PYFTError("There are call arguments which are operations in file '{}'".format(getFileName(doc)))
+
+
 class Statements():
     @copy_doc(removeCall)
     def removeCall(self, *args, **kwargs):
@@ -1394,3 +1411,7 @@ class Statements():
     @copy_doc(setFalseIfStmt)
     def setFalseIfStmt(self, *args, **kwargs):
         return setFalseIfStmt(self._xml, *args, **kwargs)
+
+    @copy_doc(checkOpInCall)
+    def checkOpInCall(self, *args, **kwargs):
+        return checkOpInCall(self._xml, *args, **kwargs)

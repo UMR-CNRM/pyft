@@ -178,6 +178,9 @@ raise an exception.
 dummy argument, issue a warning if option is 'Warn'; otherwise issue
 an error message and raise an exception.
 
+**\--checkOpInCall=Warn\|Err** if a call argument is an operation, issue a warning
+if option is 'Warn'; otherwise issue an error message and raise an exception.
+
 ### Dealing with statements
 
 **\--removeCall WHERE CALLNAME** removes call statements. The first argument describes from where the
