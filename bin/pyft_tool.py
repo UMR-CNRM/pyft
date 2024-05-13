@@ -204,7 +204,8 @@ if __name__ == '__main__':
                                help='Transform shuman functions to call statements')
     gApplications.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
                                help='build module files containing helpers to copy user type structures')
-
+    gApplications.add_argument('--mathFunctoBRFunc', default=False, action='store_true',
+                               help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP, COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.')
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
     gOpenACC.add_argument('--addACC_data', default=False, action='store_true',
@@ -368,7 +369,8 @@ if __name__ == '__main__':
                                                        wrapH=args.wrapH, **simplify)
             if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
             if arg == '--buildACCTypeHelpers': pft.buildACCTypeHelpers()
-    
+            if arg == '--mathFunctoBRFunc': pft.mathFunctoBRFunc()
+
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
             if arg == '--addACC_routine_seq': pft.addACC_routine_seq(descTree, args.stopScopes.split('#'))

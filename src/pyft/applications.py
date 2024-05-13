@@ -7,7 +7,7 @@ import copy
 import os
 from pyft.cosmetics import indent, updateContinuation
 from pyft.util import (copy_doc, debugDecor, alltext, getParent, fortran2xml,
-                       getFileName, n2name, isStmt, PYFTError, getSiblings)
+                       getFileName, n2name, isStmt, PYFTError, getSiblings, tostring)
 from pyft.statements import (removeCall, setFalseIfStmt,
                              removeArraySyntax, inlineContainedSubroutines, insertStatement)
 from pyft.variables import (removeUnusedLocalVar, getVarList, addVar, addModuleVar,
@@ -67,6 +67,7 @@ def deleteBudgetDDH(doc, simplify=False):
     setFalseIfStmt(doc,flag_torm, None, simplify=simplify)
 
 def addMPPDB_CHECKS(doc):
+
     """
     Add MPPDB_CHEKS on all intent REAL arrays on subroutines. ****** Not applied on modd_ routines. ********
     Handle optional arguments.
@@ -534,7 +535,6 @@ def removeIJDim(doc, descTree, stopScopes, parser=None, parserOptions=None, wrap
                 if findVar(doc, loopIndex, scopeName, varList=varList, exactScope=True) is None:
                     addVar(doc, [[scopeName, loopIndex, 'INTEGER :: ' + loopIndex, None]])
 
-
 @debugDecor
 def removePHYEXUnusedLocalVar(doc, scopePath=None, excludeList=None, simplify=False):
     """
@@ -556,7 +556,6 @@ def removePHYEXUnusedLocalVar(doc, scopePath=None, excludeList=None, simplify=Fa
             elems = node.text.split('(')[1].split(')')[0].split(',')
             excludeList.extend([v.strip().upper() for v in [e.split('=')[0] for e in elems]])
     return removeUnusedLocalVar(doc, scopePath=scopePath, excludeList=excludeList, simplify=simplify)
-
 
 def _loopVarPHYEX(lower_decl, upper_decl, lower_used, upper_used, name, i):
     """
@@ -624,6 +623,114 @@ def expandAllArraysPHYEX(doc, concurrent=False):
     return removeArraySyntax(doc, concurrent=concurrent, useMnhExpand=False, loopVar=_loopVarPHYEX, reuseLoop=False, funcList=funcList,
                              updateMemSet=True, updateCopy=True)
 
+def mathFunctoBRFunc(doc):
+    """
+    Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP, COS, SIN, ATAN2 into a self defined function BR_ for MesoNH CPU/GPU bit-reproductibility
+    :param doc: etree to use
+    """
+    # Power integer allowed for BR_Pn and functions converted (from modi_bitrep.f90)
+    powerBR_list = [2, 3, 4]
+    mathBR_list = ['LOG', 'EXP', 'COS', 'SIN', 'ASIN', 'ATAN', 'ATAN2']
+    
+    locations  = getScopesList(doc,withNodes='tuple')
+    for loc in locations:            
+        # 1/2 Look for all operations and seek for power **
+        #<f:op-E>
+    	#  ... ==> leftOfPow
+    	#  <f:op>
+    	#	 <f:o>**</f:o>
+    	#  </f:op>
+    	#  ... ==> rightOfPow
+        #</f:op-E>
+        for opo in loc[1].findall('.//{*}o'):
+            if alltext(opo) == '**':
+                op = getParent(loc[1],opo)
+                opE = getParent(loc[1], opo, level=2)
+                tailOpE = opE.tail
+                parOfopE = getParent(loc[1], opo, level=3)
+                index =  list(parOfopE).index(opE) # Save the position of the opE that will be converted
+                
+                # Get the next/previous object after/before the ** operator which are the siblings of the parent of <f:o>*</f:o>
+                rightOfPow = getSiblings(loc[1], op, after=True, before=False)[0]
+                leftOfPow = getSiblings(loc[1], op, after=False, before=True)[0]
+                
+                # Prepare the object that will contain the left and right of Pow
+                RLT = ET.Element('{http://fxtran.net/#syntax}R-LT')
+                parensR = ET.Element('{http://fxtran.net/#syntax}parens-R')
+                parensR.text = '('
+                parensR.tail = ')'
+                elementLT = ET.Element('{http://fxtran.net/#syntax}element-LT')
+                
+                # Regarding the right part of pow(), build a new node expression :
+                #  If it is a number and check only for 2, 3 and 4 (e.g. A**2, B**3, D**4 etc)
+                if 'literal-E' in rightOfPow.tag:
+                    powerNumber = int(alltext(rightOfPow).replace('.','')) # handle '2.' and '2.0'
+                    if powerNumber in powerBR_list:
+                        #<f:named-E>
+            	        #  <f:N>
+            		    #    <f:n>BR_Pn</f:n>
+            	        #  </f:N>
+            	        #  <f:R-LT>
+            		    #    <f:parens-R>(
+            			#      <f:element-LT>
+            			#	    <f:element>
+            			#		... ==> leftOfPow
+            			#	    </f:element>,
+            			#      </f:element-LT>
+            		    #    </f:parens-R>)
+            	        #  </f:R-LT>
+                        #</f:named-E>
+                        BRP = createExprPart('BR_P' + str(powerNumber))
+                        element = ET.Element('{http://fxtran.net/#syntax}element')
+                        element.append(leftOfPow)
+                        elementLT.append(element)
+                # If the right part of pow() is not a number OR it is a number except 2, 3 or 4 (powerBR_list)
+                if 'literal-E' not in rightOfPow.tag or ('literal-E' in rightOfPow.tag and int(alltext(rightOfPow).replace('.','')) not in powerBR_list):
+                    #<f:named-E>
+        	        #  <f:N>
+        		    #    <f:n>BR_POW</f:n>   or <f:n>BR_Pn</f:n>
+        	        #  </f:N>
+        	        #  <f:R-LT>
+        		    #    <f:parens-R>(
+        			#      <f:element-LT>
+        			#	    <f:element>
+        			#		... ==> leftOfPow
+        			#	    </f:element>,
+        			#	      <f:element>
+        			#		  ... ==> rightOfPow
+        			#	     </f:element>
+        			#      </f:element-LT>
+        		    #    </f:parens-R>)
+        	        #  </f:R-LT>
+                    #</f:named-E>
+                    BRP = createExprPart('BR_POW')
+                    leftElement = ET.Element('{http://fxtran.net/#syntax}element')
+                    leftElement.append(leftOfPow)
+                    leftElement.tail = ','
+                    rightElement = ET.Element('{http://fxtran.net/#syntax}element')
+                    rightElement.append(rightOfPow)
+                    elementLT.append(leftElement)
+                    elementLT.append(rightElement)
+                
+                # Insert the RLT object as a sibling of the BR_ object, e.g. instead of the old object
+                parensR.append(elementLT)
+                RLT.append(parensR)
+                BRP.insert(1,RLT)
+                BRP.tail = tailOpE
+                parOfopE.remove(opE)
+                parOfopE.insert(index,BRP)
+                
+                # Add necessary module in the current scope
+                addModuleVar(doc, [(loc[0], 'MODI_BITREP', None)])
+
+        # 2/2 Look for all specific functions LOG, ATAN, EXP,etc
+        for n in loc[1].findall('.//{*}named-E/{*}N/{*}n'):
+            if alltext(n).upper() in mathBR_list:
+                n.text = 'BR_'+n.text
+                # Add necessary module in the current scope
+                addModuleVar(doc, [(loc[0], 'MODI_BITREP', None)])
+            
+ 
 def shumanFUNCtoCALL(doc):
     """
     Convert all calling of functions and gradient present in shumansGradients table into the use of subroutines
@@ -962,3 +1069,7 @@ class Applications():
     @copy_doc(buildACCTypeHelpers)
     def buildACCTypeHelpers(self, *args, **kwargs):
         return buildACCTypeHelpers(self._xml, *args, **kwargs)
+    
+    @copy_doc(mathFunctoBRFunc)
+    def mathFunctoBRFunc(self, *args, **kwargs):
+        return mathFunctoBRFunc(self._xml, *args, **kwargs)
