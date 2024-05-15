@@ -738,7 +738,7 @@ def shumanFUNCtoCALL(doc):
     :param doc: etree to use
     """
     
-    def FUNCtoROUTINE(doc, scope, stmt, itemFuncN, localShumansCount, zshugradwk):
+    def FUNCtoROUTINE(doc, scope, stmt, itemFuncN, localShumansCount, zshugradwk, inComputeStmt, nbzshugradwk):
        """
        :param doc: node on which the calling function is present before transformation
        :param scope: scope of the node on which the function is called
@@ -759,44 +759,53 @@ def shumanFUNCtoCALL(doc):
        
        # workingItem = Content of the function
        indexForCall = list(parStmt).index(stmt)
+       if inComputeStmt: indexForCall -=2 # 2 index, one for !$mnh_expand and one for !$acc kernels added at the previous call to FUNCtoROUTINE
        siblsItemFuncN = getSiblings(doc, parItemFuncN, after=True, before=False)
        workingItem = siblsItemFuncN[0][0][0]
        # Case where & is present in the working item. We must look for all contents until the last ')'
        if len(siblsItemFuncN[0][0]) > 1:
            workingItem = updateContinuation(siblsItemFuncN[0][0], removeALL=True, align=False, addBegin=False)[0] #last [0] is to avoid getting the '( )' from the function
        
-       # Check if the previous sibling of the stmt is a !mnh_expand_array. 
-       # Example for : ZMZMZKEFF = MXM(ZA + MZM(ZKEFF)) 
-       # The first step of the conversion gives:
-       # !$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
-       # ZSHUGRADWK = ZA + MZM(ZKEFF)   ==> The CALL statement that will be created from the conversion of this line at the second step
-       #                                    must be insterted in indexForCall - 1 (to avoid beeing within a mnh_expand_array)
-       # !$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
-       # !
-       # CALL MXM_PHY(D, ZSHUGRADWK, ZMXM_WORK1)
-       # ZMZMZKEFF = ZMXM_WORK1
-       siblStmt = getSiblings(doc, stmt, after=False, before=True)
-       if 'mnh_expand_array' in alltext(siblStmt[-1]):
-           indexForCall = indexForCall - 1  
-       
        # Detect if the workingItem contains expressions, if so: create a compute statement embedded by mnh_expand directives
        opE = workingItem.findall('.//{*}op-E')
        addArrayParenthesesInNode(doc, workingItem, None, scope)
        computeStmt = []
        if len(opE) > 0:
-           workingVarName = 'ZSHUGRADWK'
-           fortranSource = "SUBROUTINE FOO598756\n"+ "!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
+           workingVarName = 'ZSHUGRADWK'+str(nbzshugradwk)
+           nbzshugradwk+=1
+           fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
                             workingVarName + " = " + alltext(workingItem) +"\n" + \
-                            "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)" + "\n!" + "\nEND SUBROUTINE"
+                            "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
            _, cfxtran = fortran2xml(fortranSource)
            computeStmt = cfxtran.find('.//{*}a-stmt')
            workingItem = cfxtran.find('.//{*}E-1')
            commentsExpand = cfxtran.findall('.//{*}C')
+           
+           # Position of the compute statement
+           # Check if the previous sibling of the stmt is a !$mnh_expand_array or an !$acc kernel 
+           # Example for : ZMZMZKEFF = MXM(ZA + MZM(ZKEFF)) 
+           # The first step of the conversion gives:
+           # !$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
+           # ZSHUGRADWK = ZA + MZM(ZKEFF)   ==> The CALL statement that will be created from the conversion of this line at the second iteration
+           #                                    - must be insterted in indexForCall - 1 (to avoid beeing within a mnh_expand_array)
+           #                                    - must be insterted in indexForCall - 2 (to avoid beeing within a mnh_expand_array with acc kernels)
+           # !$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
+           # !
+           # CALL MXM_PHY(D, ZSHUGRADWK, ZMXM_WORK1)
+           # ZMZMZKEFF = ZMXM_WORK1
+           siblStmt = getSiblings(doc, stmt, after=False, before=True)
+           if len(siblStmt)>0 and 'mnh_expand_array' in alltext(siblStmt[-1]):
+               indexForCall = indexForCall - 1  
+           elif len(siblStmt)>1 and 'acc kernel' in alltext(siblStmt[-2]):
+               indexForCall = indexForCall - 2
+       
            parStmt.insert(indexForCall, commentsExpand[0])
-           parStmt.insert(indexForCall+1, computeStmt)
-           parStmt.insert(indexForCall+2, commentsExpand[1])
-           parStmt.insert(indexForCall+3, commentsExpand[2]) # This is \n ! empty comment to increase readibility
-           indexForCall+=4
+           parStmt.insert(indexForCall+1, commentsExpand[1])
+           parStmt.insert(indexForCall+2, computeStmt)
+           parStmt.insert(indexForCall+3, commentsExpand[2])
+           parStmt.insert(indexForCall+4, commentsExpand[3])
+           parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+           indexForCall+=6
            zshugradwk = True
            
        # Add the new CALL statement
@@ -817,7 +826,7 @@ def shumanFUNCtoCALL(doc):
        xmlWorkingvar.tail = savedTail
        par_ofgrandparItemFuncN.insert(indexWorkingVar,xmlWorkingvar)
        
-       return callStmt, computeStmt, zshugradwk
+       return callStmt, computeStmt, zshugradwk, nbzshugradwk
        
     shumansGradients = {'MZM':0, 'MXM':0, 'MYM':0, 'MZF':0,'MXF':0,'MYF':0, 
                         'DZM':0, 'DXM':0, 'DYM':0, 'DZF':0,'DXF':0,'DYF':0,
@@ -843,15 +852,15 @@ def shumanFUNCtoCALL(doc):
                                     foundStmtandCalls[str(stmt)][1] += 1
                                 else:
                                     foundStmtandCalls[str(stmt)] = [stmt, 1]
-                            
+                    
+                    # For each a-stmt and call-stmt containing at least 1 shuman/gradient function
                     for stmt in foundStmtandCalls.keys():
                         localShumansGradients = copy.deepcopy(shumansGradients)
                         elemToLookFor = [foundStmtandCalls[stmt][0]]   
-                        
-                        lastMnhExpandAdded = False
-                        if 'call-stmt' in stmt: lastMnhExpandAdded = True # Do not add mnh_expand because it is a call statement
-                        
+                        previousComputeStmt = []
+                        maxnb_zshugradwk = 1
                         while len(elemToLookFor) > 0:
+                            nbzshugradwk = 1 
                             for elem in elemToLookFor:
                                 elemN = elem.findall('.//{*}n')
                                 for el in elemN:
@@ -865,26 +874,13 @@ def shumanFUNCtoCALL(doc):
                                         else:
                                             foundStmtandCalls[stmt][0].tail = '\n'
                                         
-                                        newCallStmt, newComputeStmt, shugradwkToAdd = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, shugradwkToAdd)
+                                        newCallStmt, newComputeStmt, shugradwkToAdd, nbzshugradwk = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, shugradwkToAdd, elem in previousComputeStmt, nbzshugradwk)
                                         elemToLookFor.append(newCallStmt)
                                         if len(newComputeStmt) > 0: 
                                             elemToLookFor.append(newComputeStmt)
                                             computeStmtforParenthesis.append(newComputeStmt)
-                                        
-                                        # Add mnh_expand_array directives to the last computation statement
-                                        if not lastMnhExpandAdded:
-                                            fortranSource = "SUBROUTINE FOO598756\n"+ "\n!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
-                                                "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)" + "\n!" + "\nEND SUBROUTINE"
-                                            _, cfxtran = fortran2xml(fortranSource)
-                                            commentsExpand = cfxtran.findall('.//{*}C')
-                                            parStmt = getParent(doc,foundStmtandCalls[stmt][0])
-                                            indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
-                                            parStmt.insert(indexForCall+2, commentsExpand[2])
-                                            parStmt.insert(indexForCall+1, commentsExpand[1])
-                                            parStmt.insert(indexForCall, commentsExpand[0])
-                                            lastMnhExpandAdded = True
+                                            previousComputeStmt.append(newComputeStmt) # Allow to save that this newComputeStmt comes with 2 extra lines before and after (mnh_expand and acc directives)
                                         break
-
                             # Check in old and new objects if there are still remaining shuman/gradients functions        
                             elemToLookForNew = []
                             for i in elemToLookFor:
@@ -895,8 +891,10 @@ def shumanFUNCtoCALL(doc):
                                             elemToLookForNew.append(i)
                                             break
                             elemToLookFor = elemToLookForNew
-                             
-                        # Save working variables name needed             
+                            # Save the maximum number of necessary intermediate computing variables ZSHUGRADWK
+                            if nbzshugradwk > maxnb_zshugradwk: maxnb_zshugradwk = nbzshugradwk
+                            
+                        # Save shuman-working variables name needed             
                         for f in localShumansGradients.keys():
                             if localShumansGradients[f] != 0:
                                 workingVarName = 'Z' + f + '_WORK' + str(localShumansGradients[f])
@@ -904,14 +902,31 @@ def shumanFUNCtoCALL(doc):
                                 
                     # Add new working variables declaration
                     varList = []
-                    if shugradwkToAdd: newWorkingVar.append('ZSHUGRADWK')
+                    if shugradwkToAdd: 
+                        for i in range(maxnb_zshugradwk+1):
+                            newWorkingVar.append('ZSHUGRADWK'+str(i+1))
                     for newVar in reversed(newWorkingVar):
                         varList.append([loc[0], newVar, 'REAL, DIMENSION(D%NIJT,D%NKT) :: ' + newVar, None])
                     addVar(doc,varList)
                     
-                    # Add parenthesis for the last compute statement and all saved intermediate newComputeStmt
+                    # For the last compute statement
                     for stmt in foundStmtandCalls.keys():
+                        # Add parenthesis around all variables
                         addArrayParenthesesInNode(doc, foundStmtandCalls[stmt][0], None, loc[0])
+                        # And add mnh_expand and acc kernels if not call statement
+                        if 'call-stmt' not in foundStmtandCalls[stmt][0].tag:
+                            fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n" + \
+                            "!$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
+                            _, cfxtran = fortran2xml(fortranSource)
+                            commentsExpand = cfxtran.findall('.//{*}C')
+                            parStmt = getParent(doc,foundStmtandCalls[stmt][0])
+                            indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
+                            parStmt.insert(indexForCall, commentsExpand[0])
+                            parStmt.insert(indexForCall+1, commentsExpand[1])
+                            parStmt.insert(indexForCall+3, commentsExpand[2])
+                            parStmt.insert(indexForCall+4, commentsExpand[3])
+                            parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+                    # For all saved intermediate newComputeStmt, add parenthesis around all variables
                     for stmt in computeStmtforParenthesis:
                         addArrayParenthesesInNode(doc, stmt, None, loc[0])
                         
