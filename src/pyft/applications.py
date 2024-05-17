@@ -237,14 +237,26 @@ def addStack(doc, descTree, model, stopScopes, parser=None, parserOptions=None, 
                 #__FILE__ and __LINE__ because it breaks future reading with fxtran
                 nb = modifyAutomaticArrays(doc,
                             declTemplate="{type}, DIMENSION({shape}) :: {name}; POINTER(IP_{name}_, {name})",
-                            startTemplate="IP_{name}_=YDSTACK%L;YDSTACK%L=YDSTACK%L+CEILING(KIND({name})*SIZE({name})/8.)*8;IF(YDSTACK%L>YDSTACK%U)CALL SOF('" + getFileName(doc) + ":{name}', 0)",
+                            startTemplate="IP_{name}_=YLSTACK%L(KIND({name})/4);YLSTACK%L(KIND({name})/4)=YLSTACK%L(KIND({name})/4)+KIND({name})*SIZE({name});IF(YLSTACK%L(KIND({name})/4)>YLSTACK%U(KIND({name})/4))CALL SOF('" + getFileName(doc) + ":{name}', KIND({name}))",
                             scopes=scope)
     
                 if nb > 0:
                     #Some automatic arrays have been modified, we need to add an argument to the routine
                     addArgInTree(doc, scope, descTree, 'YDSTACK', 'TYPE (STACK) :: YDSTACK',
                                  -1, stopScopes, moduleVarList=[('STACK_MOD', ['STACK', 'SOF'])],
+                                 otherNames=['YLSTACK'],
                                  parser=parser, parserOptions=parserOptions, wrapH=wrapH)
+
+                    #Copy the stack to a local variable and use it for call statements
+                    #this operation must be done after the call to addArgInTree
+                    addVar(doc, [[scope, 'YLSTACK', 'TYPE (STACK) :: YLSTACK', None]])
+                    insertStatement(doc, scope, createExpr('YLSTACK=YDSTACK')[0], True)
+                    virtualScopeNode = ET.Element('virtual')
+                    virtualScopeNode.extend(getScopeChildNodes(doc, scope))
+                    for argN in virtualScopeNode.findall('.//{*}call-stmt/{*}arg-spec/{*}arg/{*}arg-N/../{*}named-E/{*}N'):
+                        if n2name(argN) == 'YDSTACK':
+                            argN[0].text = 'YLSTACK'
+
     elif model == 'MESONH':
         for scope in getScopesList(doc):
             #We apply the transformation only if the routine is called from a scope within stopScopes

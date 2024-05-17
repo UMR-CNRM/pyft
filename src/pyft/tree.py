@@ -599,10 +599,11 @@ def findScopeInterface(descTree, scope):
 
 @debugDecor
 def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, moduleVarList=None,
+                 otherNames=None,
                  parser=None, parserOptions=None, wrapH=False):
     """
     Adds an argument to the routine and propagates it upward until we encounter a scope
-    where the variable exists exists or a scope in stopScopes
+    where the variable exists or a scope in stopScopes
     :param doc: etree of the starting routine
     :param scope: scope to start with (if None, try to guess it from the scopes defined in doc)
     :param descTree: descTree file
@@ -616,14 +617,17 @@ def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, modul
                           - variable name or or list of variable names
                             or None to add a USE statement without the ONLY attribute
                           use moduleVarList to not add module variables
+    :param otherNames: None or list of other variable names that can be used
+                       These variables are used first
     :param parser, parserOptions, wrapH: see the pyft class
 
     Argument is inserted only on paths leading to one of scopes listed in stopScopes
     """
-    def insertInArgList(varName, pos, callFuncStmt):
+    def insertInArgList(varName, varNameToUse, pos, callFuncStmt):
         """
         Insert varName in the list of arguments to the subroutine or function call
-        :param varName: name of the variable
+        :param varName: name of the dummy argument
+        :param varNameToUse: name of the variable
         :param pos: inclusion position
         :param callFuncStmt: call statement or function call
         """
@@ -639,7 +643,7 @@ def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, modul
                 argList = ET.Element('{http://fxtran.net/#syntax}arg-spec')
                 argList.tail = ')'
                 callFuncStmt.append(argList)
-        item = createExprPart(varName)
+        item = createExprPart(varNameToUse)
         previous = pos - 1 if pos >= 0 else len(argList) + pos #convert negative pos using length
         while previous >= 0 and argList[previous].tag.split('}')[1] in ('C', 'cnt'):
             previous -= 1
@@ -673,7 +677,14 @@ def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, modul
 
     if scope in stopScopes or isUnderStopScopes(scope, descTree, stopScopes):
         #We are on the path to a scope in the stopScopes list, or scopeUp is one of the stopScopes
-        var = findVar(doc, varName, scope, exactScope=True)
+        varList = getVarList(doc)
+        var = findVar(doc, varName, scope, varList, exactScope=True)
+        if otherNames is not None:
+            vOther = [findVar(doc, v, scope, varList, exactScope=True) for v in otherNames]
+            vOther = [v for v in vOther if v is not None]
+            if len(vOther) > 0:
+                var = vOther[-1]
+
         if var is None:
            #The variable doesn't exist in this scope, we add it
            addVar(doc, [[scope, varName, declStmt, pos]])
@@ -715,25 +726,33 @@ def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, modul
                             pft = _conservativePYFT(filename, parser, parserOptions, wrapH)
                             xml = pft._xml
                         #Add the argument and propagate upward
-                        addArgInTree(xml, scopeUp, descTree, varName, declStmt, pos, stopScopes, moduleVarList)
+                        addArgInTree(xml, scopeUp, descTree, varName, declStmt, pos, stopScopes, moduleVarList,
+                                     otherNames, parser=parser, parserOptions=parserOptions, wrapH=wrapH)
                         #Add the argument to calls (subroutine or function)
                         scopeUpNode = ET.Element('scope')
                         scopeUpNode.extend(getScopeChildNodes(xml, scopeUp))
                         name = scope.split('/')[-1].split(':')[1].upper()
                         isCalled = False
+                        varNameToUse = varName
+                        if otherNames is not None:
+                            varListUp = getVarList(xml)
+                            vOther = [findVar(xml, v, scopeUp, varListUp, exactScope=True) for v in otherNames]
+                            vOther = [v for v in vOther if v is not None]
+                            if len(vOther) > 0:
+                                varNameToUse = vOther[-1]['n']
                         if scope.split('/')[-1].split(':')[0] == 'sub':
                             #We look for call statements
                             for callStmt in scopeUpNode.findall('.//{*}call-stmt'):
                                 callName = n2name(callStmt.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
                                 if callName == name:
-                                    insertInArgList(varName, pos, callStmt)
+                                    insertInArgList(varName, varNameToUse, pos, callStmt)
                                     isCalled = True
                         else:
                             #We look for function use
                             for funcCall in scopeUpNode.findall('.//{*}named-E/{*}R-LT/{*}parens-R/{*}element-LT/../../..'):
                                 funcName = n2name(funcCall.find('./{*}N')).upper()
                                 if funcName == name:
-                                    insertInArgList(varName, pos, funcCall)
+                                    insertInArgList(varName, varNameToUse, pos, funcCall)
                                     isCalled = True
                         if pft is not None: pft.write()
 
