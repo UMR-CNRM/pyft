@@ -49,9 +49,9 @@ def addACC_data(doc):
                     if count>6:
                         list_var = list_var + '\n!$acc &              '
                         count=0
-                    list_var = list_var + var + ", "
+                    list_var = list_var + var + ", &"
                     count+=1
-                list_var_end = list_var[:-2] # remove last comma
+                list_var_end = list_var[:-3] # remove last comma and &
                 
                 fortranSource = "SUBROUTINE FOO598756\n"+ list_var_end + ")\nEND SUBROUTINE"
                 _, cfxtran = fortran2xml(fortranSource)
