@@ -909,33 +909,15 @@ def shumanFUNCtoCALL(doc):
                         if len(E1var) > 0:
                             var=findVar(doc, alltext(E1var[0]), loc[0])
                             if var: E1arrayDim = len(var['as'])
-                        print(E1arrayDim)
                         # Convert the (index:index,...) into (index,...)  if any
                         allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
                         if len(allSubscripts)>0:
                             for subLT in allSubscripts:
                                 for sub in subLT:
-                                    #Look for array sub-selection (such as 1:1 or IKB:IKB)
+                                    #Look for array sub-selection (such as 1 or IKB)
                                     lowerBound = sub.findall('.//{*}lower-bound')
-                                    upperBound = sub.findall('.//{*}upper-bound')
-                                    if len(lowerBound) > 0 and len(upperBound) > 0:
-                                        if 'literal-E' in lowerBound[0][0].tag and 'literal-E' in upperBound[0][0].tag \
-                                            and alltext(lowerBound[0][0]) == alltext(upperBound[0][0]): # case 1:1 ==> remove the dimension of all objets in elem
-                                            namedE = lowerBound[0][0]
-                                            sub.remove(lowerBound[0])
-                                            sub.remove(upperBound[0])
-                                            sub.insert(0,namedE)
-                                            removeOneDim = True
-                                            #indexSub = list(subLT).index(sub)
-                                            #subLT.remove(sub)
-                                            #if indexSub > 0: # If it is not the first sub-script, remove the ',' from the tail of the previous subscript
-                                            #    subLT[indexSub-1].tail = ''
-                                        if 'named-E' in lowerBound[0][0].tag and 'named-E' in upperBound[0][0].tag \
-                                            and alltext(lowerBound[0][0]) == alltext(upperBound[0][0]): # case IKB:IKB ==> leave only one IKB
-                                            namedE = lowerBound[0][0]
-                                            sub.remove(lowerBound[0])
-                                            sub.remove(upperBound[0])
-                                            sub.insert(0,namedE)
+                                    if len(lowerBound) > 0:
+                                        if 'literal-E' in lowerBound[0][0].tag or 'named-E' in lowerBound[0][0].tag:
                                             removeOneDim = True
                         
                         if removeOneDim: E1arrayDim-=1
@@ -953,7 +935,6 @@ def shumanFUNCtoCALL(doc):
                                             foundStmtandCalls[stmt][0].tail = foundStmtandCalls[stmt][0].tail.replace('\n','') + '\n'
                                         else:
                                             foundStmtandCalls[stmt][0].tail = '\n'
-                                            
                                         # Transform the function into a call statement
                                         newCallStmt, newComputeStmt, nbzshugradwk = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, \
                                                                                                                   elem in previousComputeStmt, nbzshugradwk, E1arrayDim)
