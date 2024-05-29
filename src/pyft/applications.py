@@ -768,9 +768,10 @@ def shumanFUNCtoCALL(doc):
        grandparItemFuncN = getParent(stmt,itemFuncN,level=2)  #<named-E><N><n>MZM</N></n> <R-LT><f:parens-R>(<f:element-LT><f:element>....
        funcName = alltext(itemFuncN)
        
+       
        # workingItem = Content of the function
        indexForCall = list(parStmt).index(stmt)
-       if inComputeStmt: indexForCall -=2 # 2 index, one for !$mnh_expand and one for !$acc kernels added at the previous call to FUNCtoROUTINE
+       if inComputeStmt: indexForCall -=3 # one for !$mnh_expand, one for !$acc kernels, one for !$acc loop collapse(X) independent added at the previous call to FUNCtoROUTINE
        siblsItemFuncN = getSiblings(doc, parItemFuncN, after=True, before=False)
        workingItem = siblsItemFuncN[0][0][0]
        # Case where & is present in the working item. We must look for all contents until the last ')'
@@ -781,6 +782,7 @@ def shumanFUNCtoCALL(doc):
        opE = workingItem.findall('.//{*}op-E')
        addArrayParenthesesInNode(doc, workingItem, None, scope)
        computeStmt = []
+       dimSuffVar = str(zshugradwkDim) + 'D'
        if len(opE) > 0:
            nbzshugradwk+=1
            computingVarName = 'ZSHUGRADWK'+str(nbzshugradwk)+'_'+str(zshugradwkDim)+'D'
@@ -789,10 +791,13 @@ def shumanFUNCtoCALL(doc):
                if zshugradwkDim == 1:
                    dimStrings = 'REAL, DIMENSION(D%NIJT) :: '
                    dimSuffRoutine='2D'
+                   dimSuffVar = '1D'
                elif zshugradwkDim == 2:
                    dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
+                   dimSuffVar = '2D'
                elif zshugradwkDim == 3:  # Code here the case for turb_hor 3D variables
                    dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
+                   dimSuffVar = '3D'
                else:
                    raise PYFTError('Shuman func to routine conversion not implemented for 4D+ dimensions variables')
                addVar(doc, [[loc[0], computingVarName, dimStrings + computingVarName, None]])
@@ -804,7 +809,7 @@ def shumanFUNCtoCALL(doc):
            elif zshugradwkDim == 3:  # Code here the case for turb_hor 3D variables
                mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
                
-           fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
+           fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(zshugradwkDim)+") independent\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
                             computingVarName + " = " + alltext(workingItem) +"\n" + \
                             "!$mnh_end_expand_array("+mnhExpandArrayIndexes+")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
            _, cfxtran = fortran2xml(fortranSource)
@@ -812,35 +817,19 @@ def shumanFUNCtoCALL(doc):
            workingItem = cfxtran.find('.//{*}E-1')
            commentsExpand = cfxtran.findall('.//{*}C')
            
-           # Position of the compute statement
-           # Check if the previous sibling of the stmt is a !$mnh_expand_array or an !$acc kernel 
-           # Example for : ZMZMZKEFF = MXM(ZA + MZM(ZKEFF)) 
-           # The first step of the conversion gives:
-           # !$mnh_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
-           # ZSHUGRADWK = ZA + MZM(ZKEFF)   ==> The CALL statement that will be created from the conversion of this line at the second iteration
-           #                                    - must be insterted in indexForCall - 1 (to avoid beeing within a mnh_expand_array)
-           #                                    - must be insterted in indexForCall - 2 (to avoid beeing within a mnh_expand_array with acc kernels)
-           # !$mnh_end_expand_array(JIJ=IIJB:IIJE,JK=1:IKT)
-           # !
-           # CALL MXM_PHY(D, ZSHUGRADWK, ZMXM_WORK1)
-           # ZMZMZKEFF = ZMXM_WORK1
-           siblStmt = getSiblings(doc, stmt, after=False, before=True)
-           if len(siblStmt)>0 and 'mnh_expand_array' in alltext(siblStmt[-1]):
-               indexForCall = indexForCall - 1  
-           elif len(siblStmt)>1 and 'acc kernel' in alltext(siblStmt[-2]):
-               indexForCall = indexForCall - 2
-       
+           # Insert the directives and the computeStmt
            parStmt.insert(indexForCall, commentsExpand[0])
            parStmt.insert(indexForCall+1, commentsExpand[1])
-           parStmt.insert(indexForCall+2, computeStmt)
-           parStmt.insert(indexForCall+3, commentsExpand[2])
+           parStmt.insert(indexForCall+2, commentsExpand[2])
+           parStmt.insert(indexForCall+3, computeStmt)
            parStmt.insert(indexForCall+4, commentsExpand[3])
-           parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
-           indexForCall+=6
+           parStmt.insert(indexForCall+5, commentsExpand[4])
+           parStmt.insert(indexForCall+6, commentsExpand[5]) # This is \n ! empty comment to increase readibility
+           indexForCall+=7
            
        # Add the new CALL statement
        if zshugradwkDim == 1: dimSuffRoutine='2D'
-       workingVar = 'Z' + funcName + '_WORK' + str(localShumansCount[funcName])
+       workingVar = 'Z' + funcName + dimSuffVar +  '_WORK' + str(localShumansCount[funcName])
        fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine +'_PHY' + "(D, " + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
        _, cfxtran = fortran2xml(fortranSource)
        callStmt = cfxtran.find('.//{*}call-stmt')
@@ -873,7 +862,9 @@ def shumanFUNCtoCALL(doc):
        
     shumansGradients = {'MZM':0, 'MXM':0, 'MYM':0, 'MZF':0,'MXF':0,'MYF':0, 
                         'DZM':0, 'DXM':0, 'DYM':0, 'DZF':0,'DXF':0,'DYF':0,
-                        'GZ_M_W':0, 'GZ_W_M':0, 'GZ_U_UW':0, 'GZ_V_VW':0 }
+                        'GZ_M_W':0, 'GZ_W_M':0, 'GZ_U_UW':0, 'GZ_V_VW':0,
+                        'GX_M_U':0, 'GX_U_M':0, 'GX_W_UW':0,
+                        'GY_V_M':0, 'GY_M_V':0, 'GY_W_VW':0}
     locations  = getScopesList(doc,withNodes='tuple')
     mod_type = locations[0][0].split('/')[-1].split(':')[1][:4]
     if mod_type == 'MODD':
@@ -901,33 +892,39 @@ def shumanFUNCtoCALL(doc):
                         elemToLookFor = [foundStmtandCalls[stmt][0]]   
                         previousComputeStmt = []
                         maxnb_zshugradwk = 0
-                        removeOneDim = False # Handle change of dimensions for selecting-index shuman-function use
-                        
-                        # Check the dimensions of the stmt objects in which the function exist for handling selecting-index shuman-function use
-                        # Dimension of the E-1 in case of an a-astmt
-                        E1var = foundStmtandCalls[stmt][0].findall('.//{*}E-1/{*}named-E/{*}N')
-                        if len(E1var) > 0:
-                            var=findVar(doc, alltext(E1var[0]), loc[0])
-                            if var: E1arrayDim = len(var['as'])
-                        # Convert the (index:index,...) into (index,...)  if any
-                        allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
-                        if len(allSubscripts)>0:
-                            for subLT in allSubscripts:
-                                for sub in subLT:
-                                    #Look for array sub-selection (such as 1 or IKB)
-                                    lowerBound = sub.findall('.//{*}lower-bound')
-                                    if len(lowerBound) > 0:
-                                        if 'literal-E' in lowerBound[0][0].tag or 'named-E' in lowerBound[0][0].tag:
-                                            removeOneDim = True
-                        
-                        if removeOneDim: E1arrayDim-=1
-
+ 
                         while len(elemToLookFor) > 0:
                             nbzshugradwk = 0 
                             for elem in elemToLookFor:
                                 elemN = elem.findall('.//{*}n')
                                 for el in elemN:
                                     if alltext(el) in list(localShumansGradients.keys()):
+                                        # Check the dimensions of the stmt objects in which the function exist for handling selecting-index shuman-function use
+                                        # 1) if the stmt is from an a-astmt, check E1
+                                        E1var = foundStmtandCalls[stmt][0].findall('.//{*}E-1/{*}named-E/{*}N')
+                                        if len(E1var) > 0:
+                                            var=findVar(doc, alltext(E1var[0]), loc[0])
+                                        # 2) if the stmt is from an call-astmt, check the first <named-E><N> in the function
+                                        else:
+                                            elPar = getParent(doc, el, level=2)  # MXM(...)
+                                            callVar = elPar.findall('.//{*}named-E/{*}N')
+                                            if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is always at the end
+                                                var=findVar(doc, alltext(callVar[-1]), loc[0]) # callVar[-1] is array on which the gradient is applied
+                                            else: # Shumans
+                                                var=findVar(doc, alltext(callVar[0]), loc[0]) # callVar[0] is the first array on which the function is applied
+                                        if var:
+                                            arrayDim = len(var['as'])
+                                        # Look for subscripts in case of array sub-selection (such as 1 or IKB)
+                                        allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
+                                        if len(allSubscripts)>0:
+                                            for subLT in allSubscripts:
+                                                for sub in subLT:
+                                                    lowerBound = sub.findall('.//{*}lower-bound')
+                                                    if len(lowerBound) > 0:
+                                                        if 'literal-E' in lowerBound[0][0].tag or 'named-E' in lowerBound[0][0].tag:
+                                                            arrayDim-=1 # Handle change of dimensions for selecting-index shuman-function use
+                                        
+                                        
                                         localShumansGradients[alltext(el)] += 1 # Add existing working variable with the name of the function
 
                                         # To be sure that ending !comments after the statement is not impacting the placement of the last !mnh_expand_array
@@ -935,9 +932,10 @@ def shumanFUNCtoCALL(doc):
                                             foundStmtandCalls[stmt][0].tail = foundStmtandCalls[stmt][0].tail.replace('\n','') + '\n'
                                         else:
                                             foundStmtandCalls[stmt][0].tail = '\n'
+
                                         # Transform the function into a call statement
                                         newCallStmt, newComputeStmt, nbzshugradwk = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, \
-                                                                                                                  elem in previousComputeStmt, nbzshugradwk, E1arrayDim)
+                                                                                                                  elem in previousComputeStmt, nbzshugradwk, arrayDim)
                                         # Update the list of elements to check if there are still remaining function to convert within the new call-stmt 
                                         elemToLookFor.append(newCallStmt)
                                         
@@ -963,17 +961,16 @@ def shumanFUNCtoCALL(doc):
                         # Add parenthesis around all variables
                         addArrayParenthesesInNode(doc, foundStmtandCalls[stmt][0], None, loc[0])
                         
-                        # For the last compute statement
-                        # And add mnh_expand and acc kernels if not call statement
+                        # For the last compute statement, add mnh_expand and acc kernels if not call statement
                         if 'call-stmt' not in foundStmtandCalls[stmt][0].tag:    
-                            if removeOneDim == 1: 
+                            if arrayDim == 1: 
                                 mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE'
-                            elif E1arrayDim == 2: 
+                            elif arrayDim == 2: 
                                 mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
-                            elif E1arrayDim == 3:  # Code here the case for turb_hor 3D variables
+                            elif arrayDim == 3:  # Code here the case for turb_hor 3D variables
                                 mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
                                 
-                            fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
+                            fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(arrayDim)+") independent\n!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
                             "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
                             _, cfxtran = fortran2xml(fortranSource)
                             commentsExpand = cfxtran.findall('.//{*}C')
@@ -981,9 +978,11 @@ def shumanFUNCtoCALL(doc):
                             indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
                             parStmt.insert(indexForCall, commentsExpand[0])
                             parStmt.insert(indexForCall+1, commentsExpand[1])
-                            parStmt.insert(indexForCall+3, commentsExpand[2])
+                            parStmt.insert(indexForCall+2, commentsExpand[2])     
                             parStmt.insert(indexForCall+4, commentsExpand[3])
-                            parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+                            parStmt.insert(indexForCall+5, commentsExpand[4])
+                            parStmt.insert(indexForCall+6, commentsExpand[5]) # This is \n ! empty comment to increase readibility
+                            
                     # For all saved intermediate newComputeStmt, add parenthesis around all variables
                     for stmt in computeStmtforParenthesis:
                         addArrayParenthesesInNode(doc, stmt, None, loc[0])
