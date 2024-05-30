@@ -384,7 +384,7 @@ def removeIJDim(doc, descTree, stopScopes, parser=None, parserOptions=None, wrap
     for scope in [scope for scope in getScopesList(doc, withNodes='tuple')[::-1]
                   if 'func:' not in scope[0]]:
         scopeName, scopeNode = scope
-        if scopeName in stopScopes or isUnderStopScopes(scopeName, descTree, stopScopes, includeInterfaces=True):
+        if scopeName in stopScopes: #or isUnderStopScopes(scopeName, descTree, stopScopes, includeInterfaces=True):
             indexRemoved = []
             #We build a fake scopeNode that don't contain the 'CONTAINS' part
             virtualScopeNode = ET.Element('virtual')
@@ -750,7 +750,7 @@ def shumanFUNCtoCALL(doc):
     :param doc: etree to use
     """
     
-    def FUNCtoROUTINE(doc, scope, stmt, itemFuncN, localShumansCount, inComputeStmt, nbzshugradwk, zshugradwkDim, dimSuffRoutine=''):
+    def FUNCtoROUTINE(doc, scope, stmt, itemFuncN, localShumansCount, inComputeStmt, nbzshugradwk, zshugradwkDim, dimWorkingVar):
        """
        :param doc: node on which the calling function is present before transformation
        :param scope: scope of the node on which the function is called
@@ -758,10 +758,13 @@ def shumanFUNCtoCALL(doc):
        :param itemFuncN: <n>FUNCTIONNAME</n> node
        :param localShumansCount : instance of the shumansGradients dictionnary for the given scope 
                                   (which contains the number of times a function has been called within a transformation)
+       :param dimWorkingVar : string of the declaration of a potential working variable depending on the array on wich the shuman is applied 
+                                (e.g. MZM(PRHODJ(:,IKB)) ; dimWorkingVar = 'REAL, DIMENSION(D%NIJT) :: ' )
        :return zshugradwk
        :return callStmt: the new CALL to the routines statement
        :return computeStmt: the a-stmt computation statement if there was an operation in the calling function in stmt
        """ 
+       dimSuffRoutine=''
        # Function name, parent and grandParent
        parStmt = getParent(doc,stmt) 
        parItemFuncN = getParent(stmt,itemFuncN)  #<N><n>MZM</N></n>
@@ -789,25 +792,36 @@ def shumanFUNCtoCALL(doc):
            # Add the declaration of the new computing var and workingVar if not already present
            if not findVar(doc, computingVarName, loc[0]):
                if zshugradwkDim == 1:
-                   dimStrings = 'REAL, DIMENSION(D%NIJT) :: '
                    dimSuffRoutine='2D'
                    dimSuffVar = '1D'
                elif zshugradwkDim == 2:
-                   dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
                    dimSuffVar = '2D'
-               elif zshugradwkDim == 3:  # Code here the case for turb_hor 3D variables
-                   dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
+               elif zshugradwkDim == 3:  # case for turb_hor 3D variables
                    dimSuffVar = '3D'
                else:
                    raise PYFTError('Shuman func to routine conversion not implemented for 4D+ dimensions variables')
-               addVar(doc, [[loc[0], computingVarName, dimStrings + computingVarName, None]])
+               addVar(doc, [[loc[0], computingVarName, dimWorkingVar + computingVarName, None]])
            
-           if zshugradwkDim == 1: 
-               mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE'
-           elif zshugradwkDim == 2: 
-               mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
-           elif zshugradwkDim == 3:  # Code here the case for turb_hor 3D variables
-               mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
+           else: # Case of nested shuman/gradients with a working variable already declared. dimWorkingVar can not be found in the main function
+                computeVar=findVar(doc, computingVarName, loc[0])
+                dimWorkingVar = 'REAL, DIMENSION('
+                for dims in computeVar['as'][:arrayDim]:
+                    dimWorkingVar += dims[1] + ','
+                dimWorkingVar = dimWorkingVar[:-1] + ') ::'
+               
+           if zshugradwkDim == 1:
+                 mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE'
+           elif zshugradwkDim == 2:
+               if 'D%NKT' in dimWorkingVar:
+                   mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
+               elif 'D%NIT' in dimWorkingVar and 'D%NJT' in dimWorkingVar: # only found in turb_hor*
+                   mnhExpandArrayIndexes = 'JI=1:IIT,JJ=1:IJT'
+               else:
+                   raise PYFTError('mnhExpandArrayIndexes construction case is not handled, case for zshugradwkDim == 2, dimWorkingVar = '+dimWorkingVar)
+           elif zshugradwkDim == 3:  # general case for turb_hor 3D variables
+                 mnhExpandArrayIndexes = 'JI=1:IIT,JJ=1:IJT,JK=1:IKT'
+           else:
+               raise PYFTError('Shuman func to routine conversion not implemented for 4D+ dimensions variables in mnhExpandArrayIndexes construction')
                
            fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(zshugradwkDim)+") independent\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
                             computingVarName + " = " + alltext(workingItem) +"\n" + \
@@ -848,15 +862,7 @@ def shumanFUNCtoCALL(doc):
        
        # Add the declaration of the shuman-gradient workingVar if not already present        
        if not findVar(doc, workingVar, loc[0]):
-            if zshugradwkDim == 1:
-                dimStrings = 'REAL, DIMENSION(D%NIJT) :: '
-            elif zshugradwkDim == 2: 
-                dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
-            elif zshugradwkDim == 3:  # Code here the case for turb_hor 3D variables
-                dimStrings = 'REAL, DIMENSION(D%NIJT,D%NKT) :: '
-            else:
-                raise PYFTError('Shuman func to routine conversion not implemented for 4D+ dimensions variables')
-            addVar(doc, [[loc[0], workingVar, dimStrings + workingVar, None]])
+            addVar(doc, [[loc[0], workingVar, dimWorkingVar + workingVar, None]])
         
        return callStmt, computeStmt, nbzshugradwk
        
@@ -896,6 +902,7 @@ def shumanFUNCtoCALL(doc):
                         while len(elemToLookFor) > 0:
                             nbzshugradwk = 0 
                             for elem in elemToLookFor:
+                                #print(alltext(elem))
                                 elemN = elem.findall('.//{*}n')
                                 for el in elemN:
                                     if alltext(el) in list(localShumansGradients.keys()):
@@ -904,16 +911,17 @@ def shumanFUNCtoCALL(doc):
                                         E1var = foundStmtandCalls[stmt][0].findall('.//{*}E-1/{*}named-E/{*}N')
                                         if len(E1var) > 0:
                                             var=findVar(doc, alltext(E1var[0]), loc[0])
-                                        # 2) if the stmt is from an call-astmt, check the first <named-E><N> in the function
+                                        # 2) if the stmt is from a call-astmt, check the first <named-E><N> in the function
                                         else:
                                             elPar = getParent(doc, el, level=2)  # MXM(...)
                                             callVar = elPar.findall('.//{*}named-E/{*}N')
-                                            if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is always at the end
+                                            if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is the last argument
                                                 var=findVar(doc, alltext(callVar[-1]), loc[0]) # callVar[-1] is array on which the gradient is applied
                                             else: # Shumans
                                                 var=findVar(doc, alltext(callVar[0]), loc[0]) # callVar[0] is the first array on which the function is applied
-                                        if var:
+                                        if var: # Protection in case of nested functions, var is not an array but None
                                             arrayDim = len(var['as'])
+                                        
                                         # Look for subscripts in case of array sub-selection (such as 1 or IKB)
                                         allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
                                         if len(allSubscripts)>0:
@@ -924,6 +932,13 @@ def shumanFUNCtoCALL(doc):
                                                         if 'literal-E' in lowerBound[0][0].tag or 'named-E' in lowerBound[0][0].tag:
                                                             arrayDim-=1 # Handle change of dimensions for selecting-index shuman-function use
                                         
+                                        # Build the dimensions declaration in case of working/intermediate variable needed
+                                        dimWorkingVar=''
+                                        if var:
+                                            dimWorkingVar = 'REAL, DIMENSION('
+                                            for dims in var['as'][:arrayDim]:
+                                                dimWorkingVar += dims[1] + ','
+                                            dimWorkingVar = dimWorkingVar[:-1] + ') ::'
                                         
                                         localShumansGradients[alltext(el)] += 1 # Add existing working variable with the name of the function
 
@@ -935,7 +950,7 @@ def shumanFUNCtoCALL(doc):
 
                                         # Transform the function into a call statement
                                         newCallStmt, newComputeStmt, nbzshugradwk = FUNCtoROUTINE(doc, loc[0], elem, el, localShumansGradients, \
-                                                                                                                  elem in previousComputeStmt, nbzshugradwk, arrayDim)
+                                                                                                  elem in previousComputeStmt, nbzshugradwk, arrayDim, dimWorkingVar)
                                         # Update the list of elements to check if there are still remaining function to convert within the new call-stmt 
                                         elemToLookFor.append(newCallStmt)
                                         
@@ -963,12 +978,19 @@ def shumanFUNCtoCALL(doc):
                         
                         # For the last compute statement, add mnh_expand and acc kernels if not call statement
                         if 'call-stmt' not in foundStmtandCalls[stmt][0].tag:    
-                            if arrayDim == 1: 
+                            if arrayDim == 1:
                                 mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE'
-                            elif arrayDim == 2: 
-                                mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
-                            elif arrayDim == 3:  # Code here the case for turb_hor 3D variables
-                                mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
+                            elif arrayDim == 2:
+                                if 'D%NKT' in dimWorkingVar:
+                                    mnhExpandArrayIndexes = 'JIJ=IIJB:IIJE,JK=1:IKT'
+                                elif 'D%NIT' in dimWorkingVar and 'D%NJT' in dimWorkingVar: # only found in turb_hor*
+                                    mnhExpandArrayIndexes = 'JI=1:IIT,JJ=1:IJT'
+                                else:
+                                    raise PYFTError('Shuman func to routine conversion, mnhExpandArrayIndexes construction case is not handled, zshugradwkDim == 2')
+                            elif arrayDim == 3:  # general case for turb_hor 3D variables
+                                mnhExpandArrayIndexes = 'JI=1:IIT,JJ=1:IJT,JK=1:IKT'
+                            else:
+                                raise PYFTError('Shuman func to routine conversion not implemented for 4D+ dimensions variables in mnhExpandArrayIndexes construction')
                                 
                             fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(arrayDim)+") independent\n!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
                             "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
