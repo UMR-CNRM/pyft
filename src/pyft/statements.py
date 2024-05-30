@@ -836,8 +836,12 @@ def removeArraySyntax(doc, concurrent=False, useMnhExpand=True, everywhere=True,
     for parent, elem in toremove:
         parent.remove(elem)
     #And variable creation
+    checknewVarList = []
+    for v in varList:
+        if v.get('new', False) and v not in checknewVarList:
+            checknewVarList.append(v)
     addVar(doc, [(v['scope'], v['n'], 'INTEGER :: {name}'.format(name=v['n']), None)
-                 for v in varList if v.get('new', False)])
+                 for v in checknewVarList])
 
     return doc
 
