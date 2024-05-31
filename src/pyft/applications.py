@@ -920,9 +920,12 @@ def shumanFUNCtoCALL(doc):
                                             if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is the last argument
                                                 var=findVar(doc, alltext(callVar[-1]), loc[0]) # callVar[-1] is array on which the gradient is applied
                                             else: # Shumans
-                                                var=findVar(doc, alltext(callVar[0]), loc[0]) # callVar[0] is the first array on which the function is applied
-                                        if var: # Protection in case of nested functions, var is not an array but None
-                                            arrayDim = len(var['as'])
+                                                var, inested = None, 0
+                                                while not var:
+                                                    var=findVar(doc, alltext(callVar[inested]), loc[0]) # callVar[0] is the first array on which the function is applied
+                                                    inested+=1
+                                        #if var: # Protection in case of nested functions, var is not an array but None
+                                        arrayDim = len(var['as'])
                                         
                                         # Look for subscripts in case of array sub-selection (such as 1 or IKB)
                                         allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
