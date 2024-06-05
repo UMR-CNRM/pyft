@@ -5,7 +5,8 @@ This module implements functions for high-to-moderate level transformation
 import xml.etree.ElementTree as ET
 import copy
 import os
-from pyft.cosmetics import indent, updateContinuation
+from pyft.cosmetics import indent, updateContinuation, changeIfStatementsInIfConstructs
+
 from pyft.util import (copy_doc, debugDecor, alltext, getParent, fortran2xml,
                        getFileName, n2name, isStmt, PYFTError, getSiblings, tostring)
 from pyft.statements import (removeCall, setFalseIfStmt,
@@ -845,7 +846,9 @@ def shumanFUNCtoCALL(doc):
        # Add the new CALL statement
        if zshugradwkDim == 1: dimSuffRoutine='2D'
        workingVar = 'Z' + funcName + dimSuffVar +  '_WORK' + str(localShumansCount[funcName])
-       fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine +'_PHY' + "(D, " + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
+       gpuGradientImplementation = '_PHY(D, '
+       if funcName == 'GY_U_UV' or funcName == 'GX_V_UV': gpuGradientImplementation = '_DEVICE('
+       fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine + gpuGradientImplementation + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
        _, cfxtran = fortran2xml(fortranSource)
        callStmt = cfxtran.find('.//{*}call-stmt')
        parStmt.insert(indexForCall, callStmt)
@@ -889,10 +892,16 @@ def shumanFUNCtoCALL(doc):
                         elemN = stmt.findall('.//{*}n')
                         for el in elemN:
                             if alltext(el) in list(shumansGradients.keys()):
+                                # Expand the single-line if-stmt necessary to add all the new lines further.
+                                parStmt = getParent(loc[1],stmt)
+                                if parStmt.tag.endswith('action-stmt'):
+                                    changeIfStatementsInIfConstructs(doc, singleItem=getParent(loc[1],parStmt))
+                                    
                                 if str(stmt) in foundStmtandCalls.keys():
                                     foundStmtandCalls[str(stmt)][1] += 1
                                 else:
                                     foundStmtandCalls[str(stmt)] = [stmt, 1]
+                                
                     
                     # For each a-stmt and call-stmt containing at least 1 shuman/gradient function
                     for stmt in foundStmtandCalls.keys():
@@ -900,7 +909,7 @@ def shumanFUNCtoCALL(doc):
                         elemToLookFor = [foundStmtandCalls[stmt][0]]   
                         previousComputeStmt = []
                         maxnb_zshugradwk = 0
- 
+                        
                         while len(elemToLookFor) > 0:
                             nbzshugradwk = 0 
                             for elem in elemToLookFor:
@@ -924,6 +933,7 @@ def shumanFUNCtoCALL(doc):
                                                 while not var:
                                                     var=findVar(doc, alltext(callVar[inested]), loc[0]) # callVar[0] is the first array on which the function is applied
                                                     inested+=1
+                                        
                                         #if var: # Protection in case of nested functions, var is not an array but None
                                         arrayDim = len(var['as'])
                                         
