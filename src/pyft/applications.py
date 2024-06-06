@@ -922,23 +922,27 @@ def shumanFUNCtoCALL(doc):
                                         E1var = foundStmtandCalls[stmt][0].findall('.//{*}E-1/{*}named-E/{*}N')
                                         if len(E1var) > 0:
                                             var=findVar(doc, alltext(E1var[0]), loc[0])
-                                        # 2) if the stmt is from a call-astmt, check the first <named-E><N> in the function
+                                            allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
+                                        # 2) if the stmt is from a call-stmt, check the first <named-E><N> in the function
                                         else:
                                             elPar = getParent(doc, el, level=2)  # MXM(...)
                                             callVar = elPar.findall('.//{*}named-E/{*}N')
                                             if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is the last argument
                                                 var=findVar(doc, alltext(callVar[-1]), loc[0]) # callVar[-1] is array on which the gradient is applied
+                                                shumanIsCalledOn = getParent(loc[1],callVar[-1])
                                             else: # Shumans
                                                 var, inested = None, 0
-                                                while not var:
+                                                while not var or len(var['as'])==0: # While the var is not an array already declared
                                                     var=findVar(doc, alltext(callVar[inested]), loc[0]) # callVar[0] is the first array on which the function is applied
                                                     inested+=1
+                                                shumanIsCalledOn = getParent(loc[1],callVar[inested-1])
+                                            allSubscripts = shumanIsCalledOn.findall('.//{*}R-LT/{*}array-R/{*}section-subscript-LT')
+                                                    
                                         
                                         #if var: # Protection in case of nested functions, var is not an array but None
                                         arrayDim = len(var['as'])
                                         
                                         # Look for subscripts in case of array sub-selection (such as 1 or IKB)
-                                        allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
                                         if len(allSubscripts)>0:
                                             for subLT in allSubscripts:
                                                 for sub in subLT:
@@ -947,6 +951,7 @@ def shumanFUNCtoCALL(doc):
                                                         if len(sub.findall('.//{*}upper-bound')) > 0: # For protection : not handled with lower:upper bounds
                                                             raise PYFTError('ShumanFUNCtoCALL does not handle conversion to routine of array subselection lower:upper: how to set up the shape of intermediate arrays ?')
                                                         arrayDim-=1 # Handle change of dimensions for selecting index for the working arrays
+                                        
                                         # Build the dimensions declaration in case of working/intermediate variable needed
                                         dimWorkingVar=''
                                         if var:
