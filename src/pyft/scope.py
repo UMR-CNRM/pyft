@@ -191,6 +191,22 @@ def getScopesList(doc, withNodes=False):
         return [r[0] for r in result]
 
 class Scope():
+    @copy_doc(getScopeNode)
+    def getScopeNode(self, *args, **kwargs):
+        return getScopeNode(self._xml, *args, **kwargs)
+
+    @copy_doc(getScopeChildNodes)
+    def getScopeChildNodes(self, *args, **kwargs):
+        return getScopeChildNodes(self._xml, *args, **kwargs)
+
+    @copy_doc(getParentScopeNode)
+    def getParentScopeNode(self, *args, **kwargs):
+        return getParentScopeNode(self._xml, *args, **kwargs)
+
+    @copy_doc(getScopePath)
+    def getScopePath(self, *args, **kwargs):
+        return getScopePath(self._xml, *args, **kwargs)
+
     @copy_doc(getScopesList)
     def getScopesList(self, *args, **kwargs):
         return getScopesList(self._xml, *args, **kwargs)

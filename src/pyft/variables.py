@@ -151,6 +151,10 @@ def varSpec2stmt(varSpec):
                 stmt += ", ALLOCATABLE"
         if varSpec['parameter']:
             stmt += ", PARAMETER"
+        if varSpec['i'] is not None:
+            stmt += ", INTENT(" + varSpec['i'] + ")"
+        if varSpec['opt'] is True:
+            stmt += ", OPTIONAL"
         stmt += " :: " + varSpec['n']
         if varSpec['init'] is not None:
             stmt += "=" + varSpec['init']
@@ -1360,6 +1364,10 @@ class Variables():
     def getVarList(self):
         return getVarList(doc=self._xml)
 
+    @copy_doc(findVar)
+    def findVar(self, *args, **kwargs):
+        return findVar(self._xml, *args, **kwargs)
+
     @copy_doc(showVarList)
     def showVarList(self):
         return showVarList(doc=self._xml)
@@ -1415,3 +1423,8 @@ class Variables():
     @copy_doc(modifyAutomaticArrays)
     def modifyAutomaticArrays(self, *args, **kwargs):
         return modifyAutomaticArrays(self._xml, *args, **kwargs)
+
+    @staticmethod
+    @copy_doc(varSpec2stmt)
+    def varSpec2stmt(*args, **kwargs):
+        return varSpec2stmt(*args, **kwargs)
