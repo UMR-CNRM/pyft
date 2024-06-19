@@ -1,0 +1,20 @@
+This directory contains several examples of transformation and tool behaviours.
+
+These examples are also used to test pytft.
+
+There are several kinds of tests/examples:
+
+  - those with foo_before.F90 and foo_after.F90 files
+    In this case, the pyft transformation of the "before" file must
+    produce the "after" file without error
+  - those with foo_checkOK.F90 files
+    In this case, the pyft transformation of the file must
+    execute without error
+  - those with foo_checkKO.F90
+    At the contrary, these transformations must produce an error
+
+For each file to process, a comment line begining with "!#PYFT transfo: "
+contains the transformations to apply to the file.
+
+The tests.sh script executes all the transformations and produce a report
+in case some tests failed or crashed.
