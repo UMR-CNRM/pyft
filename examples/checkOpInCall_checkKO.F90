@@ -1,0 +1,5 @@
+!#PYFT transfo: --checkOpInCall Err
+
+SUBROUTINE FOO
+  CALL F(A, -B, C)
+END SUBROUTINE FOO

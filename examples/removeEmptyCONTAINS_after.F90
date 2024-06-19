@@ -1,0 +1,5 @@
+!#PYFT transfo: --removeEmptyCONTAINS
+
+SUBROUTINE FOO(P)
+  PRINT*, P
+  END SUBROUTINE FOO

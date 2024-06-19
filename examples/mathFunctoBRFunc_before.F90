@@ -1,0 +1,6 @@
+!#PYFT transfo: --mathFunctoBRFunc
+
+SUBROUTINE FOO
+  PRINT*, I**2, I**3, I**4, I**K
+  PRINT*, LOG(I), EXP(I), COS(I), SIN(I), ASIN(I), ATAN(I), ATAN2(I, J)
+END SUBROUTINE FOO

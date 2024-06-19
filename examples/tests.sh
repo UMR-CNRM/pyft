@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cmd=cmp #for comparison to reference
-#cmd=cp #for building new reference
+update='n' #'y' to update the references
+debug='n' #'y' to save the transformed file
 
 which pyft_tool.py 2>&1 >/dev/null
 if [ $? -ne 0 ]; then
@@ -14,7 +14,8 @@ TMP_LOC=$(mktemp -d)
 trap "\rm -rf $TMP_LOC" EXIT
 
 #Copy all files in the temporary directory
-cp *.F90 *.h $TMP_LOC
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+cp $DIR/*.F90 $DIR/*.h $TMP_LOC
 cd $TMP_LOC
 
 FAIL=""
@@ -42,8 +43,13 @@ for file in $(ls *_before.F90 *_checkOK.F90 *_checkKO.F90 2>/dev/null); do
       if [ $res -ne 0 ]; then
         ERROR+=" $name"
       else
-        $cmd $trans $ref
-        if [ $res -ne 0 ]; then
+        if [ "$update" == 'y' ]; then
+          cp $trans $DIR/$ref
+        else
+          cmp $trans $ref
+        fi
+        if [ $? -ne 0 ]; then
+          [ "$debug" == 'y' ] && cp $trans $DIR/
           FAIL+=" $name"
         fi
       fi
