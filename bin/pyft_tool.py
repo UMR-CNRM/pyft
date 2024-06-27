@@ -1,21 +1,11 @@
 #!/usr/bin/env python3
 
 from pyft import PYFT
+from pyft.util import isint
 import logging
 import argparse
 import sys
 
-def isint(s):
-    """
-    :param s: string to test for intergerness
-    :return: True if s represent an int
-    """
-    try:
-        int(s)
-    except ValueError:
-        return False
-    else:
-        return True
 
 if __name__ == '__main__':
 
@@ -68,7 +58,7 @@ if __name__ == '__main__':
     gVariables.add_argument('--showVariables', default=False, action='store_true',
                             help='Show the declared variables')
     gVariables.add_argument('--removeVariable', nargs=2, action='append',
-                            metavar=('WHERE', 'VARNAME'),
+                            metavar=('SCOPEPATH', 'VARNAME'),
                             help="Variable to remove from declaration. The first argument " + \
                                  "is the SUBROUTINE/FUNCTION/MODULE/TYPE where the variable " + \
                                  "is declared. It is '/'-separated path with each element having " + \
@@ -79,32 +69,32 @@ if __name__ == '__main__':
                             help='Find all T-decl-stmt elements that have a child element attribute' + \
                                  ' with attribute-N=DIMENSION and move the attribute into EN-N elements')
     gVariables.add_argument('--addVariable', nargs=4, action='append',
-                            metavar=('WHERE', 'VARNAME', 'DECLARATION', 'POSITION'),
-                            help='Add a variable. First argument is the scope (as for ' + \
+                            metavar=('SCOPEPATH', 'VARNAME', 'DECLARATION', 'POSITION'),
+                            help='Add a variable. First argument is the scope path (as for ' + \
                                  'the --removeVariable option. The second is the variable ' + \
                                  'name, the third is the declarative statement to insert, ' + \
                                  'the fourth is the position (python indexing) the new ' + \
                                  'variable will have in the calling statment of the ' + \
                                  'routine (non-integer value for a local variable).')
     gVariables.add_argument('--addModuleVariable', nargs=3, action='append',
-                            metavar=('WHERE', 'MODULENAME', 'VARNAME'),
-                            help='Add a USE statement. The first argument is the scope (as for ' + \
+                            metavar=('SCOPEPATH', 'MODULENAME', 'VARNAME'),
+                            help='Add a USE statement. The first argument is the scope path (as for ' + \
                                  'the --removeVariable option). The second is the module ' + \
                                  'name; the third is the variable name.')
     gVariables.add_argument('--showUnusedVariables', nargs='?', action='append',
-                            metavar='WHERE', default=None,
+                            metavar='SCOPEPATH', default=None,
                             help='Show a list of unused variables in the entire code ' + \
-                                 'or in the scope (if specified).')
+                                 'or in the scope path (if specified).')
     gVariables.add_argument('--removeUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('WHERE', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope ' + \
-                                 '(use the special scope name ALL to apply on the entire ' + \
+                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
+                            help='Remove unused local variables in the specified scope path ' + \
+                                 '(use the special scope path name ALL to apply on the entire ' + \
                                  'code), excluding some variables (comma-separated list or NONE ' + \
                                  'to exclude nothing).')
     gVariables.add_argument('--removePHYEXUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('WHERE', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope ' + \
-                                 '(use the special scope name ALL to apply on the entire ' + \
+                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
+                            help='Remove unused local variables in the specified scope path ' + \
+                                 '(use the special scope path name ALL to apply on the entire ' + \
                                  'code), excluding some variables (comma-separated list or NONE ' + \
                                  'to exclude nothing). This option takes into account the ' + \
                                  'mnh_expand directives to prevent from removing useful variables.')
@@ -126,6 +116,14 @@ if __name__ == '__main__':
                                  'will replace automatic arrays by allocatables.')
     gVariables.add_argument('--replaceAutomaticWithAllocatable', action='store_true',
                             help='Replace all automatic arrays with allocatable arrays.')
+    gVariables.add_argument('--addArgInTree', default=None, action='append', nargs=4,
+                            metavar=('SCOPEPATH', 'VARNAME', 'DECLARATION', 'POSITION'),
+                            help='Add an argument variable. The argument is the scope path (as ' +
+                                 'for the --removeVariable option. The second is the variable ' +
+                                 'name, the third is the declarative statement to insert, ' +
+                                 'the fourth is the position (python indexing) the new ' +
+                                 'variable will have in the calling statment of the ' +
+                                 'routine. Needs the --stopScopes argument')
 
     #Cosmetics
     gCosmetics = parser.add_argument_group('Cosmetics options')
@@ -205,7 +203,10 @@ if __name__ == '__main__':
     gApplications.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
                                help='build module files containing helpers to copy user type structures')
     gApplications.add_argument('--mathFunctoBRFunc', default=False, action='store_true',
-                               help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP, COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.')
+                               help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, ' +
+                                    '**4, EXP, COS, SIN, ATAN2 into a self defined function BR_ ' +
+                                    'for MesoNH bit-repro.')
+
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
     gOpenACC.add_argument('--addACC_data', default=False, action='store_true',
@@ -227,7 +228,7 @@ if __name__ == '__main__':
     #Statements
     gStatement = parser.add_argument_group('Statements options')
     gStatement.add_argument('--removeCall', nargs=2, action='append',
-                            metavar=('WHERE', 'CALLNAME'),
+                            metavar=('SCOPEPATH', 'CALLNAME'),
                             help="Call to remove from the source code. The first argument " + \
                                  "is the SUBROUTINE/FUNCTION/MODULE where the call statements " + \
                                  "have to be removed. It is '/'-separated path with each element having " + \
@@ -268,14 +269,6 @@ if __name__ == '__main__':
                        help='Maximum number of upper elements in the plot tree')
     gTree.add_argument('--plotMaxLower', default=None, type=int,
                        help='Maximum number of lower elements in the plot tree')
-    gTree.add_argument('--addArgInTree', default=None, action='append', nargs=4,
-                       metavar=('WHERE', 'VARNAME', 'DECLARATION', 'POSITION'),
-                       help='Add an argument variable. The argument is the scope (as for ' + \
-                            'the --removeVariable option. The second is the variable ' + \
-                            'name, the third is the declarative statement to insert, ' + \
-                            'the fourth is the position (python indexing) the new ' + \
-                            'variable will have in the calling statment of the ' + \
-                            'routine. Needs the --stopScopes argument')
     gTree.add_argument('--stopScopes', default=None, type=str,
                        help='#-separated list of scopes ' + \
                             'where the recursive inclusion of an argument variable ' + \
@@ -329,13 +322,13 @@ if __name__ == '__main__':
                 else:
                     pft.showUnusedVar(args.showUnusedVariables)
             if arg == '--removeUnusedLocalVariables':
-                for where, exclude in args.removeUnusedLocalVariables:
-                    pft.removeUnusedLocalVar(where if where != 'ALL' else None,
+                for scopePath, exclude in args.removeUnusedLocalVariables:
+                    pft.removeUnusedLocalVar(scopePath if scopePath != 'ALL' else None,
                                              [item.strip() for item in exclude.split(',')] if exclude != 'NONE' else None,
                                              **simplify)
             if arg == '--removePHYEXUnusedLocalVariables':
-                for where, exclude in args.removePHYEXUnusedLocalVariables:
-                    pft.removePHYEXUnusedLocalVar(where if where != 'ALL' else None,
+                for scopePath, exclude in args.removePHYEXUnusedLocalVariables:
+                    pft.removePHYEXUnusedLocalVar(scopePath if scopePath != 'ALL' else None,
                                                   [item.strip() for item in exclude.split(',')] if exclude != 'NONE' else None,
                                                   **simplify)
             if arg == '--addExplicitArrayBounds': pft.addExplicitArrayBounds()
@@ -434,8 +427,8 @@ if __name__ == '__main__':
             if arg == '--plotExecTree': pft.plotExecTreeFromFile(args.INPUT, descTree, args.plotExecTree,
                                                                  args.plotMaxUpper, args.plotMaxLower)
             if arg == '--addArgInTree':
-                for scope, varName, declStmt, pos in args.addArgInTree:
-                    pft.addArgInTree(scope, descTree, varName, declStmt, int(pos), args.stopScopes.split('#'),
+                for scopePath, varName, declStmt, pos in args.addArgInTree:
+                    pft.addArgInTree(scopePath, descTree, varName, declStmt, int(pos), args.stopScopes.split('#'),
                                      parser=args.parser, parserOptions=parserOptions, wrapH=args.wrapH)
                     
             #Preprocessor

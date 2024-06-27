@@ -1,11 +1,15 @@
 """
 This module includes functions to deal with expressions
+These functions are independent of the PYFT and PYFTscope objects
 """
-import xml.etree.ElementTree as ET
-from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
+
 import re
 from functools import lru_cache
 import copy
+
+import xml.etree.ElementTree as ET
+from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
+
 
 @lru_cache
 def _cached_createExprPart(value):
@@ -174,6 +178,4 @@ def createArrayBounds(lowerBoundstr, upperBoundstr, context):
         lowerBound.tail = ':'
     else:
         raise PYFTError('Context unknown in createArrayBounds: {c}'.format(c=str(context)))
-    return lowerBound, upperBound    
-    
-
+    return lowerBound, upperBound
