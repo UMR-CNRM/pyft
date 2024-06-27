@@ -5,15 +5,13 @@ This module contains the functions to browse the tree
 import glob
 import os
 import logging
-from pyft.util import debugDecor, copy_doc, PYFTError, n2name, insertInList, getFileName
-from pyft.scope import getScopeChildNodes
-from pyft.variables import getVarList, findVar, addVar, addModuleVar
-from pyft.expressions import createExprPart
 import json
 import subprocess
 import xml.etree.ElementTree as ET
 import copy
 import re
+
+from pyft.util import debugDecor, copy_doc, PYFTError, n2name
 
 @debugDecor
 def getDirs(tree):
@@ -41,7 +39,8 @@ def getFiles(tree):
                 filenames.append(filename)
     return filenames
 
-def _conservativePYFT(filename, parser, parserOptions, wrapH, addIncludes=False, tree=None):
+@debugDecor
+def conservativePYFT(filename, parser, parserOptions, wrapH, addIncludes=False, tree=None):
     """
     Return a conservative PYFT object usable for tree manipulation
     :param filename: name of the file to open
@@ -95,25 +94,25 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
         #Loop on directory and files
         for filename in getFiles(tree):
             if os.path.isfile(filename):
-                pft = _conservativePYFT(filename, parser, parserOptions, wrapH,
+                pft = conservativePYFT(filename, parser, parserOptions, wrapH,
                                         addIncludes=addIncludes, tree=tree)
                 filename = filename[2:] if filename.startswith('./') else filename
-                varList = getVarList(pft._xml)
+                varList = pft.getVarList()
 
                 #Fill scopes
-                scopes = pft.getScopesList(withNodes='tuple')
+                scopes = pft.getScopes(excludeContains=True)
                 result['scopes'][filename] = []
                 for scope in scopes:
                     #Scope found in file
-                    result['scopes'][filename].append(scope[0])
+                    result['scopes'][filename].append(scope.path)
                     #We add, to this list, the "MODULE PROCEDURE" declared in INTERFACE statements
-                    if scope[0].split('/')[-1].split(':')[0] == 'interface':
+                    if scope.path.split('/')[-1].split(':')[0] == 'interface':
                         for name in [n2name(N).upper()
-                                     for moduleproc in scope[1].findall('./{*}procedure-stmt')
+                                     for moduleproc in scope.findall('./{*}procedure-stmt')
                                      for N in moduleproc.findall('./{*}module-procedure-N-LT/{*}N')]:
                             for s in scopes:
-                                if re.search(scope[0].rsplit('/', 1)[0] + '/[a-zA-Z]*:' + name, s[0]):
-                                    result['scopes'][filename].append(scope[0] + '/' + s[0].split('/')[-1])
+                                if re.search(scope.path.rsplit('/', 1)[0] + '/[a-zA-Z]*:' + name, s.path):
+                                    result['scopes'][filename].append(scope.path + '/' + s.path.split('/')[-1])
 
                 #Fill trees
                 result['compilation_tree'][filename] = []
@@ -122,40 +121,40 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                 useList[filename] = {}
                 callList[filename] = {}
                 funcList[filename] = {}
-                for scopeName, scopeNode in scopes:
-                    scope = ET.Element('scope')
-                    scope.extend(getScopeChildNodes(pft._xml, scopeNode))
+                for scope in scopes:
+                    virtual = ET.Element('virtual')
+                    virtual.extend(scope)
                     #Fill compilation_tree
                     #Includes give directly the name of the source file but possibly without the directory
-                    includeList[filename][scopeName] = [f.text
-                                                    for f in scope.findall('.//{*}include/{*}filename')] #cpp
-                    includeList[filename][scopeName].extend([extract_string(f.text)
-                                               for f in scope.findall('.//{*}include/{*}filename/{*}S')]) #FORTRAN
-        
+                    includeList[filename][scope.path] = [f.text
+                                                    for f in virtual.findall('.//{*}include/{*}filename')] #cpp
+                    includeList[filename][scope.path].extend([extract_string(f.text)
+                                               for f in virtual.findall('.//{*}include/{*}filename/{*}S')]) #FORTRAN
+
                     #For use statements, we need to scan all the files to know which one contains the module
-                    useList[filename][scopeName] = scope.findall('.//{*}use-stmt')
-        
+                    useList[filename][scope.path] = virtual.findall('.//{*}use-stmt')
+
                     #Fill execution tree
                     #We need to scan all the files to find which one contains the subroutine/function
-                    callList[filename][scopeName] = [n2name(c.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
-                                                     for c in scope.findall('.//{*}call-stmt')]
+                    callList[filename][scope.path] = [n2name(c.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
+                                                     for c in virtual.findall('.//{*}call-stmt')]
                     #We cannot distinguish function from arrays
-                    funcList[filename][scopeName] = []
+                    funcList[filename][scope.path] = []
                     for name in [n2name(c.find('./{*}N')).upper()
-                                 for c in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
+                                 for c in virtual.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
                         #But we can exclude some names if they are declared as arrays
-                        var = findVar(pft._xml, name, scopeName, varList=varList)
+                        var = pft.findVar(name, scope.path, varList=varList)
                         if var is None or var['as'] is None:
-                            funcList[filename][scopeName].append(name)
-                    
+                            funcList[filename][scope.path].append(name)
+
 
         #compilation_tree computation: include
         incInScope = {}
-        for filename, incScopes in includeList.items():
+        for filename, incScopePaths in includeList.items():
             #Loop on scopes
-            for scope, incList in incScopes.items():
+            for scopePath, incList in incScopePaths.items():
                 #Loop on each included file
-                incInScope[scope] = []
+                incInScope[scopePath] = []
                 for inc in incList:
                     #Try to guess the right file
                     same = []
@@ -188,35 +187,36 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                         found = False
                         incFilename = inc
                     result['compilation_tree'][filename].append(incFilename)
-                    if found: incInScope[scope].append(incFilename)
+                    if found: incInScope[scopePath].append(incFilename)
 
         #compilation_tree computation: use
         for filename, uList in useList.items():
             #Loop on each use statement
             for use in [use for l in uList.values() for use in l]:
-                moduleScopeName = 'module:' + n2name(use.find('./{*}module-N/{*}N')).upper()
+                moduleScopePath = 'module:' + n2name(use.find('./{*}module-N/{*}N')).upper()
                 #Loop on scopes to find the module
                 found = []
                 for f, scopes in result['scopes'].items():
-                    if moduleScopeName in scopes:
+                    if moduleScopePath in scopes:
                         found.append(f)
                 if len(found) == 1:
                     result['compilation_tree'][filename].append(found[0])
                 else:
-                    logging.warning(('Several or none file containing the scope {scope} have been found ' + \
-                                     'for file {filename}').format(scope=moduleScopeName, filename=filename))
+                    logging.warning(('Several or none file containing the scope path {scopePath} ' +
+                                     'have been found for file {filename}'
+                                    ).format(scopePath=moduleScopePath, filename=filename))
 
         #compilation_tree: cleaning (uniq values)
         for filename, depList in result['compilation_tree'].items():
             result['compilation_tree'][filename] = list(set(depList))
 
         #execution_tree: call statements
-        allScopes = [scope for _, l in result['scopes'].items() for scope in l]
-        result['execution_tree'] = {scope: [] for scope in allScopes}
+        allScopes = [scopePath for _, l in result['scopes'].items() for scopePath in l]
+        result['execution_tree'] = {scopePath: [] for scopePath in allScopes}
         for canonicKind, progList in (('sub', callList), ('func', funcList)):
             for filename, callScopes in progList.items():
                 #Loop on scopes
-                for scope, cList in callScopes.items():
+                for scopePath, cList in callScopes.items():
                     #Loop on calls
                     for c in set(cList):
                         foundInUse = []
@@ -229,7 +229,7 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                         for kind in (canonicKind, 'interface'):
                             #Loop on each use statement in scope or in upper scopes
                             uList = [useList[filename][sc] for sc in useList[filename]
-                                     if (sc == scope or scope.startswith(sc + '/'))]
+                                     if (sc == scopePath or scopePath.startswith(sc + '/'))]
                             for use in [use for l in uList for use in l]:
                                 moduleScope = 'module:' + n2name(use.find('./{*}module-N/{*}N')).upper()
                                 only = [n2name(n).upper() for n in use.findall('.//{*}use-N//{*}N')]
@@ -243,27 +243,27 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                                     for _, scopes in result['scopes'].items():
                                         if callScope in scopes:
                                             foundInUse.append(callScope)
-    
+
                             #Look for subroutine directly accessible
                             callScope = kind + ':' + c
                             for _, scopes in result['scopes'].items():
                                 if callScope in scopes:
                                     foundElsewhere.append(callScope)
-    
+
                             #Look for include files
                             callScope = kind + ':' + c
-                            for incFile in incInScope[scope]:
+                            for incFile in incInScope[scopePath]:
                                 if callScope in result['scopes'][incFile]:
                                     foundInInclude.append(callScope)
-    
+
                             #Look for contained routines
-                            callScope = scope + '/' + kind + ':' + c
+                            callScope = scopePath + '/' + kind + ':' + c
                             if callScope in result['scopes'][filename]:
                                 foundInContains.append(callScope)
 
                             #Look for routine in the same scope
-                            if '/' in scope:
-                                callScope = scope.rsplit('/', 1)[0] + '/' + kind + ':' + c
+                            if '/' in scopePath:
+                                callScope = scopePath.rsplit('/', 1)[0] + '/' + kind + ':' + c
                             else:
                                 callScope = kind + ':' + c
                             if callScope in result['scopes'][filename]:
@@ -273,30 +273,30 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                         foundInUse = list(set(foundInUse)) #If a module is used several times
                         if len(foundInUse + foundInInclude + foundInContains + foundInSameScope) > 1:
                             logging.error(('Several definition of the program unit found for {callScope} ' + \
-                                           'called in {scope}:').format(callScope=c, scope=scope))
+                                           'called in {scopePath}:').format(callScope=c, scopePath=scopePath))
                             logging.error('  found {i} time(s) in USE statements'.format(i=len(foundInUse)))
                             logging.error('  found {i} time(s) in include files'.format(i=len(foundInInclude)))
                             logging.error('  found {i} time(s) in CONTAINS block'.format(i=len(foundInContains)))
                             logging.error('  found {i} time(s) in the same scope'.format(i=len(foundInSameScope)))
-                            result['execution_tree'][scope].append('??')
+                            result['execution_tree'][scopePath].append('??')
                         elif len(foundInUse + foundInInclude + foundInContains + foundInSameScope) == 1:
                             r = (foundInUse + foundInInclude + foundInContains + foundInSameScope)[0]
                             if canonicKind != 'func' or r in allScopes:
-                                result['execution_tree'][scope].append(r)
+                                result['execution_tree'][scopePath].append(r)
                         elif len(foundElsewhere) > 1:
                             logging.warning(('Several definition of the program unit found for {callScope} ' + \
-                                             'called in {scope}').format(callScope=c, scope=scope))
+                                             'called in {scopePath}').format(callScope=c, scopePath=scopePath))
                         elif len(foundElsewhere) == 1:
-                            result['execution_tree'][scope].append(foundElsewhere[0])
+                            result['execution_tree'][scopePath].append(foundElsewhere[0])
                         else:
                             if canonicKind != 'func':
                                 logging.warning(('No definition of the program unit found for {callScope} ' + \
-                                                 'called in {scope}').format(callScope=c, scope=scope))
+                                                 'called in {scopePath}').format(callScope=c, scopePath=scopePath))
 
         #execution_tree: named interface
         #We replace named interface by the list of routines declared in this interface
         #This is not perfect because only one routine is called and not all
-        for scope, execList in result['execution_tree'].items():
+        for _, execList in result['execution_tree'].items():
             for item in list(execList):
                 itemSplt = item.split('/')[-1].split(':')
                 if itemSplt[0] == 'interface' and itemSplt[1] != '--UNKNOWN--':
@@ -313,17 +313,18 @@ def descTree(tree, descTree, parser=None, parserOptions=None, wrapH=False, addIn
                                 execList.append(subscopeIn)
                             else:
                                 execList.append(sub.split('/')[-1])
-                            
+
 
         #execution_tree: cleaning (uniq values)
-        for scope, execList in result['execution_tree'].items():
-            result['execution_tree'][scope] = list(set(execList))
+        for scopePath, execList in result['execution_tree'].items():
+            result['execution_tree'][scopePath] = list(set(execList))
 
         descTreToJson(result, descTree)
         return result
     else:
         return jsonToDescTree(descTree)
 
+@debugDecor
 def jsonToDescTree(descTree):
     if isinstance(descTree, str):
         with open(descTree, 'r') as f:
@@ -331,19 +332,22 @@ def jsonToDescTree(descTree):
     else:
         return descTree
 
+#No @debugDecor for this low-level method
 def descTreToJson(descTreeObj, descTreeFile):
     with open(descTreeFile, 'w') as f:
         json.dump(descTreeObj, f)
 
-def scopeToFiles(scope, descTree):
+#No @debugDecor for this low-level method
+def scopeToFiles(scopePath, descTree):
     """
     Return the name of the file defining the scope
-    :param scope: scope to search for
+    :param scopePath: scope path to search for
     :param descTree: tree description file (obtained by descTree) or its json equivalence
     :return: list file names in which scope is defined
     """
-    return [filename for filename, scopes in descTree['scopes'].items() if scope in scopes]
+    return [filename for filename, scopes in descTree['scopes'].items() if scopePath in scopes]
 
+@debugDecor
 def fileToScopes(filename, descTree):
     """
     Return the scopes contained in the file
@@ -373,6 +377,7 @@ def _recurList(node, descTreePart, level, down):
         return result
     return recur(node, level, [])
 
+@debugDecor
 def needsFile(filename, descTree, level=1):
     """
     :param filename: initial file name
@@ -382,6 +387,7 @@ def needsFile(filename, descTree, level=1):
     """
     return _recurList(filename, jsonToDescTree(descTree)['compilation_tree'], level, True)
 
+@debugDecor
 def neededByFile(filename, descTree, level=1):
     """
     :param filename: initial file name
@@ -391,34 +397,37 @@ def neededByFile(filename, descTree, level=1):
     """
     return _recurList(filename, jsonToDescTree(descTree)['compilation_tree'], level, False)
 
-def callsScopes(scope, descTree, level=1):
+@debugDecor
+def callsScopes(scopePath, descTree, level=1):
     """
-    :param scope: initial scope
+    :param scopePath: initial scope path
     :param descTree: tree description file (obtained by descTree) or its json equivalence
-    :param level: number of levels (0 to get only the initial scope, None to get all scopes)
-    :return: list of scopes called by the initial scope (recursively)
+    :param level: number of levels (0 to get only the initial scope path, None to get all scopes)
+    :return: list of scopes called by the initial scope path (recursively)
     """
-    return _recurList(scope, jsonToDescTree(descTree)['execution_tree'], level, True)
+    return _recurList(scopePath, jsonToDescTree(descTree)['execution_tree'], level, True)
 
-def calledByScope(scope, descTree, level=1):
+@debugDecor
+def calledByScope(scopePath, descTree, level=1):
     """
-    :param scope: initial scope
+    :param scopePath: initial scope path
     :param descTree: tree description file (obtained by descTree) or its json equivalence
-    :param level: number of levels (0 to get only the initial scope, None to get all scopes)
-    :return: list of scopes that calls the initial scope (recursively)
+    :param level: number of levels (0 to get only the initial scope path, None to get all scopes)
+    :return: list of scopes that calls the initial scope path (recursively)
     """
-    return _recurList(scope, jsonToDescTree(descTree)['execution_tree'], level, False)
+    return _recurList(scopePath, jsonToDescTree(descTree)['execution_tree'], level, False)
 
-def isUnderStopScopes(scope, descTree, stopScopes, includeInterfaces=False, includeStopScopes=False):
+@debugDecor
+def isUnderStopScopes(scopePath, descTree, stopScopes, includeInterfaces=False, includeStopScopes=False):
     """
-    :param scope: scope to test
+    :param scopePath: scope path to test
     :param descTree: tree description file (obtained by descTree) or its json equivalence
     :param stopScopes: list of scopes
     :param includeInterfaces: if True, interfaces of positive scopes are also positive
     :param includeInterfaces: if True, scopes that are in stopScopes return True
-    :return: True if scope is called directly or indirectly by one of the scope listed in stopScopes
+    :return: True if the scope path is called directly or indirectly by one of the scope paths listed in stopScopes
     """
-    scopeSplt = scope.split('/')
+    scopeSplt = scopePath.split('/')
     if includeInterfaces and len(scopeSplt) >= 2 and scopeSplt[-2].split(':')[0] == 'interface':
         #This scope declares an interface, we look for the scope corresponding to this interface
         scopeI = scopeSplt[-1]
@@ -428,14 +437,14 @@ def isUnderStopScopes(scope, descTree, stopScopes, includeInterfaces=False, incl
         else:
             #No code found for this interface
             return False
-    upperScopes = calledByScope(scope, descTree, None)
-    return any([scp in upperScopes for scp in stopScopes]) or (includeStopScopes and scope in stopScopes)
+    upperScopes = calledByScope(scopePath, descTree, None)
+    return any([scp in upperScopes for scp in stopScopes]) or (includeStopScopes and scopePath in stopScopes)
 
 @debugDecor
 def plotTree(centralNodeList, descTree, output, plotMaxUpper, plotMaxLower, kind, frame=False):
     """
     Compute a dependency graph
-    :param centralNodeList: file, scope, list of files or list of scopes
+    :param centralNodeList: file, scope path, list of files or list of scope paths
     :param descTree: tree description file (obtained by descTree)
     :param output: output file name (.dot or .png extension)
     :param plotMaxUpper: Maximum number of elements to plot, upper than the central element
@@ -473,11 +482,11 @@ def plotTree(centralNodeList, descTree, output, plotMaxUpper, plotMaxLower, kind
         return result
     def add(item):
         if item not in dot: dot.append(item)
-    def filename(scope):
+    def filename(scopePath):
         if kind == 'compilation_tree':
             return None
         else:
-            return [f for f, l in descTree['scopes'].items() if scope in l][0]
+            return [f for f, l in descTree['scopes'].items() if scopePath in l][0]
     def recur(node, level, down):
         if level is None or level > 0:
             if down:
@@ -498,8 +507,8 @@ def plotTree(centralNodeList, descTree, output, plotMaxUpper, plotMaxLower, kind
     printInFrame = False
     if kind == 'execution_tree':
         centralScopeFilenames = []
-        for scope in centralNodeList:
-            centralScopeFilenames.append(filename(scope))
+        for scopePath in centralNodeList:
+            centralScopeFilenames.append(filename(scopePath))
         centralScopeFilenames = list(set(centralScopeFilenames))
         if len(centralScopeFilenames) == 1:
             frame = True
@@ -530,7 +539,7 @@ def plotTree(centralNodeList, descTree, output, plotMaxUpper, plotMaxLower, kind
         dotCommand = ['dot', '-T' + fmt, '-o', output]
         logging.info('Dot command: ' + ' '.join(dotCommand))
         subprocess.run(dotCommand, input=dot.encode('utf8'), check=True)
-        
+
 @debugDecor
 def plotCompilTreeFromFile(filename, descTree, output, plotMaxUpper, plotMaxLower):
     """
@@ -544,29 +553,29 @@ def plotCompilTreeFromFile(filename, descTree, output, plotMaxUpper, plotMaxLowe
     return plotTree(filename, descTree, output, plotMaxUpper, plotMaxLower, 'compilation_tree', True)
 
 @debugDecor
-def plotExecTreeFromScope(scope, descTree, output, plotMaxUpper, plotMaxLower):
+def plotExecTreeFromScope(scopePath, descTree, output, plotMaxUpper, plotMaxLower):
     """
     Compute the execution dependency graph
-    :param scope: central scope
+    :param scopePath: central scope path
     :param descTree: tree description file (obtained by descTree)
     :param output: output file name (.dot or .png extension)
     :param plotMaxUpper: Maximum number of elements to plot, upper than the central element
     :param plotMaxLower: Maximum number of elements to plot, lower than the central element
     """
-    return plotTree(scope, descTree, output, plotMaxUpper, plotMaxLower, 'execution_tree')
+    return plotTree(scopePath, descTree, output, plotMaxUpper, plotMaxLower, 'execution_tree')
 
 @debugDecor
-def plotCompilTreeFromScope(scope, descTree, output, plotMaxUpper, plotMaxLower):
+def plotCompilTreeFromScope(scopePath, descTree, output, plotMaxUpper, plotMaxLower):
     """
     Compute the compilation dependency graph
-    :param scope: central scope
+    :param scopePath: central scope path
     :param descTree: tree description file (obtained by descTree)
     :param output: output file name (.dot or .png extension)
     :param plotMaxUpper: Maximum number of elements to plot, upper than the central element
     :param plotMaxLower: Maximum number of elements to plot, lower than the central element
     """
     descTree = jsonToDescTree(descTree)
-    return plotTree(scopeToFiles(scope, descTree), descTree, output, plotMaxUpper, plotMaxLower,
+    return plotTree(scopeToFiles(scopePath, descTree), descTree, output, plotMaxUpper, plotMaxLower,
                     'compilation_tree')
 
 @debugDecor
@@ -584,184 +593,19 @@ def plotExecTreeFromFile(filename, descTree, output, plotMaxUpper, plotMaxLower)
                     'execution_tree', True)
 
 @debugDecor
-def findScopeInterface(descTree, scope):
+def findScopeInterface(descTree, scopePath):
     """
-    Return the file name containing an interface for the scope
+    Return the file name containing an interface for the scope path
     :param descTree: descTree file
-    :param scope: scope name for which an interface is searched
+    :param scopePath: scope path for which an interface is searched
     :return: (file name, interface scope) or (None, None) if not found
     """
     for filename, scopes in descTree['scopes'].items():
         for scopeInterface in scopes:
-            if re.search(r'interface:[a-zA-Z0-9_-]*/' + scope, scopeInterface):
+            if re.search(r'interface:[a-zA-Z0-9_-]*/' + scopePath, scopeInterface):
                 return filename, scopeInterface
     return None, None
 
-@debugDecor
-def addArgInTree(doc, scope, descTree, varName, declStmt, pos, stopScopes, moduleVarList=None,
-                 otherNames=None,
-                 parser=None, parserOptions=None, wrapH=False):
-    """
-    Adds an argument to the routine and propagates it upward until we encounter a scope
-    where the variable exists or a scope in stopScopes
-    :param doc: etree of the starting routine
-    :param scope: scope to start with (if None, try to guess it from the scopes defined in doc)
-    :param descTree: descTree file
-    :param varName: variable name
-    :param declStmt: declarative statment (will be used by addVar)
-    :param pos: position of the variable in the list of dummy argument
-    :param stopScopes: list of scopes to reach
-    :param moduleVarList: list of module variable specification to insert in the xml code
-                          a module variable specification is a list of two elements:
-                          - module name
-                          - variable name or or list of variable names
-                            or None to add a USE statement without the ONLY attribute
-                          use moduleVarList to not add module variables
-    :param otherNames: None or list of other variable names that can be used
-                       These variables are used first
-    :param parser, parserOptions, wrapH: see the pyft class
-
-    Argument is inserted only on paths leading to one of scopes listed in stopScopes
-    """
-    def insertInArgList(varName, varNameToUse, pos, callFuncStmt):
-        """
-        Insert varName in the list of arguments to the subroutine or function call
-        :param varName: name of the dummy argument
-        :param varNameToUse: name of the variable
-        :param pos: inclusion position
-        :param callFuncStmt: call statement or function call
-        """
-        argList = callFuncStmt.find('./{*}R-LT/{*}parens-R/{*}element-LT')
-        if argList is not None:
-            container = ET.Element('{http://fxtran.net/#syntax}element')
-        else:
-            argList = callFuncStmt.find('./{*}arg-spec')
-            container = ET.Element('{http://fxtran.net/#syntax}arg')
-            if argList is None:
-                #Call without argument
-                callFuncStmt.find('./{*}procedure-designator').tail = '('
-                argList = ET.Element('{http://fxtran.net/#syntax}arg-spec')
-                argList.tail = ')'
-                callFuncStmt.append(argList)
-        item = createExprPart(varNameToUse)
-        previous = pos - 1 if pos >= 0 else len(argList) + pos #convert negative pos using length
-        while previous >= 0 and argList[previous].tag.split('}')[1] in ('C', 'cnt'):
-            previous -= 1
-        following = pos if pos > 0 else len(argList) + pos + 1 #convert negative pos using length
-        while following <= len(argList) - 1 and argList[following].tag.split('}')[1] in ('C', 'cnt'):
-            following += 1
-        if (previous >= 0 and argList[previous].find('./{*}arg-N/{*}k') is not None) or \
-           (following <= len(argList) - 1 and argList[following].find('./{*}arg-N/{*}k') is not None) or \
-           following == len(argList):
-            #We use the key=val syntax whereever it is possible because it's safer in case of optional arguments
-            #If previous arg, or following arg is already with a key=val syntax, we can (must) use it
-            #If the inserted argument is the last one of the list, it also can use this syntax
-            k = ET.Element('{http://fxtran.net/#syntax}k')
-            k.text = varName
-            argN = ET.Element('{http://fxtran.net/#syntax}arg-N')
-            argN.append(k)
-            argN.tail = '='
-            argN.set('n', varName)
-            container.append(argN)
-        container.append(item)
-        insertInList(pos, container, argList)
-
-    descTree = jsonToDescTree(descTree)
-    if scope is None:
-        allScopes = [scope for scope in getScopesList(doc)
-                     if scope.split('/')[-1].split(':')[0] in ('sub', 'func')]
-        if len(allScopes) == 1:
-            scope = allScopes[0]
-        else:
-            raise PYFTError('Unable to guess the scope to deal with')
-
-    if scope in stopScopes or isUnderStopScopes(scope, descTree, stopScopes):
-        #We are on the path to a scope in the stopScopes list, or scopeUp is one of the stopScopes
-        varList = getVarList(doc)
-        var = findVar(doc, varName, scope, varList, exactScope=True)
-        if otherNames is not None:
-            vOther = [findVar(doc, v, scope, varList, exactScope=True) for v in otherNames]
-            vOther = [v for v in vOther if v is not None]
-            if len(vOther) > 0:
-                var = vOther[-1]
-
-        if var is None:
-           #The variable doesn't exist in this scope, we add it
-           addVar(doc, [[scope, varName, declStmt, pos]])
-           if moduleVarList is not None:
-               #Module variables must be added when var is added
-               addModuleVar(doc, [(scope, moduleName, moduleVarNames)
-                                  for (moduleName, moduleVarNames) in moduleVarList])
-           #We look for interface declaration if subroutine is directly accessible
-           if len(scope.split('/')) == 1:
-               filename, scopeInterface = findScopeInterface(descTree, scope)
-               if filename is not None:
-                   if getFileName(doc) == filename:
-                       #interface declared in same file
-                       xml = doc
-                       pft = None
-                   else:
-                       pft = _conservativePYFT(filename, parser, parserOptions, wrapH)
-                       xml = pft._xml
-                   varInterface = findVar(xml, varName, scopeInterface, exactScope=True)
-                   if varInterface is None:
-                       addVar(xml, [[scopeInterface, varName, declStmt, pos]])
-                       if moduleVarList is not None:
-                           #Module variables must be added when var is added
-                           addModuleVar(xml, [(scopeInterface, moduleName, moduleVarNames)
-                                              for (moduleName, moduleVarNames) in moduleVarList])
-                   if pft is not None: pft.write()
-
-        if var is None and scope not in stopScopes:
-            #We must propagates upward
-            for scopeUp in calledByScope(scope, descTree): #scopes calling the current scope
-                if scopeUp in stopScopes or isUnderStopScopes(scopeUp, descTree, stopScopes):
-                    #We are on the path to a scope in the stopScopes list, or scopeUp is one of the stopScopes
-                    for filename in scopeToFiles(scopeUp, descTree): #can be defined several times?
-                        if getFileName(doc) == filename:
-                            #Upper scope is in the same file
-                            xml = doc
-                            pft = None
-                        else:
-                            pft = _conservativePYFT(filename, parser, parserOptions, wrapH)
-                            xml = pft._xml
-                        #Add the argument and propagate upward
-                        addArgInTree(xml, scopeUp, descTree, varName, declStmt, pos, stopScopes, moduleVarList,
-                                     otherNames, parser=parser, parserOptions=parserOptions, wrapH=wrapH)
-                        #Add the argument to calls (subroutine or function)
-                        scopeUpNode = ET.Element('scope')
-                        scopeUpNode.extend(getScopeChildNodes(xml, scopeUp))
-                        name = scope.split('/')[-1].split(':')[1].upper()
-                        isCalled = False
-                        varNameToUse = varName
-                        if otherNames is not None:
-                            varListUp = getVarList(xml)
-                            vOther = [findVar(xml, v, scopeUp, varListUp, exactScope=True) for v in otherNames]
-                            vOther = [v for v in vOther if v is not None]
-                            if len(vOther) > 0:
-                                varNameToUse = vOther[-1]['n']
-                        if scope.split('/')[-1].split(':')[0] == 'sub':
-                            #We look for call statements
-                            for callStmt in scopeUpNode.findall('.//{*}call-stmt'):
-                                callName = n2name(callStmt.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
-                                if callName == name:
-                                    insertInArgList(varName, varNameToUse, pos, callStmt)
-                                    isCalled = True
-                        else:
-                            #We look for function use
-                            for funcCall in scopeUpNode.findall('.//{*}named-E/{*}R-LT/{*}parens-R/{*}element-LT/../../..'):
-                                funcName = n2name(funcCall.find('./{*}N')).upper()
-                                if funcName == name:
-                                    insertInArgList(varName, varNameToUse, pos, funcCall)
-                                    isCalled = True
-                        if pft is not None: pft.write()
-
-                        if isCalled:
-                            #We must check in the scope (or upper scopes) if an interface block declares the routine
-                            for interface in doc.findall('.//{*}interface-construct/{*}program-unit/{*}subroutine-stmt/{*}subroutine-N/{*}N/../../../'):
-                                if n2name(interface.find('./{*}subroutine-stmt/{*}subroutine-N/{*}N')).upper() == name:
-                                    #We must add the argument to the interface
-                                    raise PYFTError('This case is not yet implemented')
 
 class Tree():
     @copy_doc(getDirs)
@@ -781,13 +625,9 @@ class Tree():
         return plotExecTreeFromFile(*args, **kwargs)
 
     @copy_doc(plotCompilTreeFromScope)
-    def plotCompilTreeFromFile(self, *args, **kwargs):
+    def plotCompilTreeFromScope(self, *args, **kwargs):
         return plotCompilTreeFromFile(*args, **kwargs)
 
     @copy_doc(plotExecTreeFromScope)
-    def plotExecTreeFromFile(self, *args, **kwargs):
+    def plotExecTreeFromScope(self, *args, **kwargs):
         return plotExecTreeFromFile(*args, **kwargs)
-
-    @copy_doc(addArgInTree)
-    def addArgInTree(self, *args, **kwargs):
-        return addArgInTree(self._xml, *args, **kwargs)
