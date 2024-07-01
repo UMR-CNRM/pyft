@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     #################################################################
-      SUBROUTINE SHALLOW_MF(D, CST, NEBN, PARAMMF, TURBN, CSTURB,     &
+      SUBROUTINE SHALLOW_MF1(D, CST, NEBN, PARAMMF, TURBN, CSTURB,     &
                 KRR, KRRL, KRRI, KSV,                                 &
                 ONOMIXLG,KSV_LGBEG,KSV_LGEND,                         &
                 PTSTEP,                                               &
@@ -340,4 +340,4 @@ ENDIF
 CONTAINS
 INCLUDE "compute_frac_ice.func.h"
 !
-END SUBROUTINE SHALLOW_MF
+END SUBROUTINE SHALLOW_MF1

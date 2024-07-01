@@ -1,5 +1,5 @@
-!#PYFT transfo: --addACC_routine_seq --stopScopes sub:FOO
+!#PYFT transfo: --addACC_routine_seq --stopScopes sub:FOO1
 
-SUBROUTINE FOO(P)
+SUBROUTINE FOO1(P)
     REAL, DIMENSION(2) :: P
-END SUBROUTINE FOO
+END SUBROUTINE FOO1

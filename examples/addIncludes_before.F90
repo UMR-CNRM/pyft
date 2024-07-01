@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     ######spl
-     MODULE MODE_COMPUTE_UPDRAFT
+     MODULE MODE_COMPUTE_UPDRAFT2
 !    ###########################
 !
 IMPLICIT NONE
@@ -1115,5 +1115,5 @@ END SUBROUTINE COMPUTE_ENTR_DETR
 INCLUDE "th_r_from_thl_rt.func.h"
 INCLUDE "compute_frac_ice.func.h"
 END SUBROUTINE COMPUTE_UPDRAFT
-END MODULE MODE_COMPUTE_UPDRAFT
+END MODULE MODE_COMPUTE_UPDRAFT2
 

@@ -1,6 +1,6 @@
 !#PYFT transfo: --addArrayParentheses --addExplicitArrayBounds
 
-SUBROUTINE FOO
+SUBROUTINE FOO2
   INTEGER, DIMENSION(5, 4) :: I
   PRINT*, I
-END SUBROUTINE FOO
+END SUBROUTINE FOO2

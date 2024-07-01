@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     ######spl
-     MODULE MODE_COMPUTE_UPDRAFT
+     MODULE MODE_COMPUTE_UPDRAFT2
 !    ###########################
 !
 IMPLICIT NONE
@@ -1370,5 +1370,5 @@ END SELECT
 
 END SUBROUTINE COMPUTE_FRAC_ICE
 END SUBROUTINE COMPUTE_UPDRAFT
-END MODULE MODE_COMPUTE_UPDRAFT
+END MODULE MODE_COMPUTE_UPDRAFT2
 

@@ -54,7 +54,8 @@ for file in $tests; do
   if [ "$transfo" == "" ]; then
     ERROR+=" $name"
   else
-    output=$(pyft_tool.py --wrapH --tree . --descTree desctree.json --logLevel error \
+    [ "$debug" == 'y' ] && jsonpath="$DIR/" || jsonpath=""
+    output=$(pyft_tool.py --wrapH --tree . --descTree ${jsonpath}desctree.json --logLevel error \
              $file $trans $transfo 2>&1)
     res=$?
     if [[ $file == *_before.F90 ]]; then
