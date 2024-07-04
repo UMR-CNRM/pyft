@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     ######spl
-     MODULE MODE_COMPUTE_UPDRAFT
+     MODULE MODE_COMPUTE_UPDRAFT4
 !    ###########################
 !
 IMPLICIT NONE
@@ -1117,5 +1117,5 @@ ENDDO
 
 END SUBROUTINE COMPUTE_ENTR_DETR
 END SUBROUTINE COMPUTE_UPDRAFT
-END MODULE MODE_COMPUTE_UPDRAFT
+END MODULE MODE_COMPUTE_UPDRAFT4
 

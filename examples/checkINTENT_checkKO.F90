@@ -1,6 +1,6 @@
 !#PYFT transfo: --checkINTENT Err
 
-SUBROUTINE CHECK(ARG1, ARG2, &
+SUBROUTINE CHECK3(ARG1, ARG2, &
                  !La ligne suivante est commentée, Z1 n'est donc pas un argument
                  !Z1, &
                  ARG3)
@@ -18,4 +18,4 @@ REAL :: ARG2
 !L'argument suivant est local et ne doit pas avoir d'INTENT
 REAL :: Z1
 
-END SUBROUTINE CHECK
+END SUBROUTINE CHECK3

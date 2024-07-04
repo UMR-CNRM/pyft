@@ -1,13 +1,29 @@
 #!/bin/bash
 
-update='n' #'y' to update the references
-debug='n' #'y' to save the transformed file
-
 which pyft_tool.py 2>&1 >/dev/null
 if [ $? -ne 0 ]; then
   echo "pyft_tool.py not found!"
   exit 3
 fi
+
+function usage {
+  echo "Usage: $0 [--update] [--debug] [file]\*"
+  echo "  --update to update reference instead of comparing to it"
+  echo "  --debug copy resulting file in the example directory when different from the reference"
+  echo "  If file names are present on the command line, tests are limited to these files"
+}
+update='n'
+debug='n'
+tests=""
+while [ -n "$1" ]; do
+  case "$1" in
+    '-h') usage; exit;;
+    '--update') update='y';;
+    '--debug') debug='y';;
+    *) tests+=" $1";;
+  esac
+  shift
+done
 
 #Temporary directory
 TMP_LOC=$(mktemp -d)
@@ -21,8 +37,12 @@ cd $TMP_LOC
 FAIL=""
 ERROR="" #Crash
 
+if [ "$tests" == "" ]; then
+  tests=$(ls *_before.F90 *_checkOK.F90 *_checkKO.F90 2>/dev/null)
+fi
+
 #Transformations and checks
-for file in $(ls *_before.F90 *_checkOK.F90 *_checkKO.F90 2>/dev/null); do
+for file in $tests; do
   if [[ $file == *_before.F90 ]]; then
     name=$(echo $file | rev | cut -c 12- | rev)
   elif [[ $file == *_checkOK.F90 || $file == *_checkKO.F90 ]]; then
@@ -34,7 +54,8 @@ for file in $(ls *_before.F90 *_checkOK.F90 *_checkKO.F90 2>/dev/null); do
   if [ "$transfo" == "" ]; then
     ERROR+=" $name"
   else
-    output=$(pyft_tool.py --wrapH --tree . --descTree desctree.json --logLevel error \
+    [ "$debug" == 'y' ] && jsonpath="$DIR/" || jsonpath=""
+    output=$(pyft_tool.py --wrapH --tree . --descTree ${jsonpath}desctree.json --logLevel error \
              $file $trans $transfo 2>&1)
     res=$?
     if [[ $file == *_before.F90 ]]; then

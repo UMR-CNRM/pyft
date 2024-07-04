@@ -5,7 +5,7 @@
 !MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
-      SUBROUTINE TURB(CST,CSTURB,BUCONF,TURBN,NEBN,D,TLES,            &
+      SUBROUTINE TURB3(CST,CSTURB,BUCONF,TURBN,NEBN,D,TLES,            &
               & KMI,KRR,KRRL,KRRI,HLBCX,HLBCY,KGRADIENTS,KHALO,       &
               & KSPLIT,KMODEL_CL,KSV,KSV_LGBEG,KSV_LGEND,             &
               & KSV_LIMA_NR, KSV_LIMA_NS, KSV_LIMA_NG, KSV_LIMA_NH,   &
@@ -1969,4 +1969,4 @@ ENDIF
 IF (LHOOK) CALL DR_HOOK('TURB:CLOUD_MODIF_LM',1,ZHOOK_HANDLE2)
 END SUBROUTINE CLOUD_MODIF_LM
 !
-END SUBROUTINE TURB
+END SUBROUTINE TURB3

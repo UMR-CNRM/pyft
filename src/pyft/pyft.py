@@ -1,20 +1,44 @@
 #!/usr/bin/env python3
 
+"""
+This module contains the main classes
+PYFT is the file level class (read/write...)
+PYFTscope contains the transformations acting on a xml
+"""
+
 import os
 import sys
 
-from pyft.variables import Variables
-from pyft.cosmetics import Cosmetics
-from pyft.applications import Applications
-from pyft.scope import Scope
-from pyft.statements import Statements
+from pyft.scope import PYFTscope
 from pyft.tree import Tree
-from pyft.cpp import Cpp
-from pyft.openacc import Openacc
-from pyft.util import (tostring, tofortran, fortran2xml, set_verbosity, print_infos, PYFTError,
-                       cacheParents)
+from pyft.util import (debugDecor, tostring, tofortran, fortran2xml,
+                       set_verbosity, print_infos, PYFTError)
 
-class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Openacc):
+
+@debugDecor
+def conservativePYFT(filename, parser, parserOptions, wrapH,
+                     tree=None, verbosity=None):
+    """
+    Return a conservative PYFT object usable for tree manipulation
+    :param filename: name of the file to open
+    :param parser, parserOptions, wrapH: see the pyft class
+    :param verbosity: if not None, sets the verbosity level
+    :return: PYFT object
+    """
+    options = PYFT.DEFAULT_FXTRAN_OPTIONS if parserOptions is None else parserOptions
+    options = options.copy()
+    if len(set(options).intersection(('-no-include', '-noinclude'))) == 0:
+        # We add the option to not include 'include files' when analysing the tree
+        options.append('-no-include')
+    pft = PYFT(filename, parser=parser, parserOptions=options, wrapH=wrapH,
+               tree=tree, verbosity=verbosity)
+    return pft
+
+
+class PYFT(PYFTscope):
+    """
+    This class extends the PYFTscope one by adding file support (read/write)
+    """
     DEFAULT_FXTRAN_OPTIONS = ['-construct-tag', '-no-include', '-no-cpp', '-line-length', '9999']
     MANDATORY_FXTRAN_OPTIONS = ['-construct-tag']
 
@@ -29,7 +53,7 @@ class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Ope
         :param wrapH: if True, content of .h file is put in a .F90 file (to force
                       fxtran to recognize it as free form) inside a module (to
                       enable the reading of files containing only a code part)
-        :param tree: list of directories where code can be searched for
+        :param tree: an optional Tree instance
         :param enableCache: True to cache node parents
         """
         if not sys.version_info >= (3, 8):
@@ -41,19 +65,20 @@ class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Ope
         assert os.path.exists(filename), 'Input filename must exist'
         self._output = output
         self._parser = 'fxtran' if parser is None else parser
-        self.tree = tree
+        tree = Tree() if tree is None else tree
         self._parserOptions = self.DEFAULT_FXTRAN_OPTIONS if parserOptions is None else parserOptions
         self._parserOptions = self._parserOptions.copy()
-        for t in self.getDirs():
+        for t in tree.getDirs():
             self._parserOptions.extend(['-I', t])
         for option in self.MANDATORY_FXTRAN_OPTIONS:
             if option not in self._parserOptions:
                 self._parserOptions.append(option)
-        self._ns, self._xml = fortran2xml(self._filename, self._parser, self._parserOptions, wrapH)
+        ns, includesRemoved, xml = fortran2xml(self._filename, self._parser, self._parserOptions, wrapH)
+        super().__init__(xml, ns, enableCache=enableCache, tree=tree)
+        if includesRemoved:
+            self.tree.update(self)
         if verbosity is not None:
             set_verbosity(verbosity)
-        if enableCache:
-            cacheParents(self._xml)
 
     def close(self):
         print_infos()
@@ -63,14 +88,14 @@ class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Ope
         """
         Returns the xml as a string
         """
-        return tostring(self._xml)
+        return tostring(self.node)
 
     @property
     def fortran(self):
         """
         Returns the FORTRAN as a string
         """
-        return tofortran(self._xml)
+        return tofortran(self.node)
 
     def renameUpper(self):
         """
@@ -115,4 +140,3 @@ class PYFT(Variables, Cosmetics, Applications, Scope, Statements, Tree, Cpp, Ope
         """
         with open(filename, 'w') as f:
            f.write(self.xml)
-

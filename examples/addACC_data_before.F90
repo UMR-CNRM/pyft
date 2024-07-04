@@ -1,4 +1,4 @@
-!#PYFT transfo: --addIncludes
+!#PYFT transfo: --addACC_data
 
 !MNH_LIC Copyright 2004-2019 CNRS, Meteo-France and Universite Paul Sabatier
 !MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     ######spl
-     MODULE MODE_COMPUTE_UPDRAFT2
+     MODULE MODE_COMPUTE_UPDRAFT1
 !    ###########################
 !
 IMPLICIT NONE
@@ -192,7 +192,7 @@ REAL  :: ZTMAX,ZRMAX  ! control value
 REAL, DIMENSION(D%NIJT) :: ZSURF
 REAL, DIMENSION(D%NIJT,D%NKT) :: ZSHEAR,ZDUDZ,ZDVDZ ! vertical wind shear
 !
-REAL, DIMENSION(D%NIJT,D%NKT) :: ZWK
+REAL, DIMENSION(D%NIJT,D%NKT) :: ZWK, KDEPTH
 REAL, DIMENSION(D%NIJT,16) :: ZBUF
 !
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
@@ -233,9 +233,6 @@ REAL                   :: ZDZ                  ! Delta Z used in computations
 INTEGER :: JKLIM
 INTEGER :: IIJB,IIJE ! physical horizontal domain indices
 INTEGER :: IKT,IKB,IKE,IKL
-INTEGER, PARAMETER :: IEXN=1, IRVSAT=2, ICPH=3, IRLTEMP=4, ICPH2=5, IT=6, ILVOCPEXN=7, ILSOCPEXN=8, &
-                    & IDRSATODT=9, IDRSATODTW=10, IDRSATODTI=11, IFOESW=12, IFOESI=13, &
-                    & ILOGT=14, I99PP=15, I1PRT=16
 !
 IF (LHOOK) CALL DR_HOOK('COMPUTE_UPDRAFT',0,ZHOOK_HANDLE)
 !
@@ -357,10 +354,10 @@ IF (OENTR_DETR) THEN
   PRC_UP(:,IKB)=0.
   PRI_UP(:,IKB)=0.
   !$mnh_end_expand_array(JIJ=IIJB:IIJE)
-  CALL TH_R_FROM_THL_RT(CST, NEBN, D%NIJT, NEBN%CFRAC_ICE_SHALLOW_MF,PFRAC_ICE_UP(:,IKB),ZPRES_F(:,IKB), &
+  CALL TH_R_FROM_THL_RT(D, CST, NEBN, NEBN%CFRAC_ICE_SHALLOW_MF, PFRAC_ICE_UP(:,IKB), ZPRES_F(:,IKB), &
              PTHL_UP(:,IKB),PRT_UP(:,IKB),ZTH_UP(:,IKB), &
              PRV_UP(:,IKB),PRC_UP(:,IKB),PRI_UP(:,IKB),ZRSATW(:),ZRSATI(:), OOCEAN=.FALSE., &
-             PBUF=ZBUF(:,:), KB=D%NIJB, KE=D%NIJE)
+             PBUF=ZBUF(:,:))
 
   !$mnh_expand_array(JIJ=IIJB:IIJE)
   ! compute updraft thevav and buoyancy term at KKB level
@@ -584,10 +581,10 @@ DO JK=IKB,IKE-IKL,IKL
     ZRC_UP(IIJB:IIJE)=PRC_UP(IIJB:IIJE,JK) ! guess = level just below
     ZRI_UP(IIJB:IIJE)=PRI_UP(IIJB:IIJE,JK) ! guess = level just below
     !$mnh_end_expand_array(JIJ=IIJB:IIJE)
-    CALL TH_R_FROM_THL_RT(CST, NEBN, D%NIJT, NEBN%CFRAC_ICE_SHALLOW_MF,PFRAC_ICE_UP(:,JK+IKL),ZPRES_F(:,JK+IKL), &
+    CALL TH_R_FROM_THL_RT(D, CST, NEBN, NEBN%CFRAC_ICE_SHALLOW_MF, PFRAC_ICE_UP(:,JK+IKL), ZPRES_F(:,JK+IKL), &
             PTHL_UP(:,JK+IKL),PRT_UP(:,JK+IKL),ZTH_UP(:,JK+IKL),              &
             ZRV_UP(:),ZRC_UP(:),ZRI_UP(:),ZRSATW(:),ZRSATI(:), OOCEAN=.FALSE., &
-            PBUF=ZBUF(:,:), KB=D%NIJB, KE=D%NIJE)
+            PBUF=ZBUF(:,:))
     !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE(GTEST(IIJB:IIJE))
       PRC_UP(IIJB:IIJE,JK+IKL)=ZRC_UP(IIJB:IIJE)
@@ -596,7 +593,7 @@ DO JK=IKB,IKE-IKL,IKL
       PRSAT_UP(IIJB:IIJE,JK+IKL) = ZRSATW(IIJB:IIJE)*(1-PFRAC_ICE_UP(IIJB:IIJE,JK+IKL)) + &
                                      & ZRSATI(IIJB:IIJE)*PFRAC_ICE_UP(IIJB:IIJE,JK+IKL)
     ENDWHERE
-
+    !$mnh_end_expand_where(JIJ=IIJB:IIJE)
     ! Compute the updraft theta_v, buoyancy and w**2 for level JK+KKL
   DO JIJ=IIJB,IIJE
     IF(GTEST(JIJ)) THEN
@@ -617,14 +614,17 @@ DO JK=IKB,IKE-IKL,IKL
   END DO
 
     ! Test if the updraft has reach the ETL
+    !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE (GTEST(IIJB:IIJE).AND.(PBUO_INTEG(IIJB:IIJE,JK)<=0.))
       KKETL(IIJB:IIJE) = JK+IKL
       GTESTETL(IIJB:IIJE)=.TRUE.
     ELSEWHERE
       GTESTETL(IIJB:IIJE)=.FALSE.
     ENDWHERE
+    !$mnh_end_expand_where(JIJ=IIJB:IIJE)
 
     ! Test is we have reached the top of the updraft
+    !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE (GTEST(IIJB:IIJE).AND.((ZW_UP2(IIJB:IIJE,JK+IKL)<=0.).OR.(PEMF(IIJB:IIJE,JK+IKL)<=0.)))
         ZW_UP2(IIJB:IIJE,JK+IKL)=0.
         PEMF(IIJB:IIJE,JK+IKL)=0.
@@ -638,28 +638,36 @@ DO JK=IKB,IKE-IKL,IKL
         PFRAC_UP(IIJB:IIJE,JK+IKL)=0.
         KKCTL(IIJB:IIJE)=JK+IKL
     ENDWHERE
+    !$mnh_end_expand_where(JIJ=IIJB:IIJE)
  
     ! compute frac_up at JK+KKL
+    !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE (GTEST(IIJB:IIJE))
       PFRAC_UP(IIJB:IIJE,JK+IKL)=PEMF(IIJB:IIJE,JK+IKL)/&
                                       &(SQRT(ZW_UP2(IIJB:IIJE,JK+IKL))*ZRHO_F(IIJB:IIJE,JK+IKL))
     ENDWHERE
+    !$mnh_end_expand_where(JIJ=IIJB:IIJE)
 
     ! Updraft fraction must be smaller than XFRAC_UP_MAX
+    !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE (GTEST(IIJB:IIJE))
       PFRAC_UP(IIJB:IIJE,JK+IKL)=MIN(PARAMMF%XFRAC_UP_MAX,PFRAC_UP(IIJB:IIJE,JK+IKL))
     ENDWHERE
+    !$mnh_end_expand_where(JIJ=IIJB:IIJE)
 
     ! When cloudy and non-buoyant, updraft fraction must decrease
+    !$mnh_expand_where(JIJ=IIJB:IIJE)
     WHERE ((GTEST(IIJB:IIJE).AND.GTESTETL(IIJB:IIJE)).AND.GTESTLCL(IIJB:IIJE))
       PFRAC_UP(IIJB:IIJE,JK+IKL)=MIN(PFRAC_UP(IIJB:IIJE,JK+IKL),PFRAC_UP(IIJB:IIJE,JK))
     ENDWHERE
-
-    ! Mass flux is updated with the new updraft fraction
-    IF (OENTR_DETR) PEMF(IIJB:IIJE,JK+IKL)=PFRAC_UP(IIJB:IIJE,JK+IKL)*SQRT(ZW_UP2(IIJB:IIJE,JK+IKL))* &
-                                              &ZRHO_F(IIJB:IIJE,JK+IKL)
     !$mnh_end_expand_where(JIJ=IIJB:IIJE)
 
+    ! Mass flux is updated with the new updraft fraction
+
+    !$mnh_expand_array(JIJ=IIJB:IIJE)
+    IF (OENTR_DETR) PEMF(IIJB:IIJE,JK+IKL)=PFRAC_UP(IIJB:IIJE,JK+IKL)*SQRT(ZW_UP2(IIJB:IIJE,JK+IKL))* &
+                                              &ZRHO_F(IIJB:IIJE,JK+IKL)
+    !$mnh_end_expand_array(JIJ=IIJB:IIJE)
   END IF !OENTR_DETR
 ENDDO
 
@@ -682,14 +690,24 @@ IF(OENTR_DETR) THEN
   DO JIJ=IIJB,IIJE
      PDEPTH(JIJ) = MAX(0., PZZ(JIJ,KKCTL(JIJ)) -  PZZ(JIJ,KKLCL(JIJ)) )
   END DO
-
+  IF(PARAMMF%LVERLIMUP) THEN
+    DO JK=1,IKT
+      DO JIJ=IIJB,IIJE
+        KDEPTH(JIJ,JK) = MIN(MAX(0., PZZ(JIJ,JK) -  PZZ(JIJ,KKLCL(JIJ)) ), PDEPTH(JIJ))
+      END DO
+    END DO
+  END IF
   !$mnh_expand_array(JIJ=IIJB:IIJE)
   GWORK1(IIJB:IIJE)= (GTESTLCL(IIJB:IIJE) .AND. (PDEPTH(IIJB:IIJE) > ZDEPTH_MAX1) )
   !$mnh_end_expand_array(JIJ=IIJB:IIJE)
   DO JK=1,IKT
     !$mnh_expand_array(JIJ=IIJB:IIJE)
     GWORK2(IIJB:IIJE,JK) = GWORK1(IIJB:IIJE)
-    ZCOEF(IIJB:IIJE,JK) = (1.-(PDEPTH(IIJB:IIJE)-ZDEPTH_MAX1)/(ZDEPTH_MAX2-ZDEPTH_MAX1))
+    IF(PARAMMF%LVERLIMUP) THEN
+      ZCOEF(IIJB:IIJE,JK) = (1.-(KDEPTH(IIJB:IIJE,JK)-ZDEPTH_MAX1)/(ZDEPTH_MAX2-ZDEPTH_MAX1))
+    ELSE
+      ZCOEF(IIJB:IIJE,JK) = (1.-(PDEPTH(IIJB:IIJE)-ZDEPTH_MAX1)/(ZDEPTH_MAX2-ZDEPTH_MAX1))
+    END IF
     ZCOEF(IIJB:IIJE,JK)=MIN(MAX(ZCOEF(IIJB:IIJE,JK),0.),1.)
     !$mnh_end_expand_array(JIJ=IIJB:IIJE)
   ENDDO
@@ -946,11 +964,11 @@ ENDDO
 ZRCMIX(IIJB:IIJE)=PRC_UP(IIJB:IIJE)
 ZRIMIX(IIJB:IIJE)=PRI_UP(IIJB:IIJE)
 !$mnh_end_expand_array(JIJ=IIJB:IIJE)
-CALL TH_R_FROM_THL_RT(CST,NEBN,D%NIJT,NEBN%CFRAC_ICE_SHALLOW_MF,ZFRAC_ICE,&
+CALL TH_R_FROM_THL_RT(D, CST, NEBN, NEBN%CFRAC_ICE_SHALLOW_MF, ZFRAC_ICE,&
              PPRE_PLUS_HALF,PTHL_UP,PRT_UP,&
              ZTHMIX,ZRVMIX,ZRCMIX,ZRIMIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
-             PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+             PBUF=ZBUF)
 !$mnh_expand_array(JIJ=IIJB:IIJE)
 ZTHV_UP_F2(IIJB:IIJE) = ZTHMIX(IIJB:IIJE)*(1.+ZRVORD*ZRVMIX(IIJB:IIJE))/(1.+PRT_UP(IIJB:IIJE))
 !$mnh_end_expand_array(JIJ=IIJB:IIJE)
@@ -1022,11 +1040,11 @@ DO JIJ=IIJB,IIJE
     ZMIXRT(JIJ) = 0.1
   ENDIF
 ENDDO
-CALL TH_R_FROM_THL_RT(CST,NEBN,D%NIJT,NEBN%CFRAC_ICE_SHALLOW_MF,ZFRAC_ICE,&
+CALL TH_R_FROM_THL_RT(D, CST, NEBN, NEBN%CFRAC_ICE_SHALLOW_MF, ZFRAC_ICE,&
              ZPRE,ZMIXTHL,ZMIXRT,&
              ZTHMIX,ZRVMIX,PRC_MIX,PRI_MIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
-             PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+             PBUF=ZBUF)
 !$mnh_expand_array(JIJ=IIJB:IIJE)
 ZTHVMIX(IIJB:IIJE) = ZTHMIX(IIJB:IIJE)*(1.+ZRVORD*ZRVMIX(IIJB:IIJE))/(1.+ZMIXRT(IIJB:IIJE))
 
@@ -1036,11 +1054,11 @@ ZMIXTHL(IIJB:IIJE) = ZKIC_INIT * 0.5*(PTHLM(IIJB:IIJE,KK)+PTHLM(IIJB:IIJE,KK+KKL
 ZMIXRT(IIJB:IIJE)  = ZKIC_INIT * 0.5*(PRTM(IIJB:IIJE,KK)+PRTM(IIJB:IIJE,KK+KKL))+&
                        & (1. - ZKIC_INIT)*PRT_UP(IIJB:IIJE)
 !$mnh_end_expand_array(JIJ=IIJB:IIJE)
-CALL TH_R_FROM_THL_RT(CST,NEBN,D%NIJT,NEBN%CFRAC_ICE_SHALLOW_MF,ZFRAC_ICE,&
+CALL TH_R_FROM_THL_RT(D, CST, NEBN, NEBN%CFRAC_ICE_SHALLOW_MF, ZFRAC_ICE,&
              PPRE_PLUS_HALF,ZMIXTHL,ZMIXRT,&
              ZTHMIX,ZRVMIX,PRC_MIX,PRI_MIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
-             PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+             PBUF=ZBUF)
 !$mnh_expand_array(JIJ=IIJB:IIJE)
 ZTHVMIX_F2(IIJB:IIJE) = ZTHMIX(IIJB:IIJE)*(1.+ZRVORD*ZRVMIX(IIJB:IIJE))/(1.+ZMIXRT(IIJB:IIJE))
 !$mnh_end_expand_array(JIJ=IIJB:IIJE)
@@ -1112,8 +1130,263 @@ DO JIJ=IIJB,IIJE
 ENDDO
 
 END SUBROUTINE COMPUTE_ENTR_DETR
-INCLUDE "th_r_from_thl_rt.func.h"
-INCLUDE "compute_frac_ice.func.h"
+!MNH_LIC Copyright 2006-2022 CNRS, Meteo-France and Universite Paul Sabatier
+!MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
+!MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
+!MNH_LIC for details. version 1.
+      SUBROUTINE TH_R_FROM_THL_RT(CST, NEBN, KT, HFRAC_ICE,PFRAC_ICE,PP, &
+                                  PTHL, PRT, PTH, PRV, PRL, PRI,           &
+                                  PRSATW, PRSATI, PRR, PRS, PRG, PRH, OOCEAN,&
+                                  PBUF, KB, KE)
+! ******* TO BE INCLUDED IN THE *CONTAINS* OF A SUBROUTINE, IN ORDER TO EASE AUTOMATIC INLINING ******
+! => Don't use drHook !!!
+! "compute_frac_ice.func.h" must be included at the same time
+!     #################################################################
+!
+!
+!!****  *TH_R_FROM_THL_RT* - computes the non-conservative variables
+!!                          from conservative variables
+!!
+!!    PURPOSE
+!!    -------
+!!
+!!**  METHOD
+!!    ------
+!!    
+!!
+!!    EXTERNAL
+!!    --------
+!!
+!!    IMPLICIT ARGUMENTS
+!!    ------------------
+!!
+!!
+!!    REFERENCE
+!!    ---------
+!!
+!!    AUTHOR
+!!    ------
+!!      Julien PERGAUD      * Meteo-France *
+!!
+!!    MODIFICATIONS
+!!    -------------
+!!      Original         13/03/06
+!!      S. Riette April 2011 : ice added, allow ZRLTEMP to be negative
+!!                             we use dQsat/dT to help convergence
+!!                             use of optional PRR, PRS, PRG, PRH
+!!      S. Riette Nov 2016: support for HFRAC_ICE='S'
+!!
+!! --------------------------------------------------------------------------
+!
+!*      0. DECLARATIONS
+!          ------------
+!
+USE MODD_CST, ONLY : CST_t
+USE MODD_NEB_n, ONLY : NEB_t
+!
+IMPLICIT NONE
+!
+!
+!*      0.1  declarations of arguments
+!
+TYPE(CST_t),        INTENT(IN) :: CST
+TYPE(NEB_t),        INTENT(IN) :: NEBN
+INTEGER,            INTENT(IN) :: KT
+CHARACTER(LEN=1),   INTENT(IN) :: HFRAC_ICE
+LOGICAL,            INTENT(IN)   ::  OOCEAN       ! switch for Ocean model version
+REAL, DIMENSION(KT), INTENT(INOUT) :: PFRAC_ICE
+REAL, DIMENSION(KT), INTENT(IN) :: PP          ! Pressure
+REAL, DIMENSION(KT), INTENT(IN) :: PTHL    ! thetal to transform into th
+REAL, DIMENSION(KT),INTENT(IN)  :: PRT    ! Total mixing ratios to transform into rv,rc and ri
+REAL, DIMENSION(KT),OPTIONAL,INTENT(IN) :: PRR, PRS, PRG, PRH
+REAL, DIMENSION(KT), INTENT(OUT):: PTH    ! th
+REAL, DIMENSION(KT), INTENT(OUT):: PRV    ! vapor mixing ratio
+REAL, DIMENSION(KT), INTENT(INOUT):: PRL    ! vapor mixing ratio
+REAL, DIMENSION(KT), INTENT(INOUT):: PRI    ! vapor mixing ratio
+REAL, DIMENSION(KT), INTENT(OUT)  :: PRSATW ! estimated mixing ration at saturation over water
+REAL, DIMENSION(KT), INTENT(OUT)  :: PRSATI ! estimated mixing ration at saturation over ice
+REAL, DIMENSION(KT, 16), INTENT(OUT) :: PBUF ! buffer to replace automatic arrays
+INTEGER, OPTIONAL :: KB !first index to deal with (default is 1)
+INTEGER, OPTIONAL :: KE !last index to deal with (default if KT)
+!
+!-------------------------------------------------------------------------------
+!
+!       0.2  declaration of local variables
+INTEGER                       :: II ! Loop control
+INTEGER                       :: JITER ! number of iterations
+INTEGER                       :: JIJ, IIJB, IIJE
+INTEGER, PARAMETER :: IEXN=1, IRVSAT=2, ICPH=3, IRLTEMP=4, ICPH2=5, IT=6, ILVOCPEXN=7, ILSOCPEXN=8, &
+                    & IDRSATODT=9, IDRSATODTW=10, IDRSATODTI=11, IFOESW=12, IFOESI=13, &
+                    & ILOGT=14, I99PP=15, I1PRT=16
+REAL :: ZVAR1, ZVAR2, ZTPOW2, ZDELT
+
+!----------------------------------------------------------------------------
+!
+!*      1 Initialisation
+!         --------------
+!
+!
+!
+IIJB=MERGE(KB, 1, PRESENT(KB))
+IIJE=MERGE(KE, KT, PRESENT(KE))
+!Number of iterations
+JITER=2
+!
+!Computation of PBUF(IIJB:IIJE, ICPH2) depending on dummy arguments received
+PBUF(IIJB:IIJE, ICPH2)=0
+IF(PRESENT(PRR)) PBUF(IIJB:IIJE, ICPH2)=PBUF(IIJB:IIJE, ICPH2) + CST%XCL*PRR(IIJB:IIJE)
+IF(PRESENT(PRS)) PBUF(IIJB:IIJE, ICPH2)=PBUF(IIJB:IIJE, ICPH2) + CST%XCI*PRS(IIJB:IIJE)
+IF(PRESENT(PRG)) PBUF(IIJB:IIJE, ICPH2)=PBUF(IIJB:IIJE, ICPH2) + CST%XCI*PRG(IIJB:IIJE)
+IF(PRESENT(PRH)) PBUF(IIJB:IIJE, ICPH2)=PBUF(IIJB:IIJE, ICPH2) + CST%XCI*PRH(IIJB:IIJE)
+!
+!Computation of an approximate state thanks to PRL and PRI guess
+PBUF(IIJB:IIJE, IEXN)=(PP(IIJB:IIJE)/CST%XP00) ** CST%RDSCPD
+
+DO JIJ=IIJB,IIJE
+  PBUF(JIJ, I99PP)=0.99*PP(JIJ)
+  PRV(JIJ)=PRT(JIJ)-PRL(JIJ)-PRI(JIJ)
+  PBUF(JIJ, ICPH)=CST%XCPD+ CST%XCPV * PRV(JIJ)+ CST%XCL * PRL(JIJ) + CST%XCI * PRI(JIJ) + PBUF(JIJ, ICPH2)
+  ZVAR2=PBUF(JIJ, ICPH)*PBUF(JIJ, IEXN)
+  ZDELT=(PTHL(JIJ)*PBUF(JIJ, IEXN))-CST%XTT
+  PBUF(JIJ, ILVOCPEXN) = (CST%XLVTT + (CST%XCPV-CST%XCL) * ZDELT) /ZVAR2
+  PBUF(JIJ, ILSOCPEXN) = (CST%XLSTT + (CST%XCPV-CST%XCI) * ZDELT) /ZVAR2 
+  PTH(JIJ)=PTHL(JIJ)+PBUF(JIJ, ILVOCPEXN)*PRL(JIJ)+PBUF(JIJ, ILSOCPEXN)*PRI(JIJ)
+  PBUF(JIJ, I1PRT)=1+PRT(JIJ)
+ENDDO
+!
+!
+!       2 Iteration
+!         ---------
+
+DO II=1,JITER
+  IF (OOCEAN) THEN
+    PBUF(IIJB:IIJE, IT)=PTH(IIJB:IIJE)
+  ELSE
+    PBUF(IIJB:IIJE, IT)=PTH(IIJB:IIJE)*PBUF(IIJB:IIJE, IEXN)
+  END IF
+  !Computation of liquid/ice fractions
+  PFRAC_ICE(IIJB:IIJE) = 0.
+  DO JIJ=IIJB, IIJE
+    IF(PRL(JIJ)+PRI(JIJ) > 1.E-20) THEN
+      PFRAC_ICE(JIJ) = PRI(JIJ) / (PRL(JIJ)+PRI(JIJ))
+    ENDIF
+  ENDDO
+  CALL COMPUTE_FRAC_ICE(CST, HFRAC_ICE,NEBN,PFRAC_ICE(IIJB:IIJE),PBUF(IIJB:IIJE, IT))
+
+  !Computation of Rvsat and dRsat/dT
+  !In this version QSAT, QSATI, DQSAT and DQASATI functions are not used
+  !due to performance issue
+
+  ! Log does not vectorize on all compilers:
+  PBUF(IIJB:IIJE, ILOGT)=LOG(PBUF(IIJB:IIJE, IT))
+
+  DO JIJ=IIJB, IIJE
+    PBUF(JIJ, IFOESW) = MIN(EXP( CST%XALPW - CST%XBETAW/PBUF(JIJ, IT) - CST%XGAMW*PBUF(JIJ, ILOGT)  ), PBUF(JIJ, I99PP))
+    PBUF(JIJ, IFOESI) = MIN(EXP( CST%XALPI - CST%XBETAI/PBUF(JIJ, IT) - CST%XGAMI*PBUF(JIJ, ILOGT)  ), PBUF(JIJ, I99PP))
+    PRSATW(JIJ) = CST%XRD/CST%XRV*PBUF(JIJ, IFOESW)/PP(JIJ) / (1.+(CST%XRD/CST%XRV-1.)*PBUF(JIJ, IFOESW)/PP(JIJ))
+    PRSATI(JIJ) = CST%XRD/CST%XRV*PBUF(JIJ, IFOESI)/PP(JIJ) / (1.+(CST%XRD/CST%XRV-1.)*PBUF(JIJ, IFOESI)/PP(JIJ))
+    ZTPOW2=PBUF(JIJ, IT)**2
+    PBUF(JIJ, IDRSATODTW) = PRSATW(JIJ) / (1.+(CST%XRD/CST%XRV-1.)*PBUF(JIJ, IFOESW)/PP(JIJ) ) &
+                     * (CST%XBETAW/ZTPOW2 - CST%XGAMW/PBUF(JIJ, IT))*PBUF(JIJ, I1PRT)
+    PBUF(JIJ, IDRSATODTI) = PRSATI(JIJ) / (1.+(CST%XRD/CST%XRV-1.)*PBUF(JIJ, IFOESI)/PP(JIJ) ) &
+                     * (CST%XBETAI/ZTPOW2 - CST%XGAMI/PBUF(JIJ, IT))*PBUF(JIJ, I1PRT)
+    !PRSATW(JIJ) =  QSAT(PBUF(JIJ, IT),PP(JIJ)) !qsatw
+    !PRSATI(JIJ) = QSATI(PBUF(JIJ, IT),PP(JIJ)) !qsati
+    !PBUF(JIJ, IDRSATODTW) =  DQSAT(PBUF(JIJ, IT),PP(JIJ),PRSATW(JIJ))*PBUF(JIJ, I1PRT)
+    !PBUF(JIJ, IDRSATODTI) = DQSATI(PBUF(JIJ, IT),PP(JIJ),PRSATI(JIJ))*PBUF(JIJ, I1PRT)
+    PRSATW(JIJ) = PRSATW(JIJ)*PBUF(JIJ, I1PRT)
+    PRSATI(JIJ) = PRSATI(JIJ)*PBUF(JIJ, I1PRT)
+    PBUF(JIJ, IRVSAT) = PRSATW(JIJ)*(1-PFRAC_ICE(JIJ)) + PRSATI(JIJ)*PFRAC_ICE(JIJ)
+    PBUF(JIJ, IDRSATODT) = (PBUF(JIJ, IDRSATODTW)*(1-PFRAC_ICE(JIJ))+ &
+              & PBUF(JIJ, IDRSATODTI)*PFRAC_ICE(JIJ))
+
+    !Computation of new PRL, PRI and PRV
+    !Correction term applied to (PRV(JIJ)-PBUF(JIJ, IRVSAT)) is computed assuming that
+    !PBUF(JIJ, ILVOCPEXN), PBUF(JIJ, ILSOCPEXN) and PBUF(JIJ, ICPH) don't vary to much with T. It takes into account
+    !the variation (estimated linear) of Qsat with T
+    PBUF(JIJ, IRLTEMP)=(PRV(JIJ)-PBUF(JIJ, IRVSAT))/ &
+                  &(1 + PBUF(JIJ, IDRSATODT)*PBUF(JIJ, IEXN)* &
+                  &     (PBUF(JIJ, ILVOCPEXN)*(1-PFRAC_ICE(JIJ))+PBUF(JIJ, ILSOCPEXN)*PFRAC_ICE(JIJ)))
+    PBUF(JIJ, IRLTEMP)=MIN(MAX(-PRL(JIJ)-PRI(JIJ), PBUF(JIJ, IRLTEMP)),PRV(JIJ))
+    PRV(JIJ)=PRV(JIJ)-PBUF(JIJ, IRLTEMP)
+    PRL(JIJ)=PRL(JIJ)+PRI(JIJ)+PBUF(JIJ, IRLTEMP)
+    PRI(JIJ)=PFRAC_ICE(JIJ)     * (PRL(JIJ))
+    PRL(JIJ)=(1-PFRAC_ICE(JIJ)) * (PRT(JIJ) - PRV(JIJ))
+
+    !Computation of Cph (as defined in Meso-NH doc, equation 2.2, to be used with mixing ratios)
+    PBUF(JIJ, ICPH)=CST%XCPD+ CST%XCPV * PRV(JIJ)+ CST%XCL * PRL(JIJ) + CST%XCI * PRI(JIJ) + PBUF(JIJ, ICPH2)
+
+    !Computation of L/Cph/EXN, then new PTH
+    ZVAR2=PBUF(JIJ, ICPH)*PBUF(JIJ, IEXN)
+    PBUF(JIJ, ILVOCPEXN) = (CST%XLVTT + (CST%XCPV-CST%XCL) * (PBUF(JIJ, IT)-CST%XTT)) /ZVAR2
+    PBUF(JIJ, ILSOCPEXN) = (CST%XLSTT + (CST%XCPV-CST%XCI) * (PBUF(JIJ, IT)-CST%XTT)) /ZVAR2
+    PTH(JIJ)=PTHL(JIJ)+PBUF(JIJ, ILVOCPEXN)*PRL(JIJ)+PBUF(JIJ, ILSOCPEXN)*PRI(JIJ)
+
+    !Computation of estimated mixing ration at saturation
+    !To compute the adjustement a first order development was used
+    ZVAR1=PTH(JIJ)*PBUF(JIJ, IEXN)-PBUF(JIJ, IT)
+    PRSATW(JIJ)=PRSATW(JIJ) + PBUF(JIJ, IDRSATODTW)*ZVAR1
+    PRSATI(JIJ)=PRSATI(JIJ) + PBUF(JIJ, IDRSATODTI)*ZVAR1
+  ENDDO
+ENDDO
+
+END SUBROUTINE TH_R_FROM_THL_RT
+
+!MNH_LIC Copyright 2006-2019 CNRS, Meteo-France and Universite Paul Sabatier
+!MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
+!MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
+!MNH_LIC for details. version 1.
+      ELEMENTAL SUBROUTINE COMPUTE_FRAC_ICE(CST, HFRAC_ICE,NEBN,PFRAC_ICE,PT,KERR)
+
+! ******* TO BE INCLUDED IN THE *CONTAINS* OF A SUBROUTINE, IN ORDER TO EASE AUTOMATIC INLINING ******
+! => Don't use drHook !!!
+!
+!!****  *COMPUTE_FRAC_ICE* - computes ice fraction
+!
+!!    AUTHOR
+!!    ------
+!!      Julien PERGAUD      * Meteo-France *
+!!
+!!    MODIFICATIONS
+!!    -------------
+!!      Original         13/03/06
+!!      S. Riette        April 2011 optimisation
+!!      S. Riette        08/2016 add option O
+!!      R. El Khatib     12-Aug-2021 written as a include file
+!
+!! --------------------------------------------------------------------------
+USE MODD_NEB_n, ONLY : NEB_t
+USE MODD_CST, ONLY : CST_t
+!
+IMPLICIT NONE
+!
+TYPE(CST_t),      INTENT(IN)    :: CST
+CHARACTER(LEN=1), INTENT(IN)    :: HFRAC_ICE       ! scheme to use
+TYPE(NEB_t),      INTENT(IN)    :: NEBN
+REAL,             INTENT(IN)    :: PT              ! temperature
+REAL,             INTENT(INOUT) :: PFRAC_ICE       ! Ice fraction (1 for ice only, 0 for liquid only)
+INTEGER, OPTIONAL,        INTENT(OUT)   :: KERR            ! Error code in return
+!
+!------------------------------------------------------------------------
+
+!                1. Compute FRAC_ICE
+!
+IF (PRESENT(KERR)) KERR=0
+SELECT CASE(HFRAC_ICE)
+  CASE ('T') !using Temperature
+    PFRAC_ICE = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - PT ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
+  CASE ('O') !using Temperature with old formulae
+    PFRAC_ICE = MAX( 0., MIN(1., (( CST%XTT - PT ) / 40.) ) ) ! freezing interval
+  CASE ('N') !No ice
+    PFRAC_ICE = 0.
+  CASE ('S') !Same as previous
+    ! (almost) nothing to do
+    PFRAC_ICE = MAX( 0., MIN(1., PFRAC_ICE ) )
+  CASE DEFAULT
+    IF (PRESENT(KERR)) KERR=1
+END SELECT
+
+END SUBROUTINE COMPUTE_FRAC_ICE
 END SUBROUTINE COMPUTE_UPDRAFT
-END MODULE MODE_COMPUTE_UPDRAFT2
+END MODULE MODE_COMPUTE_UPDRAFT1
 

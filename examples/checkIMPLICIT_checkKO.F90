@@ -1,6 +1,6 @@
 !#PYFT transfo: --checkIMPLICIT Err
 
-SUBROUTINE CHECK(ARG1, ARG2, &
+SUBROUTINE CHECK1(ARG1, ARG2, &
                  !La ligne suivante est commentée, Z1 n'est donc pas un argument
                  !Z1, &
                  ARG3)
@@ -11,4 +11,4 @@ SUBROUTINE CHECK(ARG1, ARG2, &
 
 REAL, INTENT(IN) :: ARG1, ARG2, ARG3
 
-END SUBROUTINE CHECK
+END SUBROUTINE CHECK1

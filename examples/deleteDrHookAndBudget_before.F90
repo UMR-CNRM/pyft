@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     #################################################################
-      SUBROUTINE SHALLOW_MF(D, CST, NEBN, PARAMMF, TURBN, CSTURB,     &
+      SUBROUTINE SHALLOW_MF1(D, CST, NEBN, PARAMMF, TURBN, CSTURB,     &
                 KRR, KRRL, KRRI, KSV,                                 &
                 ONOMIXLG,KSV_LGBEG,KSV_LGEND,                         &
                 PTSTEP,                                               &
@@ -389,4 +389,4 @@ IF (LHOOK) CALL DR_HOOK('SHALLOW_MF',1,ZHOOK_HANDLE)
 CONTAINS
 INCLUDE "compute_frac_ice.func.h"
 !
-END SUBROUTINE SHALLOW_MF
+END SUBROUTINE SHALLOW_MF1

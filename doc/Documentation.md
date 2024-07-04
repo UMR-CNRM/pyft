@@ -2,16 +2,20 @@
 
 ## Introduction
 
-This repository contains a python script, pyft.py, that reads a FORTRAN code,
+This package contains a python script, pyft\_tool.py, that reads a FORTRAN code,
 parse it in xml, performs some manipulation, reverts it in FORTRAN and
 writes it back on disk.
+In addition, the package can be used for scripting applicative transformations.
 
-This scripts suppose that the original source code is written using UTF-8
+This package supposes that the original source code is written using UTF-8
 encoding. If not, some special characters could be altered by the double
 conversion. Apart from this, the resulting FORTRAN source code is exactly
 the same as the INPUT source code if no manipulation is performed.
 
-DEPENDENCIES: [fxtran](https://github.com/pmarguinaud/fxtran) must be installed.
+DEPENDENCIES:
+
+ - [fxtran](https://github.com/pmarguinaud/fxtran) must be installed.
+ - pyft needs, at least, version 3.8 of python
 
 LIMITATIONS:
 
@@ -19,22 +23,28 @@ LIMITATIONS:
    the parsing by fxtran
  - Other encoding than UTF-8 is not supported
 
+Content of this documentation:
+
+- [presentation of the scope path concept](#concepts)
+- [tool options](#tool-options)
+- [python module short description](#python-module)
+- [examples and tests](#examples-and-tests)
+
 ## Concepts
 
 Especially when a FORTRAN source file contains several subroutine, functions
 or type declaration, it is necessary to specify on which part of the source
 code a modification must be done.
 This is achieved through the scope concept.
-The scope is a string representing a kind of path to access the source code
+The scope path is a string representing a kind of path to access the source code
 fragment on which the action must be performed.
-A scope is a succession of path elements separated by '/'; each path elements
+A scope path is a succession of path elements separated by '/'; each path elements
 has one of the following forms:
 
  - **module:_NAME_** to refer to the module named _NAME_
  - **sub:_NAME_** to refer to the subroutine named _NAME_
  - **func:_NAME_** to refer to the function named _NAME_
  - **type:_NAME_** to refer to the definition of the type named _NAME_
-
 
 ## Tool options
 
@@ -81,40 +91,40 @@ and output of all the called functions are printed.
 **\--showVariables** displays a list of all the declared variables
 with some characteristics.
 
-**\--removeVariable WHERE VARNAME** removes the declaration of a local variable, a module variable or
+**\--removeVariable SCOPEPATH VARNAME** removes the declaration of a local variable, a module variable or
 of a dummy argument. In the case of a dummy argument, it is also suppresssed
 from the argument of the subroutine. In case of a module variable, if the module
 becomes unused, the use statement is also removed.
 This options takes two argument, the first one describes where the variable
 is declared (to distinguish between several variables holding the same name
 but in different subroutines) and the second one is the variable name.
-The first argument is a scope as described in [Concepts](#concepts).
+The first argument is a scope path as described in [Concepts](#concepts).
 
-**\--addVariable WHERE VARNAME DECLARATION POSITION** adds a new variable.
+**\--addVariable SCOPEPATH VARNAME DECLARATION POSITION** adds a new variable.
 The first argument describes where the variable
-must be declared (it is a scope as described in [Concepts](#concepts)).
+must be declared (it is a scope path as described in [Concepts](#concepts)).
 The second one is the variable name, the third one is the declarative statement to insert,
 and the fourth one is the position (python indexing) the new variable will have in the
 calling statment of the routine (non-integer value for a local variable)
 
-**--addModuleVariable WHERE MODULENAME VARNAME** adds a USE statement with an ONLY attribute. The first
-argument describes where the variable must be declared (it is a scope as
+**--addModuleVariable SCOPEPATH MODULENAME VARNAME** adds a USE statement with an ONLY attribute. The first
+argument describes where the variable must be declared (it is a scope path as
 described in [Concepts](#concepts)). The second one is the module name and
 the third one is the variable name.
 
 **\--attachArraySpecToEntity** move the array declaration attributes to the right
 part of the declaration statement (e.g. "REAL, DIMENSION(5) :: X" becomes "REAL :: X(5)")
 
-**\--showUnusedVariables [WHERE]** lists the unused varibales. Without argument all the
-unused variables are shown. If one argument is given it is the scope (as described
+**\--showUnusedVariables [SCOPEPATH]** lists the unused varibales. Without argument all the
+unused variables are shown. If one argument is given it is the scope path (as described
 in [Concepts](#concepts)) where unused variables are searched for.
 
-**\--removeUnusedLocalVariables WHERE EXCLUDE** remove unused local variables. Without argument all the
-unused variables are suppressed. If one argument is given it is the scope (as described
+**\--removeUnusedLocalVariables SCOPEPATH EXCLUDE** remove unused local variables. Without argument all the
+unused variables are suppressed. If one argument is given it is the scope path (as described
 in [Concepts](#concepts)) where unused variables are searched for.
 
-**\--removePHYEXUnusedLocalVariables WHERE EXCLUDE** variation aroud the \--removeUnusedLocalVariables
-to deal with the variables declared in the mnh\_expand directives
+**\--removePHYEXUnusedLocalVariables SCOPEPATH EXCLUDE** variation aroud the \--removeUnusedLocalVariables
+to deal with the variables declared in the mnh\_expand directives.
 
 **\--addExplicitArrayBounds** Adds explicit bounds to arrays that already have parentheses.
 
@@ -130,6 +140,12 @@ statement. Each template can use the following place holders: "{doubledotshape}"
 replaces automatic arrays by allocatables.
 
 **\--replaceAutomaticWithAllocatable** replace all automatic arrays with allocatables
+
+**\--addArgInTree** Add an argument variable recursively. First argument is the scope (as
+described in [Concepts](#concepts), the second is the variable name, the third is the
+declarative statement to insert, the fourth is the position (python indexing) the new
+variable will have in the calling statment of the routine. The recursive inclusion of
+the argument variable stop at the scopes defined by the --stopScopes option.
 
 ### Cosmetics
 
@@ -183,12 +199,12 @@ if option is 'Warn'; otherwise issue an error message and raise an exception.
 
 ### Dealing with statements
 
-**\--removeCall WHERE CALLNAME** removes call statements. The first argument describes from where the
-call statements must be suppressed (it is a scope as described in [Concepts](#concepts)).
+**\--removeCall SCOPEPATH CALLNAME** removes call statements. The first argument describes from where the
+call statements must be suppressed (it is a scope path as described in [Concepts](#concepts)).
 The second argument is the subprogram name.
 
 **\--removePrints** removes print statements. The argument describes from where the
-call statements must be suppressed (it is a scope as described in [Concepts](#concepts)).
+call statements must be suppressed (it is a scope path as described in [Concepts](#concepts)).
 
 **\--inlineContainedSubroutines** inline containted subroutines in main routine.
 
@@ -197,6 +213,8 @@ call statements must be suppressed (it is a scope as described in [Concepts](#co
 ### Miscellaneous
 
 **\--showScopes** print the different scopes found in the source code.
+
+**\--empty** empty the different scopes found in the source code.
 
 ### Applications
 
@@ -209,21 +227,35 @@ points (multiple column dependency).
 
 **\--removeIJDim** remove DO I and J dimensions (1, KLON).
 
-**\--expandAllArraysPHYEX** expand all array syntax (computing and where block) using PHYEX conventions.
+**\--expandAllArraysPHYEX** expand all array syntax (computing and where block)
+in DO loops using PHYEX conventions.
 
-**\--expandAllArrays** expand all array syntax (computing and where block).
+**\--expandAllArraysPHYEXConcurrent** expand all array syntax (computing and where block) 
+in DO CONCURRENT loops using PHYEX conventions.
+
+**\--expandAllArrays** expand all array syntax (computing and where block) in DO loops.
+
+**\--expandAllArraysConcurrent** expand all array syntax (computing and where block) in DO CONCURRENT loops.
 
 **\--inlineContainedSubroutinesPHYEX** inline containted subroutines in main routine using PHYEX conventions.
 
 **\--addStack MODEL** add local automatic arrays to the stack. The argument is the
 the model name in which stack must be added ("AROME" or "MESONH"). Needs the --stopScopes argument
-for the "AROME" case
+for the "AROME" case.
 
 **\--addIncludes** add .h includes in the file and remove the INCLUDE statement.
 
 **\--mnhExpand** apply the mnh\_expand directives using DO loops.
 
 **\--mnhExpandConcurrent** apply the mnh\_expand directives using DO CONCURRENT loops.
+
+**\--addMPPDB_CHECKS** Add MPPDB\_CHEKS bit-repro checking routines of MesoNH for all in and
+inout arrays in subroutines.
+
+**\--shumanFUNCtoCALL** Transform shuman functions to call statements.
+
+**\--mathFunctoBRFunc** Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP,
+COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.
 
 ### OpenACC
 
@@ -249,9 +281,6 @@ But the method does not evaluate more complicated cpp directives such as '#if de
 **\--descTree** File name where the description of the tree is stored. If the file doesn't
 exist, it will be created using the \--tree option.
 
-**\--descTreeWithIncludes** same as --descTree but also apply --addIncludes to all the files
-in the tree
-
 **\--plotCompilTree** File name for compilation dependency graph (.dot or image extension).
 If \--descTree is used, the descTree file will be used, otherwise the tree (provided
 with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower options.
@@ -264,11 +293,59 @@ with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower op
 
 **\--plotMaxLower** Maximum number of elements to plot, lower than the central element.
 
-**\--addArgInTree** Add an argument variable recursively. First argument is the scope (as
-described in [Concepts](#concepts), the second is the variable name, the third is the
-declarative statement to insert, the fourth is the position (python indexing) the new
-variable will have in the calling statment of the routine. The recursive inclusion of
-the argument variable stop at the scopes defined by the --stopScopes option.
-
 **\--stopScopes** #-separated list of scopes where the recursive inclusion of an
 argument variable must stop (needed for some transformations)
+
+## Python module
+
+### Module overview
+
+The main objet is the PYFTscope one; this class represents a FORTRAN scope (module,
+subroutine, function, program or type). To ease the development, the different methods
+of this class have been distributed to several files. In each of these files the
+defined methods are attached to an abstract class (Variables in variables.py, Statements
+in statements.py and so on for applications.py, cosmetics.py, cpp.py and openacc.py).
+The main class PYFTscope is built by inhereting from all of these classes but none
+of them is directly usable (cross-dependencies).
+
+The PYFTscope is not directly instantiable because it doesn't contain read/write feature.
+The PYFT class extends the PYFTscope class with those features.
+And so, PYFT is the class publicly exposed.
+
+An instance of PYFT represents the entire file and can contain several FORTRAN scopes.
+If p is an instance of PYFT, p.getScopes() returns a list of PYFTscope instances, each
+one representing a specific FORTRAN scope.
+
+In order to deal with complex operations involving several source code files, a Tree
+object can be created. This object analizes all the source code files present in the
+specified directories to build a compilation tree and an execution tree. These trees
+can be explored and/or plotted through methods of this object.
+
+In addition to these three classes, the module contains some functions in pyft.util and
+pyft.expressions.
+
+### The developer's point of view
+
+New methods must be added in one of the abstract classes defined in variables.py,
+statements.py... according to its main topic.
+The application.py file deals with methods specific to PHYEX that are not universal.
+
+Several decorators are available:
+ - debugDecor (defined in tool): ease the debugging/profiling when logLevel is set
+   to info or debug. The additional cost is low, except when the method is called
+   many times; in this case, the decorator should not be used.
+ - updateTree() (defined in Tree): this decorator should be used for methods that can
+   modify the execution tree. When decorated, the file is analized again to update
+   the Tree object. updateTree can take a parameter:
+   - 'file': in his case the current PYFTscope object is analyzed
+   - 'scan': the Tree looks for new or removed files (caution, this method is expensive)
+   - 'signal': some files or PYFTscope objects are analysed to update the Tree object.
+     These files or PYFTscope objects are designed with the signal method of the Tree
+     object.
+
+## Examples and tests
+
+The examples directory contains a script (tests.sh) that performs a non-regression test.
+But, this directory can also be used as a registry of transformation examples.
+The files \*\_after.F90 are obtained by transforming the \*\_before.F90 files using
+the command line options in comment at the very begining of these files.

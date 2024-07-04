@@ -1,4 +1,4 @@
-!#PYFT transfo: --addStack AROME --stopScopes sub:CONDENSATION
+!#PYFT transfo: --addStack AROME --stopScopes sub:CONDENSATION1
 
 !MNH_LIC Copyright 2002-2021 CNRS, Meteo-France and Universite Paul Sabatier
 !MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
@@ -6,7 +6,7 @@
 !MNH_LIC for details. version 1.
 !-----------------------------------------------------------------
 !     ######spl
-    SUBROUTINE CONDENSATION(D, CST, ICEP, NEBN, TURBN, &
+    SUBROUTINE CONDENSATION1(D, CST, ICEP, NEBN, TURBN, &
                            &HFRAC_ICE, HCONDENS, HLAMBDA3,                                                  &
                            &PPABS, PZZ, PRHODREF, PT, PRV_IN, PRV_OUT, PRC_IN, PRC_OUT, PRI_IN, PRI_OUT,    &
                            &PRR, PRS, PRG, PSIGS, LMFCONV, PMFCONV, PCLDFR, PSIGRC, OUSERI,                 &
@@ -647,4 +647,4 @@ CONTAINS
 !MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
 !MNH_LIC for details. version 1.
       !
-END SUBROUTINE CONDENSATION
+END SUBROUTINE CONDENSATION1

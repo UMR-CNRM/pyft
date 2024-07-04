@@ -1,21 +1,12 @@
 #!/usr/bin/env python3
 
 from pyft import PYFT
+from pyft.util import isint
+from pyft.tree import Tree
 import logging
 import argparse
 import sys
 
-def isint(s):
-    """
-    :param s: string to test for intergerness
-    :return: True if s represent an int
-    """
-    try:
-        int(s)
-    except ValueError:
-        return False
-    else:
-        return True
 
 if __name__ == '__main__':
 
@@ -68,7 +59,7 @@ if __name__ == '__main__':
     gVariables.add_argument('--showVariables', default=False, action='store_true',
                             help='Show the declared variables')
     gVariables.add_argument('--removeVariable', nargs=2, action='append',
-                            metavar=('WHERE', 'VARNAME'),
+                            metavar=('SCOPEPATH', 'VARNAME'),
                             help="Variable to remove from declaration. The first argument " + \
                                  "is the SUBROUTINE/FUNCTION/MODULE/TYPE where the variable " + \
                                  "is declared. It is '/'-separated path with each element having " + \
@@ -79,32 +70,32 @@ if __name__ == '__main__':
                             help='Find all T-decl-stmt elements that have a child element attribute' + \
                                  ' with attribute-N=DIMENSION and move the attribute into EN-N elements')
     gVariables.add_argument('--addVariable', nargs=4, action='append',
-                            metavar=('WHERE', 'VARNAME', 'DECLARATION', 'POSITION'),
-                            help='Add a variable. First argument is the scope (as for ' + \
+                            metavar=('SCOPEPATH', 'VARNAME', 'DECLARATION', 'POSITION'),
+                            help='Add a variable. First argument is the scope path (as for ' + \
                                  'the --removeVariable option. The second is the variable ' + \
                                  'name, the third is the declarative statement to insert, ' + \
                                  'the fourth is the position (python indexing) the new ' + \
                                  'variable will have in the calling statment of the ' + \
                                  'routine (non-integer value for a local variable).')
     gVariables.add_argument('--addModuleVariable', nargs=3, action='append',
-                            metavar=('WHERE', 'MODULENAME', 'VARNAME'),
-                            help='Add a USE statement. The first argument is the scope (as for ' + \
+                            metavar=('SCOPEPATH', 'MODULENAME', 'VARNAME'),
+                            help='Add a USE statement. The first argument is the scope path (as for ' + \
                                  'the --removeVariable option). The second is the module ' + \
                                  'name; the third is the variable name.')
     gVariables.add_argument('--showUnusedVariables', nargs='?', action='append',
-                            metavar='WHERE', default=None,
+                            metavar='SCOPEPATH', default=None,
                             help='Show a list of unused variables in the entire code ' + \
-                                 'or in the scope (if specified).')
+                                 'or in the scope path (if specified).')
     gVariables.add_argument('--removeUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('WHERE', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope ' + \
-                                 '(use the special scope name ALL to apply on the entire ' + \
+                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
+                            help='Remove unused local variables in the specified scope path ' + \
+                                 '(use the special scope path name ALL to apply on the entire ' + \
                                  'code), excluding some variables (comma-separated list or NONE ' + \
                                  'to exclude nothing).')
     gVariables.add_argument('--removePHYEXUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('WHERE', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope ' + \
-                                 '(use the special scope name ALL to apply on the entire ' + \
+                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
+                            help='Remove unused local variables in the specified scope path ' + \
+                                 '(use the special scope path name ALL to apply on the entire ' + \
                                  'code), excluding some variables (comma-separated list or NONE ' + \
                                  'to exclude nothing). This option takes into account the ' + \
                                  'mnh_expand directives to prevent from removing useful variables.')
@@ -126,6 +117,14 @@ if __name__ == '__main__':
                                  'will replace automatic arrays by allocatables.')
     gVariables.add_argument('--replaceAutomaticWithAllocatable', action='store_true',
                             help='Replace all automatic arrays with allocatable arrays.')
+    gVariables.add_argument('--addArgInTree', default=None, action='append', nargs=4,
+                            metavar=('SCOPEPATH', 'VARNAME', 'DECLARATION', 'POSITION'),
+                            help='Add an argument variable. The argument is the scope path (as ' +
+                                 'for the --removeVariable option. The second is the variable ' +
+                                 'name, the third is the declarative statement to insert, ' +
+                                 'the fourth is the position (python indexing) the new ' +
+                                 'variable will have in the calling statment of the ' +
+                                 'routine. Needs the --stopScopes argument')
 
     #Cosmetics
     gCosmetics = parser.add_argument_group('Cosmetics options')
@@ -205,7 +204,10 @@ if __name__ == '__main__':
     gApplications.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
                                help='build module files containing helpers to copy user type structures')
     gApplications.add_argument('--mathFunctoBRFunc', default=False, action='store_true',
-                               help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP, COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.')
+                               help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, ' +
+                                    '**4, EXP, COS, SIN, ATAN2 into a self defined function BR_ ' +
+                                    'for MesoNH bit-repro.')
+
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
     gOpenACC.add_argument('--addACC_data', default=False, action='store_true',
@@ -227,7 +229,7 @@ if __name__ == '__main__':
     #Statements
     gStatement = parser.add_argument_group('Statements options')
     gStatement.add_argument('--removeCall', nargs=2, action='append',
-                            metavar=('WHERE', 'CALLNAME'),
+                            metavar=('SCOPEPATH', 'CALLNAME'),
                             help="Call to remove from the source code. The first argument " + \
                                  "is the SUBROUTINE/FUNCTION/MODULE where the call statements " + \
                                  "have to be removed. It is '/'-separated path with each element having " + \
@@ -251,6 +253,8 @@ if __name__ == '__main__':
     gMisc = parser.add_argument_group('Miscellaneous')
     gMisc.add_argument('--showScopes', default=False, action='store_true',
                        help='Show the different scopes found in the source code')
+    gMisc.add_argument('--empty', default=False, action='store_true',
+                       help='Empty the different scopes')
 
     #Tree
     gTree = parser.add_argument_group('Tree')
@@ -258,8 +262,6 @@ if __name__ == '__main__':
                        help='Directories where source code must be searched for')
     gTree.add_argument('--descTree', default=None,
                        help='File to write and/or read the description of the tree.')
-    gTree.add_argument('--descTreeWithIncludes', default=None,
-                       help='same as --descTree but also apply --addIncludes to all the files in the tree')
     gTree.add_argument('--plotCompilTree', default=None,
                        help='File name for compilation dependency graph (.dot or image extension)')
     gTree.add_argument('--plotExecTree', default=None,
@@ -268,14 +270,6 @@ if __name__ == '__main__':
                        help='Maximum number of upper elements in the plot tree')
     gTree.add_argument('--plotMaxLower', default=None, type=int,
                        help='Maximum number of lower elements in the plot tree')
-    gTree.add_argument('--addArgInTree', default=None, action='append', nargs=4,
-                       metavar=('WHERE', 'VARNAME', 'DECLARATION', 'POSITION'),
-                       help='Add an argument variable. The argument is the scope (as for ' + \
-                            'the --removeVariable option. The second is the variable ' + \
-                            'name, the third is the declarative statement to insert, ' + \
-                            'the fourth is the position (python indexing) the new ' + \
-                            'variable will have in the calling statment of the ' + \
-                            'routine. Needs the --stopScopes argument')
     gTree.add_argument('--stopScopes', default=None, type=str,
                        help='#-separated list of scopes ' + \
                             'where the recursive inclusion of an argument variable ' + \
@@ -301,8 +295,15 @@ if __name__ == '__main__':
         parserOptions = [opt for opt in parserOptions if opt not in ('-no-include', '-noinclude')]
 
     try:
+        if args.descTree:
+            descTree = Tree(tree=args.tree, descTreeFile=args.descTree,
+                            parser=args.parser, parserOptions=parserOptions,
+                            wrapH=args.wrapH, verbosity=args.logLevel)
+        else:
+            descTree = None
+
         pft = PYFT(args.INPUT, args.OUTPUT, parser=args.parser, parserOptions=parserOptions,
-                   verbosity=args.logLevel, wrapH=args.wrapH, tree=args.tree, enableCache=args.enableCache)
+                   verbosity=args.logLevel, wrapH=args.wrapH, tree=descTree, enableCache=args.enableCache)
 
         #We loop on sys.argv to apply the transformation in the order they were specified
         optList = []
@@ -310,7 +311,6 @@ if __name__ == '__main__':
             if arg.startswith('--') and arg not in optList:
                 optList.append(arg)
         kw_updateCnt = None
-        descTree = None
         for arg in optList:
 
             #File name manipulations
@@ -329,13 +329,13 @@ if __name__ == '__main__':
                 else:
                     pft.showUnusedVar(args.showUnusedVariables)
             if arg == '--removeUnusedLocalVariables':
-                for where, exclude in args.removeUnusedLocalVariables:
-                    pft.removeUnusedLocalVar(where if where != 'ALL' else None,
+                for scopePath, exclude in args.removeUnusedLocalVariables:
+                    pft.removeUnusedLocalVar(scopePath if scopePath != 'ALL' else None,
                                              [item.strip() for item in exclude.split(',')] if exclude != 'NONE' else None,
                                              **simplify)
             if arg == '--removePHYEXUnusedLocalVariables':
-                for where, exclude in args.removePHYEXUnusedLocalVariables:
-                    pft.removePHYEXUnusedLocalVar(where if where != 'ALL' else None,
+                for scopePath, exclude in args.removePHYEXUnusedLocalVariables:
+                    pft.removePHYEXUnusedLocalVar(scopePath if scopePath != 'ALL' else None,
                                                   [item.strip() for item in exclude.split(',')] if exclude != 'NONE' else None,
                                                   **simplify)
             if arg == '--addExplicitArrayBounds': pft.addExplicitArrayBounds()
@@ -344,9 +344,13 @@ if __name__ == '__main__':
             if arg == '--replaceAutomaticWithAllocatable':
                 pft.modifyAutomaticArrays("{type}, DIMENSION({doubledotshape}), ALLOCATABLE :: {name}",
                                           "ALLOCATE({name}({shape}))", "DEALLOCATE({name})")
-    
+            if arg == '--addArgInTree':
+                for scopePath, varName, declStmt, pos in args.addArgInTree:
+                    pft.addArgInTree(scopePath, varName, declStmt, int(pos), args.stopScopes.split('#'),
+                                     parser=args.parser, parserOptions=parserOptions, wrapH=args.wrapH)
+
             #Applications
-            if arg == '--addStack': pft.addStack(descTree, args.addStack, args.stopScopes.split('#'),
+            if arg == '--addStack': pft.addStack(args.addStack, args.stopScopes.split('#'),
                                                  parser=args.parser, parserOptions=parserOptions,
                                                  wrapH=args.wrapH)
             if arg == '--deleteDrHook': pft.deleteDrHook(**simplify)
@@ -358,13 +362,13 @@ if __name__ == '__main__':
             assert not (args.mnhExpand and args.mnhExpandConcurrent), "Only one of --mnhExpand and --mnhExpandConcurrent"
             if arg == '--mnhExpand': pft.removeArraySyntax(everywhere=False)
             if arg == '--mnhExpandConcurrent': pft.removeArraySyntax(concurrent=True, everywhere=False)
-            if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(descTree=descTree, **simplify)
-            if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(descTree=descTree, **simplify)
+            if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(**simplify)
+            if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(**simplify)
             if arg == '--expandAllArrays': pft.removeArraySyntax()
             if arg == '--expandAllArraysConcurrent': pft.removeArraySyntax(concurrent=True)
             if arg == '--expandAllArraysPHYEX': pft.expandAllArraysPHYEX()
             if arg == '--expandAllArraysPHYEXConcurrent': pft.expandAllArraysPHYEX(concurrent=True)
-            if arg == '--removeIJDim': pft.removeIJDim(descTree, args.stopScopes.split('#'),
+            if arg == '--removeIJDim': pft.removeIJDim(args.stopScopes.split('#'),
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
             if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
@@ -373,7 +377,7 @@ if __name__ == '__main__':
 
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
-            if arg == '--addACC_routine_seq': pft.addACC_routine_seq(descTree, args.stopScopes.split('#'))
+            if arg == '--addACC_routine_seq': pft.addACC_routine_seq(args.stopScopes.split('#'))
 
             #Cosmetics
             if arg == '--upperCase': pft.upperCase()
@@ -421,30 +425,23 @@ if __name__ == '__main__':
     
             #Misc
             if arg == '--showScopes': pft.showScopesList()
+            if arg == '--empty':
+                pft.empty(**simplify)
     
             #Tree
-            if arg == '--descTree': descTree = pft.descTree(args.tree, args.descTree, parser=args.parser,
-                                                            parserOptions=parserOptions, wrapH=args.wrapH)
-            if arg == '--descTreeWithIncludes': descTree = pft.descTree(args.tree, args.descTreeWithIncludes,
-                                                            parser=args.parser,
-                                                            parserOptions=parserOptions, wrapH=args.wrapH,
-                                                            addIncludes=True)
-            if arg == '--plotCompilTree': pft.plotCompilTreeFromFile(args.INPUT, descTree, args.plotCompilTree,
-                                                                     args.plotMaxUpper, args.plotMaxLower)
-            if arg == '--plotExecTree': pft.plotExecTreeFromFile(args.INPUT, descTree, args.plotExecTree,
-                                                                 args.plotMaxUpper, args.plotMaxLower)
-            if arg == '--addArgInTree':
-                for scope, varName, declStmt, pos in args.addArgInTree:
-                    pft.addArgInTree(scope, descTree, varName, declStmt, int(pos), args.stopScopes.split('#'),
-                                     parser=args.parser, parserOptions=parserOptions, wrapH=args.wrapH)
+            if arg == '--plotCompilTree':
+                pft.tree.plotCompilTreeFromFile(args.INPUT, args.plotCompilTree,
+                                                args.plotMaxUpper, args.plotMaxLower)
+            if arg == '--plotExecTree':
+                pft.tree.plotExecTreeFromFile(args.INPUT, args.plotExecTree,
+                                              args.plotMaxUpper, args.plotMaxLower)
                     
             #Preprocessor
             if arg == '--applyCPPifdef': pft.applyCPPifdef([k for l in args.applyCPPifdef for k in l])
 
         #Writing
         if descTree is not None:
-            from pyft.tree import descTreToJson
-            descTreToJson(descTree, args.descTree if args.descTree is not None else args.descTreeWithIncludes)
+            descTree.toJson(args.descTree)
         if args.xml is not None: pft.writeXML(args.xml)
         if not args.dryRun:
             pft.write()
