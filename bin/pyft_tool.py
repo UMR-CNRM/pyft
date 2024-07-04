@@ -2,6 +2,7 @@
 
 from pyft import PYFT
 from pyft.util import isint
+from pyft.tree import Tree
 import logging
 import argparse
 import sys
@@ -252,6 +253,8 @@ if __name__ == '__main__':
     gMisc = parser.add_argument_group('Miscellaneous')
     gMisc.add_argument('--showScopes', default=False, action='store_true',
                        help='Show the different scopes found in the source code')
+    gMisc.add_argument('--empty', default=False, action='store_true',
+                       help='Empty the different scopes')
 
     #Tree
     gTree = parser.add_argument_group('Tree')
@@ -259,8 +262,6 @@ if __name__ == '__main__':
                        help='Directories where source code must be searched for')
     gTree.add_argument('--descTree', default=None,
                        help='File to write and/or read the description of the tree.')
-    gTree.add_argument('--descTreeWithIncludes', default=None,
-                       help='same as --descTree but also apply --addIncludes to all the files in the tree')
     gTree.add_argument('--plotCompilTree', default=None,
                        help='File name for compilation dependency graph (.dot or image extension)')
     gTree.add_argument('--plotExecTree', default=None,
@@ -294,8 +295,15 @@ if __name__ == '__main__':
         parserOptions = [opt for opt in parserOptions if opt not in ('-no-include', '-noinclude')]
 
     try:
+        if args.descTree:
+            descTree = Tree(tree=args.tree, descTreeFile=args.descTree,
+                            parser=args.parser, parserOptions=parserOptions,
+                            wrapH=args.wrapH, verbosity=args.logLevel)
+        else:
+            descTree = None
+
         pft = PYFT(args.INPUT, args.OUTPUT, parser=args.parser, parserOptions=parserOptions,
-                   verbosity=args.logLevel, wrapH=args.wrapH, tree=args.tree, enableCache=args.enableCache)
+                   verbosity=args.logLevel, wrapH=args.wrapH, tree=descTree, enableCache=args.enableCache)
 
         #We loop on sys.argv to apply the transformation in the order they were specified
         optList = []
@@ -303,7 +311,6 @@ if __name__ == '__main__':
             if arg.startswith('--') and arg not in optList:
                 optList.append(arg)
         kw_updateCnt = None
-        descTree = None
         for arg in optList:
 
             #File name manipulations
@@ -337,9 +344,13 @@ if __name__ == '__main__':
             if arg == '--replaceAutomaticWithAllocatable':
                 pft.modifyAutomaticArrays("{type}, DIMENSION({doubledotshape}), ALLOCATABLE :: {name}",
                                           "ALLOCATE({name}({shape}))", "DEALLOCATE({name})")
-    
+            if arg == '--addArgInTree':
+                for scopePath, varName, declStmt, pos in args.addArgInTree:
+                    pft.addArgInTree(scopePath, varName, declStmt, int(pos), args.stopScopes.split('#'),
+                                     parser=args.parser, parserOptions=parserOptions, wrapH=args.wrapH)
+
             #Applications
-            if arg == '--addStack': pft.addStack(descTree, args.addStack, args.stopScopes.split('#'),
+            if arg == '--addStack': pft.addStack(args.addStack, args.stopScopes.split('#'),
                                                  parser=args.parser, parserOptions=parserOptions,
                                                  wrapH=args.wrapH)
             if arg == '--deleteDrHook': pft.deleteDrHook(**simplify)
@@ -351,13 +362,13 @@ if __name__ == '__main__':
             assert not (args.mnhExpand and args.mnhExpandConcurrent), "Only one of --mnhExpand and --mnhExpandConcurrent"
             if arg == '--mnhExpand': pft.removeArraySyntax(everywhere=False)
             if arg == '--mnhExpandConcurrent': pft.removeArraySyntax(concurrent=True, everywhere=False)
-            if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(descTree=descTree, **simplify)
-            if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(descTree=descTree, **simplify)
+            if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(**simplify)
+            if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(**simplify)
             if arg == '--expandAllArrays': pft.removeArraySyntax()
             if arg == '--expandAllArraysConcurrent': pft.removeArraySyntax(concurrent=True)
             if arg == '--expandAllArraysPHYEX': pft.expandAllArraysPHYEX()
             if arg == '--expandAllArraysPHYEXConcurrent': pft.expandAllArraysPHYEX(concurrent=True)
-            if arg == '--removeIJDim': pft.removeIJDim(descTree, args.stopScopes.split('#'),
+            if arg == '--removeIJDim': pft.removeIJDim(args.stopScopes.split('#'),
                                                        parser=args.parser, parserOptions=parserOptions,
                                                        wrapH=args.wrapH, **simplify)
             if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
@@ -366,7 +377,7 @@ if __name__ == '__main__':
 
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
-            if arg == '--addACC_routine_seq': pft.addACC_routine_seq(descTree, args.stopScopes.split('#'))
+            if arg == '--addACC_routine_seq': pft.addACC_routine_seq(args.stopScopes.split('#'))
 
             #Cosmetics
             if arg == '--upperCase': pft.upperCase()
@@ -414,30 +425,23 @@ if __name__ == '__main__':
     
             #Misc
             if arg == '--showScopes': pft.showScopesList()
+            if arg == '--empty':
+                pft.empty(**simplify)
     
             #Tree
-            if arg == '--descTree': descTree = pft.descTree(args.tree, args.descTree, parser=args.parser,
-                                                            parserOptions=parserOptions, wrapH=args.wrapH)
-            if arg == '--descTreeWithIncludes': descTree = pft.descTree(args.tree, args.descTreeWithIncludes,
-                                                            parser=args.parser,
-                                                            parserOptions=parserOptions, wrapH=args.wrapH,
-                                                            addIncludes=True)
-            if arg == '--plotCompilTree': pft.plotCompilTreeFromFile(args.INPUT, descTree, args.plotCompilTree,
-                                                                     args.plotMaxUpper, args.plotMaxLower)
-            if arg == '--plotExecTree': pft.plotExecTreeFromFile(args.INPUT, descTree, args.plotExecTree,
-                                                                 args.plotMaxUpper, args.plotMaxLower)
-            if arg == '--addArgInTree':
-                for scopePath, varName, declStmt, pos in args.addArgInTree:
-                    pft.addArgInTree(scopePath, descTree, varName, declStmt, int(pos), args.stopScopes.split('#'),
-                                     parser=args.parser, parserOptions=parserOptions, wrapH=args.wrapH)
+            if arg == '--plotCompilTree':
+                pft.tree.plotCompilTreeFromFile(args.INPUT, args.plotCompilTree,
+                                                args.plotMaxUpper, args.plotMaxLower)
+            if arg == '--plotExecTree':
+                pft.tree.plotExecTreeFromFile(args.INPUT, args.plotExecTree,
+                                              args.plotMaxUpper, args.plotMaxLower)
                     
             #Preprocessor
             if arg == '--applyCPPifdef': pft.applyCPPifdef([k for l in args.applyCPPifdef for k in l])
 
         #Writing
         if descTree is not None:
-            from pyft.tree import descTreToJson
-            descTreToJson(descTree, args.descTree if args.descTree is not None else args.descTreeWithIncludes)
+            descTree.toJson(args.descTree)
         if args.xml is not None: pft.writeXML(args.xml)
         if not args.dryRun:
             pft.write()

@@ -8,8 +8,8 @@ import os
 import logging
 
 from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError
-from pyft.tree import isUnderStopScopes
 from pyft.expressions import createExpr, createExprPart
+from pyft.tree import updateTree
 
 def _loopVarPHYEX(lower_decl, upper_decl, lower_used, upper_used, name, i):
     """
@@ -149,7 +149,7 @@ class Applications():
             fortranSource = "SUBROUTINE FOO598756\n " + ifBeg + "CALL MPPDB_CHECK(" + \
                             addD + argsMPPDB + addLastDim + addSecondDimType + ")" + \
                             ifEnd + "\nEND SUBROUTINE"
-            _, callMPPDBfxtran = fortran2xml(fortranSource)
+            _, _, callMPPDBfxtran = fortran2xml(fortranSource)
             if lookForIf:
                 stmt = callMPPDBfxtran.find('.//{*}if-construct')
             else:
@@ -188,13 +188,13 @@ class Applications():
 
                     # Prepare some FORTRAN comments
                     fortranSource = "SUBROUTINE FOO598756\n !Check all IN arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
+                    _, _, cfxtran = fortran2xml(fortranSource)
                     commentIN = cfxtran.find('.//{*}C')
                     fortranSource = "SUBROUTINE FOO598756\n !Check all INOUT arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
+                    _, _, cfxtran = fortran2xml(fortranSource)
                     commentINOUT = cfxtran.find('.//{*}C')
                     fortranSource = "SUBROUTINE FOO598756\n !Check all OUT arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
+                    _, _, cfxtran = fortran2xml(fortranSource)
                     commentOUT = cfxtran.find('.//{*}C')
 
                     # 1) variables IN and INOUT block (beggining of the routine)
@@ -202,7 +202,7 @@ class Applications():
                         fortranSource = "SUBROUTINE FOO598756\n" + \
                                         "  IF (MPPDB_INITIALIZED) THEN\n" + \
                                         "  END IF \nEND SUBROUTINE"
-                        _, ifMPPDBinitfxtran = fortran2xml(fortranSource)
+                        _, _, ifMPPDBinitfxtran = fortran2xml(fortranSource)
                         ifMPPDBinit = ifMPPDBinitfxtran.find('.//{*}if-construct')
                         ifMPPDB = ifMPPDBinit.find('.//{*}if-block')
 
@@ -230,7 +230,7 @@ class Applications():
                         fortranSource = "SUBROUTINE FOO598756\n" + \
                                         "  IF (MPPDB_INITIALIZED) THEN\n" + \
                                         "  END IF \nEND SUBROUTINE"
-                        _, ifMPPDBendfxtran = fortran2xml(fortranSource)
+                        _, _, ifMPPDBendfxtran = fortran2xml(fortranSource)
                         ifMPPDBend = ifMPPDBendfxtran.find('.//{*}if-construct')
                         ifMPPDB = ifMPPDBend.find('.//{*}if-block')
 
@@ -254,10 +254,9 @@ class Applications():
                         self.insertStatement(scope.path, self.indent(ifMPPDBend), first=False)
 
     @debugDecor
-    def addStack(self, descTree, model, stopScopes, parser=None, parserOptions=None, wrapH=False):
+    def addStack(self, model, stopScopes, parser=None, parserOptions=None, wrapH=False):
         """
         Add specific allocations of local arrays on the fly for GPU
-        :param descTree: descTree file
         :param model : 'MESONH' or 'AROME' for specific objects related to the allocator or stack
         :param stopScopes: scope paths where we stop to add stack
         :param parser, parserOptions, wrapH: see the pyft class
@@ -268,7 +267,7 @@ class Applications():
             for scope in self.getScopes():
                 #The AROME transformation needs an additional parameter
                 #We apply the transformation only if the routine is called from a scope within stopScopes
-                if scope.path in stopScopes or isUnderStopScopes(scope.path, descTree, stopScopes):
+                if scope.path in stopScopes or self.tree.isUnderStopScopes(scope.path, stopScopes):
                     #Intermediate transformation, needs cpp to be completed
                     #This version would be OK if we didn't need to read again the files with fxtran
                     #after transformation
@@ -295,7 +294,7 @@ class Applications():
 
                     if nb > 0:
                         #Some automatic arrays have been modified, we need to add an argument to the routine
-                        self.addArgInTree(scope.path, descTree, 'YDSTACK', 'TYPE (STACK) :: YDSTACK',
+                        self.addArgInTree(scope.path, 'YDSTACK', 'TYPE (STACK) :: YDSTACK',
                                           -1, stopScopes, moduleVarList=[('STACK_MOD', ['STACK', 'SOF'])],
                                           otherNames=['YLSTACK'],
                                           parser=parser, parserOptions=parserOptions, wrapH=wrapH)
@@ -312,8 +311,8 @@ class Applications():
         elif model == 'MESONH':
             for scope in self.getScopes():
                 #We apply the transformation only if the routine is called from a scope within stopScopes
-                if descTree is None or scope.path in stopScopes or \
-                   isUnderStopScopes(scope.path, descTree, stopScopes):
+                if (not self.tree.isValid) or scope.path in stopScopes or \
+                   self.tree.isUnderStopScopes(scope.path, stopScopes):
                     nb = self.modifyAutomaticArrays(
                                 declTemplate="{type}, DIMENSION({doubledotshape}), POINTER, CONTIGUOUS :: {name}",
                                 startTemplate="CALL MNH_MEM_GET({name}, {lowUpList})",
@@ -333,14 +332,13 @@ class Applications():
             raise PYFTError('Stack is implemented only for AROME and MESONH models')
 
     @debugDecor
-    def inlineContainedSubroutinesPHYEX(self, descTree=None, simplify=False):
+    def inlineContainedSubroutinesPHYEX(self, simplify=False):
         """
         Inline all contained subroutines in the main subroutine
         Steps :
             - Identify contained subroutines
             - Look for all CALL statements, check if it is a containted routines; if yes, inline
             - Delete the containted routines
-        :param descTree: description tree object (to update it with the inlining)
         :param simplify: try to simplify code (construct or variables becoming useless)
         :param loopVar: None to create new variable for each added DO loop (around ELEMENTAL subroutine calls)
                         or a function that return the name of the variable to use for the loop control.
@@ -352,13 +350,12 @@ class Applications():
                           - name of the array
                           - index of the rank
         """
-        return self.inlineContainedSubroutines(descTree=descTree, simplify=simplify, loopVar=_loopVarPHYEX)
+        return self.inlineContainedSubroutines(simplify=simplify, loopVar=_loopVarPHYEX)
 
     @debugDecor
-    def removeIJDim(self, descTree, stopScopes, parser=None, parserOptions=None, wrapH=False, simplify=False):
+    def removeIJDim(self, stopScopes, parser=None, parserOptions=None, wrapH=False, simplify=False):
         """
         Transform routines to be called in a loop on columns
-        :param descTree: descTree file
         :param stopScopes: scope paths where we stop to add the D argument (if needed)
         :param parser, parserOptions, wrapH: see the pyft class
         :param simplify: try to simplify code (remove useless dimensions in call)
@@ -431,7 +428,7 @@ class Applications():
         #Loop on all scopes (reversed order); except functions (in particular FWSED from ice4_sedimentation_stat)
         for scope in [scope for scope in self.getScopes(excludeContains=True)[::-1]
                       if 'func:' not in scope.path]:
-            if scope.path in stopScopes or isUnderStopScopes(scope.path, descTree, stopScopes, includeInterfaces=True):
+            if scope.path in stopScopes or self.tree.isUnderStopScopes(scope.path, stopScopes, includeInterfaces=True):
                 indexRemoved = []
 
                 # 1 - Remove all DO loops on JI and JJ for preparation to compute on KLEV only
@@ -584,7 +581,7 @@ class Applications():
                 for loopIndex in indexRemoved:
                     # Initialize former indexes JI,JJ,JIJ to first array element : JI=D%NIB, JJ=D%NJB, JIJ=D%NIJB
                     self.insertStatement(scope.path, createExpr(loopIndex + " = " + indexToCheck[loopIndex][0])[0], True)
-                    self.addArgInTree(scope.path, descTree, 'D', 'TYPE(DIMPHYEX_t) :: D',
+                    self.addArgInTree(scope.path, 'D', 'TYPE(DIMPHYEX_t) :: D',
                                       0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
                                       parser=parser, parserOptions=parserOptions, wrapH=wrapH)
                     # Check loop index presence at declaration of the scope
@@ -834,7 +831,7 @@ class Applications():
                fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(zshugradwkDim)+") independent\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
                                 computingVarName + " = " + alltext(workingItem) +"\n" + \
                                 "!$mnh_end_expand_array("+mnhExpandArrayIndexes+")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-               _, cfxtran = fortran2xml(fortranSource)
+               _, _, cfxtran = fortran2xml(fortranSource)
                computeStmt = cfxtran.find('.//{*}a-stmt')
                workingItem = cfxtran.find('.//{*}E-1')
                commentsExpand = cfxtran.findall('.//{*}C')
@@ -855,7 +852,7 @@ class Applications():
            gpuGradientImplementation = '_PHY(D, '
            if funcName == 'GY_U_UV' or funcName == 'GX_V_UV': gpuGradientImplementation = '_DEVICE('
            fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine + gpuGradientImplementation + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
-           _, cfxtran = fortran2xml(fortranSource)
+           _, _, cfxtran = fortran2xml(fortranSource)
            callStmt = cfxtran.find('.//{*}call-stmt')
            parStmt.insert(indexForCall, callStmt)
 
@@ -1023,7 +1020,7 @@ class Applications():
                                             "!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
                                             "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!" + \
                                             "$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-                            _, cfxtran = fortran2xml(fortranSource)
+                            _, _, cfxtran = fortran2xml(fortranSource)
                             commentsExpand = cfxtran.findall('.//{*}C')
                             parStmt = self.getParent(foundStmtandCalls[stmt][0])
                             indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
@@ -1039,6 +1036,7 @@ class Applications():
                         self.addArrayParenthesesInNode(stmt, None, scope.path)
 
     @debugDecor
+    @updateTree('signal')
     def buildACCTypeHelpers(self):
         """
         build module files containing helpers to copy user type structures
@@ -1049,6 +1047,7 @@ class Applications():
                 filename = os.path.join(os.path.dirname(self.getFileName()),
                                         "modd_util_{t}.F90".format(t=typeName.lower()))
                 varList = self.getVarList(scope.path)
+                self.tree.signal(filename)
                 with open(filename, 'w') as f:
                     f.write("""
 MODULE MODD_UTIL_{t}
@@ -1144,4 +1143,4 @@ IF (.NOT. LLDELETED) THEN
 ENDIF
 END SUBROUTINE WIPE_{t}
 
-END MODULE MODD_UTIL_{t}""".format(t=typeName))
+END MODULE MODD_UTIL_{t}\n""".format(t=typeName))

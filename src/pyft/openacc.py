@@ -4,7 +4,6 @@ This module implements the functions relative to openacc
 
 import xml.etree.ElementTree as ET
 from pyft.util import debugDecor, fortran2xml, n2name
-from pyft.tree import isUnderStopScopes
 
 class Openacc():
     @debugDecor
@@ -49,27 +48,27 @@ class Openacc():
                     list_var_end = list_var[:-3] # remove last comma and &
 
                     fortranSource = "SUBROUTINE FOO598756\n"+ list_var_end + ")\nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
+                    _, _, cfxtran = fortran2xml(fortranSource)
                     comment = cfxtran.findall('.//{*}C')
                     for com in comment:
                         self.insertStatement(scope.path, self.indent(com), first=True)
 
                     #2) !$acc end data
                     fortranSource = "SUBROUTINE FOO598756\n !$acc end data \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
+                    _, _, cfxtran = fortran2xml(fortranSource)
                     comment = cfxtran.find('.//{*}C')
                     self.insertStatement(scope.path, self.indent(comment), first=False)
 
     @debugDecor
-    def addACC_routine_seq(self, descTree, stopScopes):
+    def addACC_routine_seq(self, stopScopes):
         """
         Adds the '!$acc routine (<name>) seq' directive
-        :param descTree: descTree file
         :param stopScopes: scope paths where we stop to add the directive
         """
         for scope in self.getScopes():
-            if isUnderStopScopes(scope.path, descTree, stopScopes,
-                                 includeInterfaces=True, includeStopScopes=True):
+            if self.tree.isUnderStopScopes(scope.path, stopScopes,
+                                           includeInterfaces=True,
+                                           includeStopScopes=True):
                 name = n2name(scope[0].find('.//{*}N')).upper()
                 acc = ET.Element('{http://fxtran.net/#syntax}C')
                 acc.text = '!$acc routine ({routine}) seq'.format(routine=name)

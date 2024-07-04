@@ -11,13 +11,13 @@ from pyft.variables import Variables
 from pyft.cosmetics import Cosmetics
 from pyft.applications import Applications
 from pyft.statements import Statements
-from pyft.tree import Tree
 from pyft.cpp import Cpp
 from pyft.openacc import Openacc
 from pyft.util import PYFTError, debugDecor, n2name
+from pyft.tree import Tree
 
 
-class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Openacc):
+class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
     """
     This class wrapps the xml node representing a FORTRAN scope
     """
@@ -35,19 +35,21 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Opena
                        'interface': 'interface-construct'}
 
     def __init__(self, xml, ns, fullXml=None, scopePath='/', parentPYFTscope=None,
-                 enableCache=False):
+                 enableCache=False, tree=None):
         """
         :param xml: xml corresponding to this PYFTscope
         :param ns: name space
         :param scopePath: scope path ('/' separated string) of this node
         :param parentPYFTscope: parent PYFTscope instance
         :param enableCache: True to cache node parents
+        :param tree: an optional Tree instance
         """
         self._xml = xml
         self._ns = ns
         self._fullXml = xml if fullXml is None else fullXml
         self._path = scopePath
         self._parentPYFTscope = parentPYFTscope
+        self.tree = Tree() if tree is None else tree
         self.__cacheParent = {}
         if enableCache:
             for node in self.iter():
@@ -198,7 +200,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Opena
         Shows the list of scopes found in the source code
         """
         print("These scopes have been found in the source code:")
-        print("\n".join(['  - ' + path for path in self.getScopesList()]))
+        print("\n".join(['  - ' + scope.path for scope in self.getScopes()]))
 
     @debugDecor
     def getScopes(self, level=-1, excludeContains=False, excludeKinds=None):
@@ -214,7 +216,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Opena
         :param excludeKinds: if not None, is a list of scope kinds to exclude
         :return: list of PYFTscope found in the current scope
         """
-        assert level == -1 or level > 1, 'level must be -1 or a positive int'
+        assert level == -1 or level > 0, 'level must be -1 or a positive int'
         def _getRecur(node, level, basePath=''):
             #If node is the entire xml
             if node.tag.endswith('}object'):
@@ -244,7 +246,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Opena
                             childNode = child
                         results.append(PYFTscope(childNode, self.ns, fullXml=self._fullXml,
                                                  scopePath=scopePath, parentPYFTscope=self,
-                                                 enableCache=False))
+                                                 enableCache=False, tree=self.tree))
                         if level != 1:
                             results.extend(_getRecur(child, level - 1, scopePath))
             return results
@@ -322,3 +324,42 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Tree, Cpp, Opena
             result = [self._getNodePath(item)] + result
             item = self.getParentScopeNode(item, mustRaise=False)
         return '/'.join(result)
+
+    def getFileName(self):
+        """
+        :return: the name of the input file name or 'unknown' if not available
+                 in the xml fragment provided
+        """
+        return self._fullXml.find('.//{*}file').attrib['name']
+
+    def empty(self, addStmt=None, simplify=False):
+        """
+        Empties the scope by removing all statements except dummy arguments declaration
+        and USE statements (because they can be useful for the dummy argument declarations).
+        :param addStmt: add this statement in the body of the emptied scopes
+        :param simplify: try to simplify code
+        """
+        scopes = []  # list of scopes to empty
+        for scope in self.getScopes(level=1):
+            if scope.path.split('/')[-1].split(':')[0] == 'module':
+                scopes.extend(scope.getScopes(level=1))
+            else:
+                scopes.append(scope)
+        tagExcluded = (list(self.SCOPE_STMT.values()) +
+                       ['end-' + decl for decl in self.SCOPE_STMT.values()] +
+                       ['T-decl-stmt', 'use-stmt', 'C'])
+        for scope in scopes:
+            for node in list(scope):
+                if node.tag.split('}')[1] not in tagExcluded:
+                    self.remove(node)
+        self.removeUnusedLocalVar(simplify=simplify)
+        if simplify:
+            self.removeComments()
+            self.removeEmptyLines()
+        if addStmt is not None:
+            if isinstance(addStmt, str):
+                addStmt = self.createExpr(addStmt)
+            elif not isinstance(addStmt, list):
+                addStmt = [addStmt]
+            for stmt in addStmt:
+                scope.insertStatement(scope.path, stmt, False)

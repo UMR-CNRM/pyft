@@ -214,6 +214,8 @@ call statements must be suppressed (it is a scope path as described in [Concepts
 
 **\--showScopes** print the different scopes found in the source code.
 
+**\--empty** empty the different scopes found in the source code.
+
 ### Applications
 
 **\--deleteDrHook** removes DrHook statements.
@@ -279,9 +281,6 @@ But the method does not evaluate more complicated cpp directives such as '#if de
 **\--descTree** File name where the description of the tree is stored. If the file doesn't
 exist, it will be created using the \--tree option.
 
-**\--descTreeWithIncludes** same as --descTree but also apply --addIncludes to all the files
-in the tree
-
 **\--plotCompilTree** File name for compilation dependency graph (.dot or image extension).
 If \--descTree is used, the descTree file will be used, otherwise the tree (provided
 with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower options.
@@ -299,6 +298,8 @@ argument variable must stop (needed for some transformations)
 
 ## Python module
 
+### Module overview
+
 The main objet is the PYFTscope one; this class represents a FORTRAN scope (module,
 subroutine, function, program or type). To ease the development, the different methods
 of this class have been distributed to several files. In each of these files the
@@ -315,8 +316,32 @@ An instance of PYFT represents the entire file and can contain several FORTRAN s
 If p is an instance of PYFT, p.getScopes() returns a list of PYFTscope instances, each
 one representing a specific FORTRAN scope.
 
-In addition to these two classes, the module contains some functions in pyft.util and
+In order to deal with complex operations involving several source code files, a Tree
+object can be created. This object analizes all the source code files present in the
+specified directories to build a compilation tree and an execution tree. These trees
+can be explored and/or plotted through methods of this object.
+
+In addition to these three classes, the module contains some functions in pyft.util and
 pyft.expressions.
+
+### The developer's point of view
+
+New methods must be added in one of the abstract classes defined in variables.py,
+statements.py... according to its main topic.
+The application.py file deals with methods specific to PHYEX that are not universal.
+
+Several decorators are available:
+ - debugDecor (defined in tool): ease the debugging/profiling when logLevel is set
+   to info or debug. The additional cost is low, except when the method is called
+   many times; in this case, the decorator should not be used.
+ - updateTree() (defined in Tree): this decorator should be used for methods that can
+   modify the execution tree. When decorated, the file is analized again to update
+   the Tree object. updateTree can take a parameter:
+   - 'file': in his case the current PYFTscope object is analyzed
+   - 'scan': the Tree looks for new or removed files (caution, this method is expensive)
+   - 'signal': some files or PYFTscope objects are analysed to update the Tree object.
+     These files or PYFTscope objects are designed with the signal method of the Tree
+     object.
 
 ## Examples and tests
 

@@ -80,18 +80,6 @@ def print_infos():
         for funcName, values in util.debugStats.items():
             _print(funcName, values['nb'], values['min'], values['max'], values['totalTime'])
 
-def copy_doc(copy_func):
-    """
-    Decorator to copy the docstring from other function
-    """
-    def wrapper(func):
-        func.__doc__ = "This method applies the eponym function over " + \
-                       "the entire xml tree.\n\n" + \
-                       "Here's the docstring for the eponym function:\n" + \
-                       copy_func.__doc__
-        return func
-    return wrapper
-
 class PYFTError(Exception): pass
 
 ################################################################################
@@ -166,6 +154,7 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
             node.tail = node.tail[:-1] #remove '\n' added before 'END MODULE'
             file.remove(programUnit)
 
+    includesDone = False
     if len(set(['-no-include', '-noinclude']).intersection(parserOptions)) == 0:
         #fxtran has included the files but:
         #- it doesn't have removed the INCLUDE "file.h" statement
@@ -177,6 +166,7 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
         for includeStmt in includeStmts:
             par = [p for p in xml.iter() if includeStmt in p][0]
             par.remove(includeStmt)
+            includesDone = True
         #Remove the file node
         mainfile = xml.find('./{*}file')
         for file in mainfile.findall('.//{*}file'):
@@ -188,7 +178,7 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
                 par.insert(index, node)
             par.remove(file)
 
-    return ns, xml
+    return ns, includesDone, xml
 
 def tostring(doc):
     """

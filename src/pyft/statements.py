@@ -8,6 +8,7 @@ import copy
 import xml.etree.ElementTree as ET
 from pyft.util import n2name, non_code, debugDecor, alltext, PYFTError
 from pyft.expressions import createExprPart, createArrayBounds
+from pyft.tree import updateTree
 
 def _nodesInIf(ifNode):
     """
@@ -525,14 +526,14 @@ class Statements():
                      for v in varList if v.get('new', False)])
 
     @debugDecor
-    def inlineContainedSubroutines(self, descTree=None, simplify=False, loopVar=None):
+    @updateTree('signal')
+    def inlineContainedSubroutines(self, simplify=False, loopVar=None):
         """
         Inline all contained subroutines in the main subroutine
         Steps :
             - Identify contained subroutines
             - Look for all CALL statements, check if it is a containted routines; if yes, inline
             - Delete the containted routines
-        :param descTree: description tree object (to update it with the inlining)
         :param simplify: try to simplify code (construct or variables becoming useless)
         :param loopVar: None to create new variable for each added DO loop (around ELEMENTAL subroutine calls)
                         or a function that return the name of the variable to use for the loop control.
@@ -565,12 +566,7 @@ class Statements():
                            self.getParent(callStmtNn, level=4),
                            scope.path, containedRoutines[containedRoutine].path, # Scope paths
                            self.getVarList(), # Must be recomputed each time to take into account new variable
-                           descTree,
                            simplify=simplify, loopVar=loopVar)
-            #scope.path doesn't use anymore the sub-contained routines
-            for cr in containedRoutines:
-                if containedRoutines[cr].path in descTree['execution_tree'][scope.path]:
-                    descTree['execution_tree'][scope.path].remove(containedRoutines[cr].path)
 
         for scope in scopes: #loop on all subroutines
             if scope.path.count('sub:') >= 2:
@@ -580,20 +576,15 @@ class Statements():
                 if all([N in scope.iter() for N in nodes]):
                     # Subroutine name not used (apart in its definition scope), we suppress it from the CONTAINS part
                     self.remove(scope)
-                    if descTree is not None:
-                        # If the contained routine call other routines, these called routines have been added
-                        # to descTree['execution_tree'][upperRoutine] by the inline function.
-                        # Here we suppress the existence of scope.path in the execution tree
-                        del descTree['execution_tree'][scope.path]
-                        # And in the list of scopes
-                        descTree['scopes'][self.getFileName()].remove(scope.path)
+                    self.tree.signal(self) # Tree must be updated, only in this case
 
         if simplify:
             self.removeEmptyCONTAINS()
 
     @debugDecor
+    @updateTree()
     def inline(self, subContained, callStmt, mainScopePath, subScopePath,
-               varList, descTree, simplify=False, loopVar=None):
+               varList, simplify=False, loopVar=None):
         """
         Inline a subContainted subroutine
         Steps :
@@ -609,7 +600,6 @@ class Statements():
         :param mainScopePath: scope path of the main (calling) subroutine
         :param subScopePath: scope path of the contained subroutine to include
         :param varList: var list of all scopes
-        :param descTree: description tree object (to update it with the inlining)
         :param simplify: try to simplify code (construct or variables becoming useless)
         :param loopVar: None to create new variable for each added DO loop (around ELEMENTAL subroutine calls)
                         or a function that return the name of the variable to use for the loop control.
@@ -1009,14 +999,6 @@ class Statements():
         for node in node[::-1]:
             #node is a program-unit, we must insert the subelements
             parent.insert(index, node)
-
-        # Update the descTree object
-        if descTree is not None:
-            for item in descTree['execution_tree'][subScopePath]:
-                if item not in descTree['execution_tree'][mainScopePath]:
-                    #All subroutines/functions called by the sub-contained routine are now directly
-                    #called by the main routine
-                    descTree['execution_tree'][mainScopePath].append(item)
 
     @debugDecor
     def setFalseIfStmt(self, flags, scopePath=None, simplify=False):

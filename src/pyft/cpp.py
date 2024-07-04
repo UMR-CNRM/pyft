@@ -3,13 +3,16 @@ This module implements functions for delaing with cpp directives
 """
 
 from pyft.util import debugDecor, alltext, PYFTError
+from pyft.tree import updateTree
 
 class Cpp:
     @debugDecor
+    @updateTree('signal')
     def applyCPPifdef(self, keys):
         """
         Apply #ifdef / #ifndef only on some keys
-        :param keys: list of defined and undefined keys. The latter are preceded by a percentage sign '%'.
+        :param keys: list of defined and undefined keys. The latter are preceded by a
+                     percentage sign '%'.
                      E.g. if K is in keys, "#ifdef K "will be evaluated to True
                           if %K is in keys, "#ifdef K" will be evaluated to False
 
@@ -93,6 +96,8 @@ class Cpp:
                 raise PYFTError("#else or #endif hasn't the same parent as #ifdef " + \
                                 "or #ifndef in {f}".format(f=self.getFileName()))
         #Suppress node in reverse order to attach tail to previous node
+        if len(toRemove) != 0:
+            self.tree.signal(self)  # Tree may need to be updated
         for node, par in toRemove[::-1]:
             index = list(par).index(node)
             if index != 0:

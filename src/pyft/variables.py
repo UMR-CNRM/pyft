@@ -10,8 +10,8 @@ import re
 
 from pyft.util import PYFTError, debugDecor, alltext, fortran2xml, isExecutable, n2name
 from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr
-from pyft.tree import (jsonToDescTree, findScopeInterface, isUnderStopScopes,
-                       calledByScope, scopeToFiles, conservativePYFT)
+from pyft.tree import updateTree
+import pyft.pyft
 
 
 #No @debugDecor for this low-level method
@@ -291,6 +291,7 @@ class Variables():
                             "file '{}'".format(self.getFileName()))
 
     @debugDecor
+    @updateTree('signal')
     def removeVar(self, varList, simplify=False):
         """
         :param varList: list of variables to remove. Each item is a list or tuple of two elements.
@@ -385,6 +386,7 @@ class Variables():
                                             previous.tail += node.tail
                                         deleted = True
                                         self.getParent(node).remove(node)
+                                        self.tree.signal(self)  # Tree must be updated
                                     elif len(use_lst) == 0:
                                         #there is no 'ONLY' attribute
                                         moduleName = self.getSiblings(use_lst, before=True, after=False)[-1]
@@ -450,7 +452,7 @@ class Variables():
                     #Add declaration statement in type declaration
                     #Statement building
                     fortranSource = "MODULE MODU_{var}\nTYPE TYP_{var}\n{decl}\nEND TYPE\nEND MODULE".format(var=name, decl=declStmt)
-                    _, xml = fortran2xml(fortranSource)
+                    _, _, xml = fortran2xml(fortranSource)
                     ds = xml.find('.//{*}' + declStmtTag)
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
@@ -465,7 +467,7 @@ class Variables():
                     #Add declaration statement (not type declaration case)
                     #Statement building
                     fortranSource = "SUBROUTINE SUB_{var}\n{decl}\nEND SUBROUTINE".format(var=name, decl=declStmt)
-                    _, xml = fortran2xml(fortranSource)
+                    _, _, xml = fortran2xml(fortranSource)
                     ds = xml.find('.//{*}' + declStmtTag)
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
@@ -495,6 +497,7 @@ class Variables():
                     locNode.insert(index, ds)
 
     @debugDecor
+    @updateTree('signal')
     def addModuleVar(self, moduleVarList):
         """
         :param moduleVarList: list of module variable specification to insert in the xml code
@@ -538,7 +541,7 @@ class Variables():
                 if len(varName) > 0:
                     fortranSource += ', ONLY:{}'.format(', '.join(varName))
                 fortranSource += "\nEND SUBROUTINE"
-                _, xml = fortran2xml(fortranSource)
+                _, _, xml = fortran2xml(fortranSource)
                 us = xml.find('.//{*}use-stmt')
     
                 #node insertion index
@@ -552,6 +555,7 @@ class Variables():
                 us.tail = locNode[index - 1].tail
                 locNode[index - 1].tail = '\n'
                 locNode.insert(index, us)
+                self.tree.signal(self)  # Tree must be updated
 
     @debugDecor
     def showUnusedVar(self, scopePath=None):
@@ -1265,7 +1269,7 @@ class Variables():
         return result
 
     @debugDecor
-    def addArgInTree(self, scopePath, descTree, varName, declStmt, pos, stopScopes, moduleVarList=None,
+    def addArgInTree(self, scopePath, varName, declStmt, pos, stopScopes, moduleVarList=None,
                      otherNames=None,
                      parser=None, parserOptions=None, wrapH=False):
         """
@@ -1273,7 +1277,6 @@ class Variables():
         where the variable exists or a scope in stopScopes
         :param scopePath: scope to start with (if None, try to guess it from the scopes defined in
                                                the object)
-        :param descTree: descTree file
         :param varName: variable name
         :param declStmt: declarative statment (will be used by addVar)
         :param pos: position of the variable in the list of dummy argument
@@ -1333,7 +1336,6 @@ class Variables():
             container.append(item)
             self.insertInList(pos, container, argList)
 
-        descTree = jsonToDescTree(descTree)
         if scopePath is None:
             allScopes = [scope.path for scope in self.getScopes()
                          if scope.path.split('/')[-1].split(':')[0] in ('sub', 'func')]
@@ -1342,7 +1344,7 @@ class Variables():
             else:
                 raise PYFTError('Unable to guess the scope path to deal with')
 
-        if scopePath in stopScopes or isUnderStopScopes(scopePath, descTree, stopScopes):
+        if scopePath in stopScopes or self.tree.isUnderStopScopes(scopePath, stopScopes):
             #We are on the path to a scope in the stopScopes list, or scopeUp is one of the stopScopes
             varList = self.getVarList()
             var = self.findVar(varName, scopePath, varList, exactScope=True)
@@ -1361,14 +1363,15 @@ class Variables():
                                       for (moduleName, moduleVarNames) in moduleVarList])
                #We look for interface declaration if subroutine is directly accessible
                if len(scopePath.split('/')) == 1:
-                   filename, scopeInterface = findScopeInterface(descTree, scopePath)
+                   filename, scopeInterface = self.tree.findScopeInterface(scopePath)
                    if filename is not None:
                        if self.getFileName() == filename:
                            #interface declared in same file
                            xml = self
                            pft = None
                        else:
-                           pft = conservativePYFT(filename, parser, parserOptions, wrapH)
+                           pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
+                                                            wrapH, tree=self.tree)
                            xml = pft
                        varInterface = xml.findVar(varName, scopeInterface, exactScope=True)
                        if varInterface is None:
@@ -1381,19 +1384,20 @@ class Variables():
 
             if var is None and scopePath not in stopScopes:
                 #We must propagates upward
-                for scopeUp in calledByScope(scopePath, descTree): #scopes calling the current scope
-                    if scopeUp in stopScopes or isUnderStopScopes(scopeUp, descTree, stopScopes):
+                for scopeUp in self.tree.calledByScope(scopePath): #scopes calling the current scope
+                    if scopeUp in stopScopes or self.tree.isUnderStopScopes(scopeUp, stopScopes):
                         #We are on the path to a scope in the stopScopes list, or scopeUp is one of the stopScopes
-                        for filename in scopeToFiles(scopeUp, descTree): #can be defined several times?
+                        for filename in self.tree.scopeToFiles(scopeUp): #can be defined several times?
                             if self.getFileName() == filename:
                                 #Upper scope is in the same file
                                 xml = self
                                 pft = None
                             else:
-                                pft = conservativePYFT(filename, parser, parserOptions, wrapH)
+                                pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
+                                                                 wrapH, tree=self.tree)
                                 xml = pft
                             #Add the argument and propagate upward
-                            xml.addArgInTree(scopeUp, descTree, varName, declStmt, pos,
+                            xml.addArgInTree(scopeUp, varName, declStmt, pos,
                                              stopScopes, moduleVarList, otherNames,
                                              parser=parser, parserOptions=parserOptions, wrapH=wrapH)
                             #Add the argument to calls (subroutine or function)
