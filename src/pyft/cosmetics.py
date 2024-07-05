@@ -2,9 +2,9 @@
 This module implements functions to deal with cosmetics
 """
 
-import xml.etree.ElementTree as ET
 import re
 from pyft.util import debugDecor, non_code
+from pyft.expressions import createElem
 
 class Cosmetics():
     @debugDecor
@@ -233,7 +233,7 @@ class Cosmetics():
                            e.tail.replace('\n', '').replace('\t', '').lstrip(' ') != '':
                             #tail contains text, probably an endding ')', after a carriage return
                             #Thus, there is no '&' to begin line
-                            new = ET.Element('{http://fxtran.net/#syntax}cnt')
+                            new = createElem('cnt')
                             new.text = '&'
                             #'&' must be put before any text on the following line containing code
                             i = 0
@@ -243,7 +243,7 @@ class Cosmetics():
                             elem.insert(ie + 1, new)
                         elif nextNode.tag.split('}')[1] != 'cnt':
                             #There is no '&' to begin next line
-                            new = ET.Element('{http://fxtran.net/#syntax}cnt')
+                            new = createElem('cnt')
                             new.text = '&'
                             if len(commentsAfter) > 0:
                                 #'&' must be put before any text on the following line containing code
@@ -853,9 +853,9 @@ class Cosmetics():
                 #                        <f:end-if-stmt>ENDIF</f:end-if-stmt></f:if-block></f:if-construct>
                 #1 create missing blocks
                 item.tag = item.tag.split('}')[0] + '}if-construct'
-                ifBlock = ET.Element('{http://fxtran.net/#syntax}if-block')
-                ifThenStmt = ET.Element('{http://fxtran.net/#syntax}if-then-stmt')
-                endif = ET.Element('{http://fxtran.net/#syntax}end-if-stmt')
+                ifBlock = createElem('if-block')
+                ifThenStmt = createElem('if-then-stmt')
+                endif = createElem('end-if-stmt')
                 ifBlock.append(ifThenStmt)
                 item.append(ifBlock)
                 #2 move 'IF(' text

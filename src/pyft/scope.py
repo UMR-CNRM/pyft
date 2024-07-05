@@ -4,7 +4,6 @@
 This module implements the scope stuff
 """
 
-import xml.etree.ElementTree as ET
 import copy
 
 from pyft.variables import Variables
@@ -15,6 +14,7 @@ from pyft.cpp import Cpp
 from pyft.openacc import Openacc
 from pyft.util import PYFTError, debugDecor, n2name
 from pyft.tree import Tree
+from pyft.expressions import createElem
 
 
 class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
@@ -34,7 +34,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                        'prog': 'program-unit',
                        'interface': 'interface-construct'}
 
-    def __init__(self, xml, ns, fullXml=None, scopePath='/', parentPYFTscope=None,
+    def __init__(self, xml, fullXml=None, scopePath='/', parentPYFTscope=None,
                  enableCache=False, tree=None):
         """
         :param xml: xml corresponding to this PYFTscope
@@ -45,7 +45,6 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :param tree: an optional Tree instance
         """
         self._xml = xml
-        self._ns = ns
         self._fullXml = xml if fullXml is None else fullXml
         self._path = scopePath
         self._parentPYFTscope = parentPYFTscope
@@ -102,13 +101,6 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         Return the current path
         """
         return self._path
-
-    @property
-    def ns(self):
-        """
-        Return the namespace
-        """
-        return self._ns
 
     #No @debugDecor for this low-level method
     def getParent(self, item, level=1):
@@ -231,7 +223,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                         scopePath = self._getNodePath(child) if basePath in ('', '/') \
                                     else basePath + '/' + nodePath
                         if excludeContains:
-                            childNode = ET.Element('{http://fxtran.net/#syntax}virtual')
+                            childNode = createElem('virtual')
                             breakOnCOntains = False
                             for node in child:
                                 if node.tag.endswith('}contains-stmt'):
@@ -244,7 +236,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                                 childNode = child
                         else:
                             childNode = child
-                        results.append(PYFTscope(childNode, self.ns, fullXml=self._fullXml,
+                        results.append(PYFTscope(childNode, fullXml=self._fullXml,
                                                  scopePath=scopePath, parentPYFTscope=self,
                                                  enableCache=False, tree=self.tree))
                         if level != 1:

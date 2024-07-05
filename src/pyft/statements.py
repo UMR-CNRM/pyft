@@ -5,10 +5,10 @@ This module includes functions to act on statements
 import re
 import logging
 import copy
-import xml.etree.ElementTree as ET
 from pyft.util import n2name, non_code, debugDecor, alltext, PYFTError
-from pyft.expressions import createExprPart, createArrayBounds
+from pyft.expressions import createExprPart, createArrayBounds, createElem
 from pyft.tree import updateTree
+from pyft import NAMESPACE
 
 def _nodesInIf(ifNode):
     """
@@ -627,7 +627,7 @@ class Statements():
                     if presentarg.upper() == var.upper():
                         for n in namedE[:]:
                             namedE.remove(n)
-                        namedE.tag = '{http://fxtran.net/#syntax}literal-E'
+                        namedE.tag = f'{{{NAMESPACE}}}literal-E'
                         namedE.text = '.TRUE.' if val else '.FALSE.'
 
         # Get parent of callStmt
@@ -948,14 +948,14 @@ class Statements():
                                 else:
                                     low = sl.find('./{*}lower-bound')
                                     if low is None:
-                                        low = ET.Element('{http://fxtran.net/#syntax}lower-bound')
+                                        low = createElem('lower-bound')
                                         low.append(createExprPart(desc_sub[0]))
                                         low.tail = sl.text #':'
                                         sl.text = None
                                         sl.insert(0, low)
                                     up = sl.find('./{*}upper-bound')
                                     if up is None:
-                                        up = ET.Element('{http://fxtran.net/#syntax}upper-bound')
+                                        up = createElem('upper-bound')
                                         up.append(createExprPart(desc_sub[1]))
                                         sl.append(up)
                                     bounds = [low, up]
@@ -1031,7 +1031,7 @@ class Statements():
                         if alltext(namedE).upper() in flags:
                             #This named-E must be replaced by .FALSE.
                             found = True
-                            namedE.tag = '{http://fxtran.net/#syntax}literal-E'
+                            namedE.tag = '{{{NAMESPACE}}}literal-E'
                             namedE.text = '.FALSE.'
                             for item in list(namedE):
                                 namedE.remove(item)
@@ -1339,30 +1339,30 @@ class Statements():
             #</f:do-construct>
             triplets = []
             for v, (l, u) in list(loopVariables.items())[::-1]: #Better for vectorisation with some compilers
-                V = ET.Element('{http://fxtran.net/#syntax}V')
+                V = createElem('V')
                 V.append(createExprPart(v))
                 V.tail = '='
                 lower, upper = createArrayBounds(l, u, 'DOCONCURRENT')
 
-                triplet = ET.Element('{http://fxtran.net/#syntax}forall-triplet-spec')
+                triplet = createElem('forall-triplet-spec')
                 triplet.extend([V, lower, upper])
 
                 triplets.append(triplet)
 
-            tripletLT = ET.Element('{http://fxtran.net/#syntax}forall-triplet-spec-LT')
+            tripletLT = createElem('forall-triplet-spec-LT')
             tripletLT.tail = ')'
             for triplet in triplets[:-1]:
                 triplet.tail = ', '
             tripletLT.extend(triplets)
 
-            dostmt = ET.Element('{http://fxtran.net/#syntax}do-stmt')
+            dostmt = createElem('do-stmt')
             dostmt.text = 'DO CONCURRENT ('
             dostmt.tail = '\n'
             dostmt.append(tripletLT)
-            enddostmt = ET.Element('{http://fxtran.net/#syntax}end-do-stmt')
+            enddostmt = createElem('end-do-stmt')
             enddostmt.text = 'END DO'
 
-            doconstruct = ET.Element('{http://fxtran.net/#syntax}do-construct')
+            doconstruct = createElem('do-construct')
             doconstruct.extend([dostmt, enddostmt])
             doconstruct.tail = '\n'
             inner = outer = doconstruct
@@ -1378,20 +1378,20 @@ class Statements():
             #  <f:end-do-stmt>END DO</f:end-do-stmt>
             #</f:do-construct>\n
             def make_do(v, l, u):
-                doV = ET.Element('{http://fxtran.net/#syntax}do-V')
+                doV = createElem('do-V')
                 doV.append(createExprPart(v))
                 doV.tail = '='
                 lower, upper = createArrayBounds(l, u, 'DO')
 
-                dostmt = ET.Element('{http://fxtran.net/#syntax}do-stmt')
+                dostmt = createElem('do-stmt')
                 dostmt.text = 'DO '
                 dostmt.tail = '\n'
                 dostmt.extend([doV, lower, upper])
 
-                enddostmt = ET.Element('{http://fxtran.net/#syntax}end-do-stmt')
+                enddostmt = createElem('end-do-stmt')
                 enddostmt.text = 'END DO'
 
-                doconstruct = ET.Element('{http://fxtran.net/#syntax}do-construct')
+                doconstruct = createElem('do-construct')
                 doconstruct.extend([dostmt, enddostmt])
                 doconstruct.tail = '\n'
                 return doconstruct

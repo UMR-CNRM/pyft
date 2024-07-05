@@ -2,14 +2,14 @@
 This module implements functions for high-to-moderate level transformation
 """
 
-import xml.etree.ElementTree as ET
 import copy
 import os
 import logging
 
 from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError
-from pyft.expressions import createExpr, createExprPart
+from pyft.expressions import createExpr, createExprPart, createElem
 from pyft.tree import updateTree
+from pyft import NAMESPACE
 
 def _loopVarPHYEX(lower_decl, upper_decl, lower_used, upper_used, name, i):
     """
@@ -149,7 +149,7 @@ class Applications():
             fortranSource = "SUBROUTINE FOO598756\n " + ifBeg + "CALL MPPDB_CHECK(" + \
                             addD + argsMPPDB + addLastDim + addSecondDimType + ")" + \
                             ifEnd + "\nEND SUBROUTINE"
-            _, _, callMPPDBfxtran = fortran2xml(fortranSource)
+            _, callMPPDBfxtran = fortran2xml(fortranSource)
             if lookForIf:
                 stmt = callMPPDBfxtran.find('.//{*}if-construct')
             else:
@@ -188,13 +188,13 @@ class Applications():
 
                     # Prepare some FORTRAN comments
                     fortranSource = "SUBROUTINE FOO598756\n !Check all IN arrays \nEND SUBROUTINE"
-                    _, _, cfxtran = fortran2xml(fortranSource)
+                    _, cfxtran = fortran2xml(fortranSource)
                     commentIN = cfxtran.find('.//{*}C')
                     fortranSource = "SUBROUTINE FOO598756\n !Check all INOUT arrays \nEND SUBROUTINE"
-                    _, _, cfxtran = fortran2xml(fortranSource)
+                    _, cfxtran = fortran2xml(fortranSource)
                     commentINOUT = cfxtran.find('.//{*}C')
                     fortranSource = "SUBROUTINE FOO598756\n !Check all OUT arrays \nEND SUBROUTINE"
-                    _, _, cfxtran = fortran2xml(fortranSource)
+                    _, cfxtran = fortran2xml(fortranSource)
                     commentOUT = cfxtran.find('.//{*}C')
 
                     # 1) variables IN and INOUT block (beggining of the routine)
@@ -202,7 +202,7 @@ class Applications():
                         fortranSource = "SUBROUTINE FOO598756\n" + \
                                         "  IF (MPPDB_INITIALIZED) THEN\n" + \
                                         "  END IF \nEND SUBROUTINE"
-                        _, _, ifMPPDBinitfxtran = fortran2xml(fortranSource)
+                        _, ifMPPDBinitfxtran = fortran2xml(fortranSource)
                         ifMPPDBinit = ifMPPDBinitfxtran.find('.//{*}if-construct')
                         ifMPPDB = ifMPPDBinit.find('.//{*}if-block')
 
@@ -230,7 +230,7 @@ class Applications():
                         fortranSource = "SUBROUTINE FOO598756\n" + \
                                         "  IF (MPPDB_INITIALIZED) THEN\n" + \
                                         "  END IF \nEND SUBROUTINE"
-                        _, _, ifMPPDBendfxtran = fortran2xml(fortranSource)
+                        _, ifMPPDBendfxtran = fortran2xml(fortranSource)
                         ifMPPDBend = ifMPPDBendfxtran.find('.//{*}if-construct')
                         ifMPPDB = ifMPPDBend.find('.//{*}if-block')
 
@@ -390,7 +390,7 @@ class Applications():
                     if loopIndex in indexToCheck.keys(): # To be transformed
                         if sub.text == ':':
                             sub.text = None
-                            lowerBound = ET.Element('{http://fxtran.net/#syntax}lower-bound')
+                            lowerBound = createElem('lower-bound')
                             sub.insert(0, lowerBound)
                         else:
                             lowerBound = sub.find('./{*}lower-bound')
@@ -406,11 +406,10 @@ class Applications():
             # Transform array-R/section-subscript-LT/section-subscript
             #      into parens-R>/element-LT/element if needed
             if not ':' in alltext(namedE.find('./{*}R-LT/{*}array-R/{*}section-subscript-LT')):
-                ns = '{http://fxtran.net/#syntax}'
-                namedE.find('./{*}R-LT/{*}array-R').tag = ns + 'parens-R'
-                namedE.find('./{*}R-LT/{*}parens-R/{*}section-subscript-LT').tag = ns + 'element-LT'
+                namedE.find('./{*}R-LT/{*}array-R').tag = f'{{{NAMESPACE}}}parens-R'
+                namedE.find('./{*}R-LT/{*}parens-R/{*}section-subscript-LT').tag = f'{{{NAMESPACE}}}element-LT'
                 for ss in namedE.findall('./{*}R-LT/{*}parens-R/{*}element-LT/{*}section-subscript'):
-                    ss.tag = ns + 'element'
+                    ss.tag = f'{{{NAMESPACE}}}element'
                     lowerBound = ss.find('./{*}lower-bound')
                     for item in lowerBound:
                         ss.append(item)
@@ -475,7 +474,7 @@ class Applications():
                             if intrName in ('MAXVAL', 'MINVAL', 'SUM', 'ALL', 'ANY'):
                                 #eg: MAXVAL(X(:)) => MAXVAL(X(JI)) => X(JI)
                                 parens = intr.find('./{*}R-LT/{*}parens-R')
-                                parens.tag = '{http://fxtran.net/#syntax}parens-E'
+                                parens.tag = f'{{{NAMESPACE}}}parens-E'
                                 intrPar = self.getParent(intr)
                                 intrPar.insert(list(intrPar).index(intr), parens)
                                 intrPar.remove(intr)
@@ -487,7 +486,7 @@ class Applications():
                                 N.find('./{*}n').text = 'MERGE'
                                 elementLT = intr.find('./{*}R-LT/{*}parens-R/{*}element-LT')
                                 for v in (1, 0):
-                                    element = ET.Element('{http://fxtran.net/#syntax}element')
+                                    element = createElem('element')
                                     element.append(createExprPart(v))
                                     element.tail = ', '
                                     elementLT.insert(0, element)
@@ -669,11 +668,11 @@ class Applications():
                     leftOfPow = scope.getSiblings(op, after=False, before=True)[0]
 
                     # Prepare the object that will contain the left and right of Pow
-                    RLT = ET.Element('{http://fxtran.net/#syntax}R-LT')
-                    parensR = ET.Element('{http://fxtran.net/#syntax}parens-R')
+                    RLT = createElem('R-LT')
+                    parensR = createElem('parens-R')
                     parensR.text = '('
                     parensR.tail = ')'
-                    elementLT = ET.Element('{http://fxtran.net/#syntax}element-LT')
+                    elementLT = createElem('element-LT')
 
                     # Regarding the right part of pow(), build a new node expression :
                     #  If it is a number and check only for 2, 3 and 4 (e.g. A**2, B**3, D**4 etc)
@@ -695,7 +694,7 @@ class Applications():
                 	        #  </f:R-LT>
                             #</f:named-E>
                             BRP = createExprPart('BR_P' + str(powerNumber))
-                            element = ET.Element('{http://fxtran.net/#syntax}element')
+                            element = createElem('element')
                             element.append(leftOfPow)
                             elementLT.append(element)
                     # If the right part of pow() is not a number OR it is a number except 2, 3 or 4 (powerBR_list)
@@ -720,10 +719,10 @@ class Applications():
             	        #  </f:R-LT>
                         #</f:named-E>
                         BRP = createExprPart('BR_POW')
-                        leftElement = ET.Element('{http://fxtran.net/#syntax}element')
+                        leftElement = createElem('element')
                         leftElement.append(leftOfPow)
                         leftElement.tail = ','
-                        rightElement = ET.Element('{http://fxtran.net/#syntax}element')
+                        rightElement = createElem('element')
                         rightElement.append(rightOfPow)
                         elementLT.append(leftElement)
                         elementLT.append(rightElement)
@@ -831,7 +830,7 @@ class Applications():
                fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(zshugradwkDim)+") independent\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
                                 computingVarName + " = " + alltext(workingItem) +"\n" + \
                                 "!$mnh_end_expand_array("+mnhExpandArrayIndexes+")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-               _, _, cfxtran = fortran2xml(fortranSource)
+               _, cfxtran = fortran2xml(fortranSource)
                computeStmt = cfxtran.find('.//{*}a-stmt')
                workingItem = cfxtran.find('.//{*}E-1')
                commentsExpand = cfxtran.findall('.//{*}C')
@@ -852,7 +851,7 @@ class Applications():
            gpuGradientImplementation = '_PHY(D, '
            if funcName == 'GY_U_UV' or funcName == 'GX_V_UV': gpuGradientImplementation = '_DEVICE('
            fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine + gpuGradientImplementation + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
-           _, _, cfxtran = fortran2xml(fortranSource)
+           _, cfxtran = fortran2xml(fortranSource)
            callStmt = cfxtran.find('.//{*}call-stmt')
            parStmt.insert(indexForCall, callStmt)
 
@@ -1020,7 +1019,7 @@ class Applications():
                                             "!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
                                             "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!" + \
                                             "$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-                            _, _, cfxtran = fortran2xml(fortranSource)
+                            _, cfxtran = fortran2xml(fortranSource)
                             commentsExpand = cfxtran.findall('.//{*}C')
                             parStmt = self.getParent(foundStmtandCalls[stmt][0])
                             indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])

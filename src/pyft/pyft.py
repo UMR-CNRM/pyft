@@ -73,8 +73,8 @@ class PYFT(PYFTscope):
         for option in self.MANDATORY_FXTRAN_OPTIONS:
             if option not in self._parserOptions:
                 self._parserOptions.append(option)
-        ns, includesRemoved, xml = fortran2xml(self._filename, self._parser, self._parserOptions, wrapH)
-        super().__init__(xml, ns, enableCache=enableCache, tree=tree)
+        includesRemoved, xml = fortran2xml(self._filename, self._parser, self._parserOptions, wrapH)
+        super().__init__(xml, enableCache=enableCache, tree=tree)
         if includesRemoved:
             self.tree.update(self)
         if verbosity is not None:

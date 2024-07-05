@@ -2,14 +2,12 @@
 This module implements functions to deal with variables
 """
 
-import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element
 import logging
 import copy
 import re
 
 from pyft.util import PYFTError, debugDecor, alltext, fortran2xml, isExecutable, n2name
-from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr
+from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr, createElem
 from pyft.tree import updateTree
 import pyft.pyft
 
@@ -425,9 +423,9 @@ class Variables():
     
             #Add variable to the argument list
             if pos is not None:
-                argN = Element('{http://fxtran.net/#syntax}:arg-N')
-                N = Element('{http://fxtran.net/#syntax}:N')
-                n = Element('{http://fxtran.net/#syntax}:n')
+                argN = createElem('arg-N')
+                N = createElem('N')
+                n = createElem('n')
                 n.text = name
                 N.append(n)
                 argN.append(N)
@@ -436,7 +434,7 @@ class Variables():
                 if argLst is None:
                    #This was a subroutine or function without dummy arguments
                    locNode[0][0].tail = '('
-                   argLst = Element('{http://fxtran.net/#syntax}:dummy-arg-LT')
+                   argLst = createElem('dummy-arg-LT')
                    argLst.tail = ')'
                    locNode[0].insert(1, argLst)
                 self.insertInList(pos, argN, argLst)
@@ -452,7 +450,7 @@ class Variables():
                     #Add declaration statement in type declaration
                     #Statement building
                     fortranSource = "MODULE MODU_{var}\nTYPE TYP_{var}\n{decl}\nEND TYPE\nEND MODULE".format(var=name, decl=declStmt)
-                    _, _, xml = fortran2xml(fortranSource)
+                    _, xml = fortran2xml(fortranSource)
                     ds = xml.find('.//{*}' + declStmtTag)
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
@@ -467,7 +465,7 @@ class Variables():
                     #Add declaration statement (not type declaration case)
                     #Statement building
                     fortranSource = "SUBROUTINE SUB_{var}\n{decl}\nEND SUBROUTINE".format(var=name, decl=declStmt)
-                    _, _, xml = fortran2xml(fortranSource)
+                    _, xml = fortran2xml(fortranSource)
                     ds = xml.find('.//{*}' + declStmtTag)
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
@@ -541,7 +539,7 @@ class Variables():
                 if len(varName) > 0:
                     fortranSource += ', ONLY:{}'.format(', '.join(varName))
                 fortranSource += "\nEND SUBROUTINE"
-                _, _, xml = fortran2xml(fortranSource)
+                _, xml = fortran2xml(fortranSource)
                 us = xml.find('.//{*}use-stmt')
     
                 #node insertion index
@@ -735,16 +733,16 @@ class Variables():
                         #But we exclude pointer allocatable in call statement because the called subroutine
                         #can wait for a pointer/allocatable and not an array (and it is difficult to guess as it
                         #would need to find the source code of the subroutine)
-                        RLT = ET.Element('{http://fxtran.net/#syntax}R-LT')
+                        RLT = createElem('R-LT')
                         namedE.insert(list(namedE).index(N) + 1, RLT)
-                        arrayR = ET.Element('{http://fxtran.net/#syntax}array-R')
+                        arrayR = createElem('array-R')
                         arrayR.text = '('
                         RLT.append(arrayR)
-                        sectionSubscriptLT = ET.Element('{http://fxtran.net/#syntax}section-subscript-LT')
+                        sectionSubscriptLT = createElem('section-subscript-LT')
                         sectionSubscriptLT.tail = ')'
                         arrayR.append(sectionSubscriptLT)
                         for _ in var['as']:
-                            sectionSubscript = ET.Element('{http://fxtran.net/#syntax}section-subscript')
+                            sectionSubscript = createElem('section-subscript')
                             sectionSubscript.text = ':'
                             sectionSubscript.tail = ', '
                             sectionSubscriptLT.append(sectionSubscript)
@@ -998,14 +996,14 @@ class Variables():
         arrayR = RLT.find('./{*}array-R') #Not always in first position, eg: ICED%XRTMIN(:)
         if arrayR is not None:
             index = list(RLT).index(arrayR)
-            parensR = ET.Element('{http://fxtran.net/#syntax}parens-R')
+            parensR = createElem('parens-R')
             parensR.text = '('
             parensR.tail = ')'
-            elementLT = ET.Element('{http://fxtran.net/#syntax}element-LT')
+            elementLT = createElem('element-LT')
             parensR.append(elementLT)
             ivar = -1
             for ss in RLT[index].findall('./{*}section-subscript-LT/{*}section-subscript'):
-                element = ET.Element('{http://fxtran.net/#syntax}element')
+                element = createElem('element')
                 element.tail = ', '
                 elementLT.append(element)
                 if ':' in alltext(ss):
@@ -1303,14 +1301,14 @@ class Variables():
             """
             argList = callFuncStmt.find('./{*}R-LT/{*}parens-R/{*}element-LT')
             if argList is not None:
-                container = ET.Element('{http://fxtran.net/#syntax}element')
+                container = createElem('element')
             else:
                 argList = callFuncStmt.find('./{*}arg-spec')
-                container = ET.Element('{http://fxtran.net/#syntax}arg')
+                container = createElem('arg')
                 if argList is None:
                     #Call without argument
                     callFuncStmt.find('./{*}procedure-designator').tail = '('
-                    argList = ET.Element('{http://fxtran.net/#syntax}arg-spec')
+                    argList = createElem('arg-spec')
                     argList.tail = ')'
                     callFuncStmt.append(argList)
             item = createExprPart(varNameToUse)
@@ -1326,9 +1324,9 @@ class Variables():
                 #We use the key=val syntax whereever it is possible because it's safer in case of optional arguments
                 #If previous arg, or following arg is already with a key=val syntax, we can (must) use it
                 #If the inserted argument is the last one of the list, it also can use this syntax
-                k = ET.Element('{http://fxtran.net/#syntax}k')
+                k = createElem('k')
                 k.text = varName
-                argN = ET.Element('{http://fxtran.net/#syntax}arg-N')
+                argN = createElem('arg-N')
                 argN.append(k)
                 argN.tail = '='
                 argN.set('n', varName)
@@ -1401,7 +1399,7 @@ class Variables():
                                              stopScopes, moduleVarList, otherNames,
                                              parser=parser, parserOptions=parserOptions, wrapH=wrapH)
                             #Add the argument to calls (subroutine or function)
-                            scopeUpNode = ET.Element('virtual')
+                            scopeUpNode = createElem('virtual')
                             scopeUpNode.extend(xml.getScopeNode(scopeUp, excludeContains=True))
                             name = scopePath.split('/')[-1].split(':')[1].upper()
                             isCalled = False

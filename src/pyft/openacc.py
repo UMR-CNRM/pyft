@@ -2,8 +2,8 @@
 This module implements the functions relative to openacc
 """
 
-import xml.etree.ElementTree as ET
 from pyft.util import debugDecor, fortran2xml, n2name
+from pyft.expressions import createElem
 
 class Openacc():
     @debugDecor
@@ -48,14 +48,14 @@ class Openacc():
                     list_var_end = list_var[:-3] # remove last comma and &
 
                     fortranSource = "SUBROUTINE FOO598756\n"+ list_var_end + ")\nEND SUBROUTINE"
-                    _, _, cfxtran = fortran2xml(fortranSource)
+                    _, cfxtran = fortran2xml(fortranSource)
                     comment = cfxtran.findall('.//{*}C')
                     for com in comment:
                         self.insertStatement(scope.path, self.indent(com), first=True)
 
                     #2) !$acc end data
                     fortranSource = "SUBROUTINE FOO598756\n !$acc end data \nEND SUBROUTINE"
-                    _, _, cfxtran = fortran2xml(fortranSource)
+                    _, cfxtran = fortran2xml(fortranSource)
                     comment = cfxtran.find('.//{*}C')
                     self.insertStatement(scope.path, self.indent(comment), first=False)
 
@@ -70,7 +70,7 @@ class Openacc():
                                            includeInterfaces=True,
                                            includeStopScopes=True):
                 name = n2name(scope[0].find('.//{*}N')).upper()
-                acc = ET.Element('{http://fxtran.net/#syntax}C')
+                acc = createElem('C')
                 acc.text = '!$acc routine ({routine}) seq'.format(routine=name)
                 acc.tail = scope[0].tail
                 scope[0].tail = '\n'

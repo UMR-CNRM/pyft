@@ -9,6 +9,14 @@ import copy
 
 import xml.etree.ElementTree as ET
 from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
+from pyft import NAMESPACE
+
+
+def createElem(tag):
+    """
+    :param tag: tag of the element to create
+    """
+    return ET.Element(f'{{{NAMESPACE}}}{tag}')
 
 
 @lru_cache
@@ -32,40 +40,40 @@ def _cached_createExprPart(value):
     allowed += allowed.upper() + '0123456789_'
 
     if isint(value) or isfloat(value) or value.upper() in ('.TRUE.', '.FALSE.'):
-        l = ET.Element('{http://fxtran.net/#syntax}l')
+        l = createElem('l')
         l.text = str(value)
-        node = ET.Element('{http://fxtran.net/#syntax}literal-E')
+        node = createElem('literal-E')
         node.append(l)
     elif "'" in value or '"' in value:
-        S = ET.Element('{http://fxtran.net/#syntax}S')
+        S = createElem('S')
         S.text = value
-        node = ET.Element('{http://fxtran.net/#syntax}string-E')
+        node = createElem('string-E')
         node.append(S)
     elif all([c in allowed for c in value]):
-        n = ET.Element('{http://fxtran.net/#syntax}n')
+        n = createElem('n')
         n.text = value
-        N = ET.Element('{http://fxtran.net/#syntax}N')
+        N = createElem('N')
         N.append(n)
-        node = ET.Element('{http://fxtran.net/#syntax}named-E')
+        node = createElem('named-E')
         node.append(N)
     elif re.match(r'[a-zA-Z_][a-zA-Z0-9_]*%[a-zA-Z_][a-zA-Z0-9_]*$', value):
         #A%B
-        n = ET.Element('{http://fxtran.net/#syntax}n')
+        n = createElem('n')
         n.text = value.split('%')[0]
-        N = ET.Element('{http://fxtran.net/#syntax}N')
+        N = createElem('N')
         N.append(n)
-        ct = ET.Element('{http://fxtran.net/#syntax}ct')
+        ct = createElem('ct')
         ct.text = value.split('%')[1]
-        componentR = ET.Element('{http://fxtran.net/#syntax}component-R')
+        componentR = createElem('component-R')
         componentR.text = '%'
         componentR.append(ct)
-        RLT = ET.Element('{http://fxtran.net/#syntax}R-LT')
+        RLT = createElem('R-LT')
         RLT.append(componentR)
-        node = ET.Element('{http://fxtran.net/#syntax}named-E')
+        node = createElem('named-E')
         node.append(N)
         node.append(RLT)
     else:
-        _, _, xml = fortran2xml("SUBROUTINE T; X={v}; END".format(v=value))
+        _, xml = fortran2xml("SUBROUTINE T; X={v}; END".format(v=value))
         node = xml.find('.//{*}E-2')[0]
     return node
 
@@ -92,7 +100,7 @@ def createExpr(value):
     :param value: statements to convert into xml
     :return: the xml fragment corresponding to value (list of nodes)
     """
-    return fortran2xml("SUBROUTINE T\n{v}\nEND".format(v=value))[2].find('.//{*}program-unit')[1:-1]
+    return fortran2xml("SUBROUTINE T\n{v}\nEND".format(v=value))[1].find('.//{*}program-unit')[1:-1]
 
 @debugDecor
 def simplifyExpr(expr, add=None, sub=None):
@@ -168,9 +176,9 @@ def createArrayBounds(lowerBoundstr, upperBoundstr, context):
                     'DOCONCURRENT' for DO CONCURRENT loops
                     'ARRAY' for arrays
     """
-    lowerBound = ET.Element('{http://fxtran.net/#syntax}lower-bound')
+    lowerBound = createElem('lower-bound')
     lowerBound.insert(0, createExprPart(lowerBoundstr))
-    upperBound = ET.Element('{http://fxtran.net/#syntax}upper-bound')
+    upperBound = createElem('upper-bound')
     upperBound.insert(0, createExprPart(upperBoundstr))
     if context == 'DO':
         lowerBound.tail = ', '

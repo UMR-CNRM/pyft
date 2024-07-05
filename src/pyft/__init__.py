@@ -1,3 +1,4 @@
+NAMESPACE = 'http://fxtran.net/#syntax'
 
 from . import util
 from . import expressions

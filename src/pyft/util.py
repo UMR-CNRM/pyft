@@ -11,6 +11,7 @@ import subprocess
 import time
 import re
 
+from pyft import NAMESPACE
 
 ################################################################################
 ### Verbosity, decorators and Exception
@@ -98,13 +99,7 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
               is an ET xml document
     """
     #Namespace registration
-    ns = {'f': 'http://fxtran.net/#syntax'}
-    #Alternatively, we could load a first time to find out the namespaces, then reload
-    #it after having registered the right namespace. The folowing code snippet
-    #allows to capture the declared namespaces.
-    #ns = dict([node for _, node in ET.iterparse(StringIO(self.xml), events=['start-ns'])])
-    for k, v in ns.items():
-        ET.register_namespace(k, v)
+    ET.register_namespace('f', NAMESPACE)
 
     #Default options
     if parserOptions is None:
@@ -178,7 +173,7 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
                 par.insert(index, node)
             par.remove(file)
 
-    return ns, includesDone, xml
+    return includesDone, xml
 
 def tostring(doc):
     """
