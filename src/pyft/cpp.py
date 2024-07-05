@@ -2,7 +2,7 @@
 This module implements functions for delaing with cpp directives
 """
 
-from pyft.util import debugDecor, alltext, PYFTError
+from pyft.util import debugDecor, alltext, PYFTError, tag
 from pyft.tree import updateTree
 
 class Cpp:
@@ -43,7 +43,7 @@ class Cpp:
             #True or False to keep or discard it, None not to touch it
             keep = [True]
             for node in par:
-                if node.tag.split('}')[1] == 'cpp':
+                if tag(node) == 'cpp':
                     if node.text.startswith('#ifdef '):
                         k = alltext(node).split(' ')[1].strip()
                         if k in keys:

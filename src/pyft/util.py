@@ -229,6 +229,15 @@ def isfloat(s):
 ################################################################################
 ### Helper functions acting on the xml
 
+
+def tag(elem):
+    """
+    :param elem: ET Element
+    :return: the tag without the namespace
+    """
+    return elem.tag.split('}')[1]
+
+
 def n2name(N):
     """
     Helper function which returns the entity name enclosed in a N tag
@@ -247,7 +256,7 @@ def non_code(e):
     :param e: element
     :return: True if e is non code (comment, text...)
     """
-    return e.tag.split('}')[1] in {'cnt', 'C', 'cpp'}
+    return tag(e) in {'cnt', 'C', 'cpp'}
 
 def isExecutable(e):
     """
@@ -255,23 +264,23 @@ def isExecutable(e):
     :return: True if element is executable
     """
     return (isStmt(e) or isConstruct(e)) and \
-           not e.tag.split('}')[1] in {'subroutine-stmt', 'end-subroutine-stmt',
-                                       'function-stmt', 'end-function-stmt',
-                                       'use-stmt', 'T-decl-stmt', 'component-decl-stmt',
-                                       'T-stmt', 'end-T-stmt',
-                                       'data-stmt', 'save-stmt',
-                                       'implicit-none-stmt'}
+           tag(e) not in ('subroutine-stmt', 'end-subroutine-stmt',
+                          'function-stmt', 'end-function-stmt',
+                          'use-stmt', 'T-decl-stmt', 'component-decl-stmt',
+                          'T-stmt', 'end-T-stmt',
+                          'data-stmt', 'save-stmt',
+                          'implicit-none-stmt')
 
 def isConstruct(e):
     """
     :param e: element
     :return: True if element is a construct
     """
-    return e.tag.endswith('-construct')
+    return tag(e).endswith('-construct')
 
 def isStmt(e):
     """
     :param e: element
     :return: True if element is a statement
     """
-    return e.tag.endswith('-stmt')
+    return tag(e).endswith('-stmt')

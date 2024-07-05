@@ -12,7 +12,7 @@ from pyft.applications import Applications
 from pyft.statements import Statements
 from pyft.cpp import Cpp
 from pyft.openacc import Openacc
-from pyft.util import PYFTError, debugDecor, n2name
+from pyft.util import PYFTError, debugDecor, n2name, tag
 from pyft.tree import Tree
 from pyft.expressions import createElem
 
@@ -172,7 +172,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :param node: program-unit node
         :return: path part (e.g. module:MODU)
         """
-        stmt = node[0].tag.split('}')[1]
+        stmt = tag(node[0])
         name = self._getNodeName(node[0])
         return {v: k for (k, v) in self.SCOPE_STMT.items()}[stmt] + ':' + name
 
@@ -211,13 +211,13 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         assert level == -1 or level > 0, 'level must be -1 or a positive int'
         def _getRecur(node, level, basePath=''):
             #If node is the entire xml
-            if node.tag.endswith('}object'):
+            if tag(node) == 'object':
                 usenode = node.find('./{*}file')
             else:
                 usenode = node
             results = []
             for child in usenode:
-                if any(child.tag.endswith(struct) for struct in self.SCOPE_CONSTRUCT.values()):
+                if tag(child) in self.SCOPE_CONSTRUCT.values():
                     nodePath = self._getNodePath(child)
                     if excludeKinds is None or nodePath.split(':')[0] not in excludeKinds:
                         scopePath = self._getNodePath(child) if basePath in ('', '/') \
@@ -226,7 +226,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                             childNode = createElem('virtual')
                             breakOnCOntains = False
                             for node in child:
-                                if node.tag.endswith('}contains-stmt'):
+                                if tag(node) == 'contains-stmt':
                                     breakOnCOntains = True
                                     break #we are outside of the targeted bloc
                                 childNode.append(node)
@@ -282,7 +282,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :return: True if node is a scope node (construct node around a
                  module, subroutine, function or type declaration)
         """
-        return any([node.tag.endswith('}' + construct) for construct in self.SCOPE_CONSTRUCT.values()])
+        return tag(node) in self.SCOPE_CONSTRUCT.values()
 
     @debugDecor
     def getParentScopeNode(self, item, mustRaise=True):
@@ -342,7 +342,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                        ['T-decl-stmt', 'use-stmt', 'C'])
         for scope in scopes:
             for node in list(scope):
-                if node.tag.split('}')[1] not in tagExcluded:
+                if tag(node) not in tagExcluded:
                     self.remove(node)
         self.removeUnusedLocalVar(simplify=simplify)
         if simplify:

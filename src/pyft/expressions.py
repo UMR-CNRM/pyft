@@ -12,11 +12,11 @@ from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
 from pyft import NAMESPACE
 
 
-def createElem(tag):
+def createElem(tagName):
     """
-    :param tag: tag of the element to create
+    :param tagName: tag of the element to create
     """
-    return ET.Element(f'{{{NAMESPACE}}}{tag}')
+    return ET.Element(f'{{{NAMESPACE}}}{tagName}')
 
 
 @lru_cache

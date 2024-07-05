@@ -3,8 +3,9 @@ This module implements functions to deal with cosmetics
 """
 
 import re
-from pyft.util import debugDecor, non_code
+from pyft.util import debugDecor, non_code, tag
 from pyft.expressions import createElem
+from pyft import NAMESPACE
 
 class Cosmetics():
     @debugDecor
@@ -56,8 +57,8 @@ class Cosmetics():
             if e.tail is not None:
                 e.tail = e.tail.replace('\t', '  ')
                 excl = n is not None and \
-                       (n.tag.split('}')[1] == 'cpp' or \
-                        n.tag.split('}')[1] == 'C' and any([n.text.startswith(d) for d in excl_directives]))
+                       (tag(n) == 'cpp' or
+                        tag(n) == 'C' and any([n.text.startswith(d) for d in excl_directives]))
                 if not excl:
                     e.tail = re.sub('\n[ ]*', '\n' + ' ' * level, e.tail)
 
@@ -81,15 +82,15 @@ class Cosmetics():
             for ie, e in enumerate(elem):
                 #Indentation does not apply to these lines (eg SUBROUTINE statement, DO construct)
                 #but apply to the lines inside
-                if e.tag.split('}')[1] in progstmt:
+                if tag(e) in progstmt:
                     currlevel += indent_programunit
-                elif e.tag.split('}')[1] in branchstmt + [in_construct + '-stmt']:
+                elif tag(e) in branchstmt + [in_construct + '-stmt']:
                     currlevel += indent_branch
 
                 #Add indentation *to the tail*, thus for the next line
                 set_level(e, currlevel, elem[ie + 1] if ie + 1 < len(elem) else None)
 
-                if elem.tag.split('}')[1] == 'selectcase-construct':
+                if tag(elem) == 'selectcase-construct':
                     #Structure is:
                     #<selectcase-construct>
                     #<selectcase-block><select-case-stmt>SELECT CASE (...)</select-case-stmt>   \n +2
@@ -108,24 +109,24 @@ class Cosmetics():
                         #previous line was a CASE line, we must indent it only once
                         set_level(laste[-1], level + indent_branch, e)
                     indent_recur(e, level + indent_branch * 2, "") #statements are indented twice
-                    if e[-1].tag.split('}')[1] == 'end-select-case-stmt':
+                    if tag(e[-1]) == 'end-select-case-stmt':
                         set_level(e[-2], level, e[-1])
 
-                elif e.tag.split('}')[1] in blocs or e.tag.split('}')[1].endswith('-construct'):
+                elif tag(e) in blocs or tag(e).endswith('-construct'):
                     #This xml tag contains other tags, we iterate on them
-                    if e[0].tag.split('}')[1] in interbranchstmt:
+                    if tag(e[0]) in interbranchstmt:
                         #Structure is <if-construct><if-block><if-then-stmt>IF...THEN</if-then-stmt>
                         #             statement (the identation of the ELSE line is in the tail of this stetement)
                         #             </if-block><if-block><else-stmt>ELSE</else-stmt>
                         #             statement
                         #             <end-if-stmt>ENDIF</end-if-stmt></if-block></if-construct>
                         set_level(laste[-1], level, e)
-                    construct = e.tag.split('}')[1][:-10] if e.tag.split('}')[1].endswith('-construct') else ""
+                    construct = tag(e)[:-10] if tag(e).endswith('-construct') else ""
                     indent_recur(e, currlevel, construct)
 
                 #This line contains the end statement, we must remove the indentation contained
                 #in the tail of the previous item
-                if e.tag.split('}')[1] in endprogstmt + endbranchstmt + ['end-' + in_construct + '-stmt']:
+                if tag(e) in endprogstmt + endbranchstmt + ['end-' + in_construct + '-stmt']:
                     set_level(laste, level, e)
                 laste = e
 
@@ -164,7 +165,7 @@ class Cosmetics():
             tail_upper = None
             for ie in range(len(elem))[::-1]: #Loop from the end to the begining
                 e = elem[ie]
-                if e.tag.split('}')[1] == 'C' and \
+                if tag(e) == 'C' and \
                    not any(e.text.startswith(d) for d in excl_directives):
                     #Don't loose the tail (containing new line character and indentation)
                     if ie != 0:
@@ -215,11 +216,11 @@ class Cosmetics():
             for ie in range(len(elem))[::-1]: #Loop from the end to the begining
                 e = elem[ie]
                 __parents[e] = elem
-                if e.tag.split('}')[1] == 'cnt':
+                if tag(e) == 'cnt':
                     #Search for comments or cpp after the cnt node
                     commentsAfter = []
                     j = ie + 1
-                    while j < len(elem) and elem[j].tag.split('}')[1] in ('C', 'cpp'):
+                    while j < len(elem) and tag(elem[j]) in ('C', 'cpp'):
                         commentsAfter.append(elem[j])
                         j += 1
                     nextNode = elem[j] if j < len(elem) else None
@@ -241,7 +242,7 @@ class Cosmetics():
                             new.tail = ' ' + e.tail[i:]
                             e.tail = e.tail[:i]
                             elem.insert(ie + 1, new)
-                        elif nextNode.tag.split('}')[1] != 'cnt':
+                        elif tag(nextNode) != 'cnt':
                             #There is no '&' to begin next line
                             new = createElem('cnt')
                             new.text = '&'
@@ -260,7 +261,7 @@ class Cosmetics():
                     if removeALL or (removeBegin and not isend):
                         cpp = False
                         for c in commentsAfter[::-1]:
-                            if c.tag.split('}')[1] != 'cpp':
+                            if tag(c) != 'cpp':
                                 elem.remove(c)
                             else:
                                 cpp = True
@@ -299,12 +300,12 @@ class Cosmetics():
             if align:
                 for ie, e in enumerate(list(elem)):
                     #It is a '&' character marking the end of the line
-                    isendcnt = e.tag.split('}')[1] == 'cnt' and \
+                    isendcnt = tag(e) == 'cnt' and \
                                ((e.tail is not None and '\n' in e.tail) or \
-                                (ie + 1 < len(elem) and elem[ie + 1].tag.split('}')[1] == 'C'))
+                                (ie + 1 < len(elem) and tag(elem[ie + 1]) == 'C'))
                     ignoreComment = ignoreComment or \
                                     (isendcnt and \
-                                     (ie + 1 < len(elem) and elem[ie + 1].tag.split('}')[1] == 'C'))
+                                     (ie + 1 < len(elem) and tag(elem[ie + 1]) == 'C'))
 
                     #REAL :: X1, & !comment 1
                     #              !comment 2
@@ -313,38 +314,38 @@ class Cosmetics():
                     #        X3, &
                     ##endif
                     #        X4
-                    if isendcnt or ignoreComment or (in_cnt != -1 and e.tag.split('}')[1] == 'cpp'):
+                    if isendcnt or ignoreComment or (in_cnt != -1 and tag(e) == 'cpp'):
                         #Number of spaces for alignment not already determined (first line of the continuation)
                         if isendcnt and in_cnt == -1:
                             #Search for the container statement
                             topstmt = elem
-                            while not topstmt.tag.split('}')[1].endswith('-stmt'):
+                            while not tag(topstmt).endswith('-stmt'):
                                 topstmt = __parents[topstmt]
 
                             #Character to align on
-                            if topstmt.tag.split('}')[1].endswith('a-stmt'):
+                            if tag(topstmt) == 'a-stmt':
                                 l = ('=>', '=', '\(')
-                            elif topstmt.tag.split('}')[1].endswith('call-stmt'):
+                            elif tag(topstmt) == 'call-stmt':
                                 l = ('\(', 'call[ ]+\w', 'call ', 'call')
-                            elif topstmt.tag.split('}')[1].endswith('if-stmt'):
+                            elif tag(topstmt) == 'if-stmt':
                                 l = ('\(', '\)', 'if ', 'if')
-                            elif topstmt.tag.split('}')[1].endswith('where-stmt'):
+                            elif tag(topstmt) == 'where-stmt':
                                 l = ('\(', '\)', 'where ', 'where')
-                            elif topstmt.tag.split('}')[1].endswith('forall-stmt'):
+                            elif tag(topstmt) == 'forall-stmt':
                                 l = ('\(', '\)', 'forall ', 'forall')
-                            elif topstmt.tag.split('}')[1].endswith('namelist-stmt'):
+                            elif tag(topstmt) == 'namelist-stmt':
                                 l = ('/.*/', '/', 'namelist')
-                            elif topstmt.tag.split('}')[1].endswith('subroutine-stmt'):
+                            elif tag(topstmt) == 'subroutine-stmt':
                                 l = ('\(', 'subroutine[ ]+\w', 'subroutine ', 'subroutine')
-                            elif topstmt.tag.split('}')[1].endswith('use-stmt'):
+                            elif tag(topstmt) == 'use-stmt':
                                 l = (':', 'use[ ]+\w', 'use ', 'use')
-                            elif topstmt.tag.split('}')[1].endswith('T-decl-stmt'):
+                            elif tag(topstmt) == 'T-decl-stmt':
                                 l = ('::', '\w,', '\w ', '\w')
-                            elif topstmt.tag.split('}')[1].endswith('print-stmt'):
+                            elif tag(topstmt) == 'print-stmt':
                                 l = ('print', )
-                            elif topstmt.tag.split('}')[1].endswith('write-stmt'):
+                            elif tag(topstmt) == 'write-stmt':
                                 l = ('\)', 'write[ ]*\(', 'write[ ]*', 'write')
-                            elif topstmt.tag.split('}')[1].endswith('procedure-stmt'):
+                            elif tag(topstmt) == 'procedure-stmt':
                                 l = ('module[ ]+procedure[ ]*', 'module[ ]*', 'module')
                             else:
                                 l = ('::', ':', '\(', '=>', '=', '[', ':', '/')
@@ -355,7 +356,7 @@ class Cosmetics():
                                 if in_cnt is None:
                                     m = re.search(c, ct, flags=re.IGNORECASE)
                                     if m is not None:
-                                        if ie + 1 < len(elem) and elem[ie + 1].tag.split('}')[1] != 'cnt':
+                                        if ie + 1 < len(elem) and tag(elem[ie + 1]) != 'cnt':
                                             #If there is no continuation character at the begining, align the text with
                                             #the position after the delimiter found
                                             in_cnt = m.end()
@@ -365,13 +366,13 @@ class Cosmetics():
                                 in_cnt = 4
 
                         #Align the next line exept if it is a cpp line
-                        if not (ie + 1 < len(elem) and elem[ie + 1].tag.split('}')[1] == 'cpp'):
+                        if not (ie + 1 < len(elem) and tag(elem[ie + 1]) == 'cpp'):
                             if e.tail is not None:
                                 e.tail = re.sub('\n[ ]*', '\n' + ' ' * in_cnt, e.tail)
                             else:
                                 e.tail = '\n' + ' ' * in_cnt
 
-                    if e.tag.split('}')[1] not in ('C', 'cnt'):
+                    if tag(e) not in ('C', 'cnt'):
                         ct += (e.text if e.text is not None else '')
                         ignoreComment = False
 
@@ -383,7 +384,7 @@ class Cosmetics():
                     ct += (e.tail if e.tail is not None else '')
                     if '\n' in ct:
                         ct = ct.split('\n')[-1]
-                        if e.tag.split('}')[1] not in ('cnt', 'C', 'cpp'):
+                        if tag(e) not in ('cnt', 'C', 'cpp'):
                             in_cnt = -1
 
             return ct, in_cnt
@@ -573,7 +574,7 @@ class Cosmetics():
                    "after_keywords['" + k + "'] must be at least 1 (is " + str(num) + ")"
 
         for e in self.iter():
-            is_notC = not e.tag.endswith('}C')
+            is_notC = tag(e) != 'C'
             #security
             if e.tail is None:
                 e.tail = ""
@@ -608,7 +609,7 @@ class Cosmetics():
                 e.tail = re.sub(r"[  ]*\n", r"\n", e.tail)
 
             #In names or around names (identifier, type, attribute)
-            if e.tag.split('}')[1] in ('N', 'T-N', 'attribute-N'):
+            if tag(e) in ('N', 'T-N', 'attribute-N'):
                 if in_name:
                     for n in e.findall('{*}n'):
                         if n.tail is not None:
@@ -617,14 +618,14 @@ class Cosmetics():
                     e.tail = ' ' * after_name + e.tail.lstrip(' ')
 
             #Around range delimiter
-            elif e.tag.split('}')[1] == 'lower-bound' and e.tail is not None and ':' in e.tail:
+            elif tag(e) == 'lower-bound' and e.tail is not None and ':' in e.tail:
                 if before_range_delim is not None:
                     e.tail = ' ' * before_range_delim + e.tail.lstrip(' ')
                 if after_range_delim is not None:
                     e.tail = e.tail.rstrip(' ') + ' ' * before_range_delim
 
             #Around ':' in USE statements
-            elif e.tag.split('}')[1] == 'module-N' and e.tail is not None and ':' in e.tail:
+            elif tag(e) == 'module-N' and e.tail is not None and ':' in e.tail:
                 if before_use_delim is not None:
                     e.tail = re.sub(r"[  ]*:", " " * before_use_delim + r":", e.tail)
                 if after_use_delim is not None:
@@ -632,19 +633,19 @@ class Cosmetics():
 
             #Around and in '::' in declaration statements
             #After the type in a declaration
-            elif e.tag.split('}')[1] in ('attribute', '_T-spec_') and e.tail is not None:
+            elif tag(e) in ('attribute', '_T-spec_') and e.tail is not None:
                 if in_decl_delim:
                     e.tail = re.sub(r":[  ]*:", r"::", e.tail)
                 if before_decl_delim is not None:
                     e.tail = re.sub(r"[ ]*(:[  ]*:)", ' ' * before_decl_delim + r"\1", e.tail)
                 if after_decl_delim is not None:
                     e.tail = re.sub(r"(:[  ]*:)[ ]*", r"\1" + ' ' * after_decl_delim,  e.tail)
-                if e.tag.split('}')[1] == '_T-spec_' and after_type_decl is not None:
+                if tag(e) == '_T-spec_' and after_type_decl is not None:
                     e.tail = e.tail.rstrip(' ') + ' ' * after_type_decl
 
             #Around and in '::' in enumerators
             #After the enumerator keyword
-            elif e.tag.split('}')[1] == 'enumerator-stmt' and e.text is not None:
+            elif tag(e) == 'enumerator-stmt' and e.text is not None:
                 if ':' in e.text:
                     if in_decl_delim:
                         e.text = re.sub(r":[  ]*:", r"::", e.text)
@@ -656,7 +657,7 @@ class Cosmetics():
                     e.text = e.text.rstrip(' ') + ' ' * after_type_decl
 
             #Between the program unit type and its name
-            elif e.tag.split('}')[1] in ('subroutine-stmt', 'program-stmt', 'module-stmt', 'function-stmt',
+            elif tag(e) in ('subroutine-stmt', 'program-stmt', 'module-stmt', 'function-stmt',
                                          'submodule-stmt', 'procedure-stmt', 'interface-stmt',
                                          'end-subroutine-stmt', 'end-program-stmt',
                                          'end-module-stmt', 'end-function-stmt',
@@ -666,27 +667,27 @@ class Cosmetics():
                     e.text = e.text.rstrip(' ') + ' ' * after_progunit
 
             #Around '=' sign in DO and FORALL statements
-            elif e.tag.split('}')[1] in ('do-V', 'V') and e.tail is not None and '=' in e.tail:
+            elif tag(e) in ('do-V', 'V') and e.tail is not None and '=' in e.tail:
                 if before_eq_do is not None:
                     e.tail = re.sub('[ ]*=', ' ' * before_eq_do + '=', e.tail)
                 if  after_eq_do is not None:
                     e.tail = re.sub('=[ ]*', '=' + ' ' * before_eq_do, e.tail)
 
             #Around '=' sign in CALL statements
-            elif e.tag.split('}')[1] == 'arg-N' and e.tail is not None and '=' in e.tail:
+            elif tag(e) == 'arg-N' and e.tail is not None and '=' in e.tail:
                 if before_eq_call is not None:
                     e.tail = re.sub('[ ]*=', ' ' * before_eq_call + '=', e.tail)
                 if  after_eq_call is not None:
                     e.tail = re.sub('=[ ]*', '=' + ' ' * before_eq_call, e.tail)
 
             #Around '=' sign for init values
-            elif e.tag.split('}')[1] in ('EN-N', 'named-constant') and e.tail is not None and '=' in e.tail:
+            elif tag(e) in ('EN-N', 'named-constant') and e.tail is not None and '=' in e.tail:
                 if before_eq_init is not None:
                     e.tail = re.sub('[ ]*=', ' ' * before_eq_init + '=', e.tail)
                 if after_eq_init is not None:
                     e.tail = re.sub('=[ ]*', '=' + ' ' * before_eq_init, e.tail)
             #Around the command separator ';'
-            elif e.tag.split('}')[1] == 'smc':
+            elif tag(e) == 'smc':
                 if before_cmdsep is not None:
                     p = self.getSiblings(e, after=False)
                     if len(p) != 0 and p[-1].tail is not None:
@@ -695,7 +696,7 @@ class Cosmetics():
                     e.tail = e.tail.rstrip(' ') + ' ' * after_cmdsep
 
             #Around and in association operators (affectation case done after)
-            elif e.tag.split('}')[1] == 'associate-N' and e.tail is not None and '=' in e.tail:
+            elif tag(e) == 'associate-N' and e.tail is not None and '=' in e.tail:
                 if before_affectation is not None:
                     e.tail = re.sub('[ ]*=', ' ' * before_affectation + '=', e.tail)
                 if after_affectation is not None:
@@ -704,8 +705,8 @@ class Cosmetics():
                     e.tail = re.sub(r'=[ ]*>', '=>', e.tail)
 
             #After a reserved keyword
-            #elif after_keywords is not None and e.tag.split('}')[1].endswith('-stmt'):
-            #    num = getval_after(e.tag.split('}')[1])
+            #elif after_keywords is not None and tag(e).endswith('-stmt'):
+            #    num = getval_after(tag(e))
             #    if num is not None and e.text is not None:
             #        e.text = e.text.rstrip(' ') + ' ' * num
 
@@ -717,7 +718,7 @@ class Cosmetics():
         #the adding of a space before a THEN keyword
         for e in self.iter():
             #Around and in operators
-            if e.tag.split('}')[1] == 'op-E': #op are always (?) in op-E nodes
+            if tag(e) == 'op-E': #op are always (?) in op-E nodes
                 for o in e.findall('{*}op'):
                     if before_op is not None:
                         io = list(e).index(o)
@@ -738,7 +739,7 @@ class Cosmetics():
                                 oo.tail = oo.tail.strip(' ')
 
             #Around and in affectation operators (association case done before)
-            elif e.tag.split('}')[1] in ('a-stmt', 'pointer-a-stmt'): #a are always (?) in a-stmt or pointer-a-stmt nodes
+            elif tag(e) in ('a-stmt', 'pointer-a-stmt'): #a are always (?) in a-stmt or pointer-a-stmt nodes
                 for a in e.findall('{*}a'):
                     if before_affectation is not None:
                         p = e[list(e).index(a) - 1]
@@ -755,26 +756,26 @@ class Cosmetics():
                         a.text = a.text.replace(' ', '')
 
             #After a IF, WHERE, ELSEIF, ELSEWHERE, SELECTCASE, CASE and FORALL keyword, and before THEN keyword
-            elif e.tag.split('}')[1] in ('if-stmt', 'if-then-stmt', 'else-if-stmt',
+            elif tag(e) in ('if-stmt', 'if-then-stmt', 'else-if-stmt',
                                          'where-stmt', 'where-construct-stmt', 'else-where-stmt',
                                          'select-case-stmt', 'case-stmt',
                                          'forall-stmt', 'forall-construct-stmt'):
                 if after_ifwherecase is not None and e.text is not None:
-                    if e.tag.split('}')[1] == 'case-stmt':
+                    if tag(e) == 'case-stmt':
                         #the (eventual) parenthesis is not in the text of the node
                         e.text = e.text.rstrip(' ') + ' ' * after_ifwherecase
                     else:
                         e.text = re.sub('[ ]*\(', ' ' * after_ifwherecase + '(', e.text, count=1)
-                if e.tag.split('}')[1] in ('if-then-stmt', 'else-if-stmt') and before_then is not None:
+                if tag(e) in ('if-then-stmt', 'else-if-stmt') and before_then is not None:
                     c = e.find('{*}condition-E')
                     c.tail = re.sub('\)[ ]*([a-zA-Z]*$)', ')' + ' ' * before_then + r'\1', c.tail)
-                elif e.tag.split('}')[1] == 'if-stmt' and before_ifaction is not None:
+                elif tag(e) == 'if-stmt' and before_ifaction is not None:
                     c = e.find('{*}condition-E')
                     c.tail = re.sub('\)[ ]*$', ')' + ' ' * before_ifaction, c.tail)
-                elif e.tag.split('}')[1] == 'where-stmt' and before_ifaction is not None:
+                elif tag(e) == 'where-stmt' and before_ifaction is not None:
                     c = e.find('{*}mask-E')
                     c.tail = re.sub('\)[ ]*$', ')' + ' ' * before_ifaction, c.tail)
-                elif e.tag.split('}')[1] == 'forall-stmt' and before_ifaction is not None:
+                elif tag(e) == 'forall-stmt' and before_ifaction is not None:
                     s = e.find('{*}forall-triplet-spec-LT')
                     s.tail = re.sub('\)[ ]*$', ')' + ' ' * before_ifaction, c.tail)
 
@@ -852,7 +853,7 @@ class Cosmetics():
                 #                        ...
                 #                        <f:end-if-stmt>ENDIF</f:end-if-stmt></f:if-block></f:if-construct>
                 #1 create missing blocks
-                item.tag = item.tag.split('}')[0] + '}if-construct'
+                item.tag = f'{{{NAMESPACE}}}if-construct'
                 ifBlock = createElem('if-block')
                 ifThenStmt = createElem('if-then-stmt')
                 endif = createElem('end-if-stmt')
@@ -890,10 +891,9 @@ class Cosmetics():
             par = self.getParent(contains)
             index = list(par).index(contains)
             nextStmt = index + 1
-            while par[nextStmt].tag.split('}')[1] == 'C':
+            while tag(par[nextStmt]) == 'C':
                 nextStmt += 1
-            if par[nextStmt].tag.split('}')[1] in ('end-subroutine-stmt',
-                                                   'end-function-stmt',
-                                                   'end-module-stmt'):
+            if tag(par[nextStmt]) in ('end-subroutine-stmt', 'end-function-stmt',
+                                      'end-module-stmt'):
                 #CONTAINS bloc is empty
                 par.remove(contains)

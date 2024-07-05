@@ -6,7 +6,7 @@ import copy
 import os
 import logging
 
-from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError
+from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError, tag
 from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
 from pyft import NAMESPACE
@@ -102,7 +102,7 @@ class Applications():
                                 #  but ZLM(:,:) = MIN(ZLM(:,:),TURBN%XCADAP*ZLMW(:,:)) is not excluded 
                                 #  by checking that the 3rd parent must be E2.
                                 # (Careful: it also excludes affectation such as : ZCP(:,:)=CST%XCPD is it ok ?)
-                                if len(E2[0]) != 2 and not self.getParent(compoE2[0], 3).tag.endswith('E-2'):
+                                if len(E2[0]) != 2 and not tag(self.getParent(compoE2[0], 3)) == 'E-2':
                                     for elcompoE2 in compoE2:
         
                                         # 1) Build the name of the new variable
@@ -558,7 +558,7 @@ class Applications():
                         par = intr
                         while par is not None and not isStmt(par):
                             par = self.getParent(par)
-                            if par.tag.split('}')[1] in ('a-stmt', 'op-E'):
+                            if tag(par) in ('a-stmt', 'op-E'):
                                 parToUse = par
 
                         # 2.1 Loop on all arrays in the expression using this intrinsic function
@@ -773,7 +773,7 @@ class Applications():
 
                     # Regarding the right part of pow(), build a new node expression :
                     #  If it is a number and check only for 2, 3 and 4 (e.g. A**2, B**3, D**4 etc)
-                    if 'literal-E' in rightOfPow.tag:
+                    if tag(rightOfPow) == 'literal-E':
                         powerNumber = int(alltext(rightOfPow).replace('.', '')) # handle '2.' and '2.0'
                         if powerNumber in powerBR_list:
                             #<f:named-E>
@@ -795,8 +795,8 @@ class Applications():
                             element.append(leftOfPow)
                             elementLT.append(element)
                     # If the right part of pow() is not a number OR it is a number except 2, 3 or 4 (powerBR_list)
-                    if 'literal-E' not in rightOfPow.tag or \
-                       ('literal-E' in rightOfPow.tag and \
+                    if tag(rightOfPow) != 'literal-E' or \
+                       (tag(rightOfPow) == 'literal-E' and \
                         int(alltext(rightOfPow).replace('.', '')) not in powerBR_list):
                         #<f:named-E>
             	        #  <f:N>
@@ -995,7 +995,7 @@ class Applications():
                             if alltext(el) in list(shumansGradients.keys()):
                                 # Expand the single-line if-stmt necessary to add all the new lines further.
                                 parStmt = scope.getParent(stmt)
-                                if parStmt.tag.endswith('action-stmt'):
+                                if tag(parStmt) == 'action-stmt':
                                     self.changeIfStatementsInIfConstructs(singleItem=scope.getParent(parStmt))
 
                                 if str(stmt) in foundStmtandCalls.keys():
@@ -1106,7 +1106,7 @@ class Applications():
                         self.addArrayParenthesesInNode(foundStmtandCalls[stmt][0], None, scope.path)
 
                         # For the last compute statement, add mnh_expand and acc kernels if not call statement
-                        if 'call-stmt' not in foundStmtandCalls[stmt][0].tag:
+                        if tag(foundStmtandCalls[stmt][0]) != 'call-stmt':
                             # get mnhExpandArrayIndexes
                             dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = getDimsAndMNHExpandIndexes(arrayDim, dimWorkingVar) # Here dimSuffRoutine, dimSuffVar are not used
 

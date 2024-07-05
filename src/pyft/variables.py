@@ -6,7 +6,7 @@ import logging
 import copy
 import re
 
-from pyft.util import PYFTError, debugDecor, alltext, fortran2xml, isExecutable, n2name
+from pyft.util import PYFTError, debugDecor, alltext, fortran2xml, isExecutable, n2name, tag
 from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr, createElem
 from pyft.tree import updateTree
 import pyft.pyft
@@ -66,7 +66,7 @@ class Variables():
         result = []
         for scope in self.getScopeNodes(scopePath, excludeContains=True):
             #In case scope is a function, we determine the name of the result
-            if scope[0].tag.split('}')[1] == 'function-stmt':
+            if tag(scope[0]) == 'function-stmt':
                 rSpec = scope[0].find('./{*}result-spec/{*}N')
                 funcResultName = rSpec if rSpec is not None else scope[0].find('./{*}function-N/{*}N')
                 funcResultName = n2name(funcResultName).upper()
@@ -77,7 +77,7 @@ class Variables():
             dummy_args = [n2name(e).upper() for stmt in scope for e in stmt.findall('.//{*}dummy-arg-LT/{*}arg-N/{*}N')]
     
             decl_stmts = [stmt for stmt in scope
-                          if stmt.tag.endswith('}T-decl-stmt') or stmt.tag.endswith('}component-decl-stmt')]
+                          if tag(stmt) in ('T-decl-stmt' 'component-decl-stmt')]
             #Loop on each declaration statement
             for decl_stmt in decl_stmts:
                 t_spec = alltext(decl_stmt.find('.//{*}_T-spec_'))
@@ -116,7 +116,7 @@ class Variables():
                                    'init': init, 'scope': scope.path})
     
             #Loop on each use statement
-            use_stmts = [stmt for stmt in scope if stmt.tag.endswith('}use-stmt')]
+            use_stmts = [stmt for stmt in scope if tag(stmt) == 'use-stmt']
             for use_stmt in use_stmts:
                 module = n2name(use_stmt.find('.//{*}module-N').find('.//{*}N'))
                 for v in use_stmt.findall('.//{*}use-N'):
@@ -243,7 +243,7 @@ class Variables():
         if isinstance(scope, str):
             scope = self.getScopeNode(scope)
         for node in scope:
-            if node.tag.endswith('}implicit-none-stmt'):
+            if tag(node) == 'implicit-none-stmt':
                 return node.text
         return None
     
@@ -340,7 +340,7 @@ class Variables():
                                 self.removeFromList(arg, dummy_lst)
     
                     #In case the variable is declared
-                    if node.tag.endswith('}' + declStmt):
+                    if tag(node) == declStmt:
                         #We are in a declaration statement
                         decl_lst = node.find('./{*}EN-decl-LT') #list of declaration in the current statment
                         for en_decl in decl_lst.findall('.//{*}EN-decl'):
@@ -362,7 +362,7 @@ class Variables():
                             self.getParent(node).remove(node)
     
                     #In case the variable is a module variable
-                    if node.tag.endswith('}use-stmt'):
+                    if tag(node) == 'use-stmt':
                         #We are in a use statement
                         use_lst = node.find('./{*}rename-LT')
                         if use_lst is not None:
@@ -470,7 +470,7 @@ class Variables():
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
                     #node insertion index
-                    declLst = [node for node in locNode if node.tag.endswith('}' + declStmtTag)]
+                    declLst = [node for node in locNode if tag(node) == declStmtTag]
                     if len(declLst) != 0:
                         #There already are declaration statements
                         #We look for the last position in the declaration list which do not use the variable we add
@@ -515,7 +515,7 @@ class Variables():
             locNode = self.getScopeNode(scopePath)
     
             #USE statement already present
-            useLst = [node for node in locNode if node.tag.endswith('}use-stmt')]
+            useLst = [node for node in locNode if tag(node) == 'use-stmt']
     
             #Check if we need to add a USE
             insertUse = True
@@ -648,10 +648,10 @@ class Variables():
                                             #We remove current explicit bounds or the ':',
                                             #and replace them by the new explicit declaration
                                             for n in sub:
-                                                if n.tag.split('}')[1] in ('lower-bound', 'upper-bound'):
+                                                if tag(n) in ('lower-bound', 'upper-bound'):
                                                     sub.remove(n)
                                                 else:
-                                                    raise PYFTError("Unexpected case, tag is {}".format(n.tag.split('}')[1]))
+                                                    raise PYFTError("Unexpected case, tag is {}".format(tag(n)))
                                             sub.text = '' # Delete the initial ':'
                                             sub.extend([lowerXml, upperXml])
 
@@ -686,19 +686,19 @@ class Variables():
                 #    - select-case-stmt and case-stmt,
                 #    - do-stmt or forall-construct-stmt (e.g. FOR I=LBOUND(A, 0), UBOUND(A, 0))
                 #    - forall-stmt/forall-triplet-spec-LT
-                tag = node.tag.split('}')[1]
                 nodeToTransform = None
-                if tag in ('allocate-stmt', 'deallocate-stmt', 'pointer-a-stmt', 'T-decl-stmt',
-                           'associate-stmt', 'function-stmt', 'subroutine-stmt', 'interface-stmt',
-                           'action-stmt', 'nullify-stmt'):
-                    #excluded
+                if tag(node) in ('allocate-stmt', 'deallocate-stmt', 'pointer-a-stmt',
+                                 'T-decl-stmt', 'associate-stmt', 'function-stmt',
+                                 'subroutine-stmt', 'interface-stmt', 'action-stmt',
+                                 'nullify-stmt'):
+                    # excluded
                     pass
-                elif tag in ('if-stmt', 'where-stmt', 'forall-stmt'):
-                    #We must transform only a part of the node
+                elif tag(node) in ('if-stmt', 'where-stmt', 'forall-stmt'):
+                    # We must transform only a part of the node
                     part = {'if-stmt': 'condition-E', 'where-stmt': 'mask-E',
-                            'forall-stmt': 'forall-triplet-spec-LT'}[tag]
+                            'forall-stmt': 'forall-triplet-spec-LT'}[tag(node)]
                     nodeToTransform = node.find('./{*}' + part)
-                elif tag.endswith('-stmt'):
+                elif tag(node).endswith('-stmt'):
                     nodeToTransform = node
                 if nodeToTransform is not None:
                     self.addArrayParenthesesInNode(nodeToTransform, varList, scope.path)
@@ -846,7 +846,7 @@ class Variables():
                     t = list(templ.keys())[part]
                     if not isinstance(templ[t], list):
                         templ[t] = []
-                    if node.tag.split('}')[1] == 'C' and node.text == separator:
+                    if tag(node) == 'C' and node.text == separator:
                         part += 1
                     else:
                         templ[t].append(node)
@@ -1236,8 +1236,8 @@ class Variables():
             #Loop on all child in the scope
             for node in allScopes[scopePath]:
                 #we don't want use statement, it could be where the variable is declared, not a usage place
-                if not node.tag.endswith('}use-stmt'):
-                    if node.tag.endswith('}T-decl-stmt'):
+                if not tag(node) == 'use-stmt':
+                    if tag(node) == 'T-decl-stmt':
                         #We don't want the part with the list of declared variables, we only want
                         #to capture variables used in the kind selector or in the shape specification
                         Nnodes = node.findall('.//{*}_T-spec_//{*}N') + node.findall('.//{*}shape-spec//{*}N')
@@ -1255,7 +1255,7 @@ class Variables():
                             parPar = self.getParent(N, 2) #parent of parent
                             #We exclude dummy argument list to really check if the variable is used
                             #and do not only appear as an argument of the subroutine/function
-                            if parPar is None or not parPar.tag.endswith('}dummy-arg-LT'):
+                            if parPar is None or not tag(parPar) == 'dummy-arg-LT':
                                 usedVar[scopePath].append(n2name(N).upper())
 
         result = {}
@@ -1313,10 +1313,10 @@ class Variables():
                     callFuncStmt.append(argList)
             item = createExprPart(varNameToUse)
             previous = pos - 1 if pos >= 0 else len(argList) + pos #convert negative pos using length
-            while previous >= 0 and argList[previous].tag.split('}')[1] in ('C', 'cnt'):
+            while previous >= 0 and tag(argList[previous]) in ('C', 'cnt'):
                 previous -= 1
             following = pos if pos > 0 else len(argList) + pos + 1 #convert negative pos using length
-            while following <= len(argList) - 1 and argList[following].tag.split('}')[1] in ('C', 'cnt'):
+            while following <= len(argList) - 1 and tag(argList[following]) in ('C', 'cnt'):
                 following += 1
             if (previous >= 0 and argList[previous].find('./{*}arg-N/{*}k') is not None) or \
                (following <= len(argList) - 1 and argList[following].find('./{*}arg-N/{*}k') is not None) or \

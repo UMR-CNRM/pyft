@@ -5,7 +5,7 @@ This module includes functions to act on statements
 import re
 import logging
 import copy
-from pyft.util import n2name, non_code, debugDecor, alltext, PYFTError
+from pyft.util import n2name, non_code, debugDecor, alltext, PYFTError, tag
 from pyft.expressions import createExprPart, createArrayBounds, createElem
 from pyft.tree import updateTree
 from pyft import NAMESPACE
@@ -16,10 +16,9 @@ def _nodesInIf(ifNode):
     """
     nodes = []
     for block in ifNode.findall('./{*}if-block'):
-        for item in [i for i in block if not (i.tag.endswith('}if-then-stmt') or \
-                                              i.tag.endswith('}else-if-stmt') or \
-                                              i.tag.endswith('}else-stmt') or \
-                                              i.tag.endswith('}end-if-stmt'))]:
+        for item in [i for i in block
+                     if tag(i) not in ('if-then-stmt', 'else-if-stmt',
+                                       'else-stmt', 'end-if-stmt')]:
             if not non_code(item): nodes.append(item)
     return nodes
 
@@ -29,9 +28,9 @@ def _nodesInWhere(whereNode):
     """
     nodes = []
     for block in whereNode.findall('./{*}where-block'):
-        for item in [i for i in block if not (i.tag.endswith('}where-construct-stmt') or \
-                                              i.tag.endswith('}else-where-stmt') or \
-                                              i.tag.endswith('}end-where-stmt'))]:
+        for item in [i for i in block
+                     if tag(i) not in ('where-construct-stmt', 'else-where-stmt',
+                                       'end-where-stmt')]:
             if not non_code(item): nodes.append(item)
     return nodes
 
@@ -40,8 +39,7 @@ def _nodesInDo(doNode):
     Internal method to return nodes in do structure
     """
     nodes = []
-    for item in [i for i in doNode if not (i.tag.endswith('}do-stmt') or \
-                                           i.tag.endswith('}end-do-stmt'))]:
+    for item in [i for i in doNode if tag(i) not in ('do-stmt', 'end-do-stmt')]:
         if not non_code(item): nodes.append(item)
     return nodes
 
@@ -51,9 +49,9 @@ def _nodesInCase(caseNode):
     """
     nodes = []
     for block in caseNode.findall('./{*}selectcase-block'):
-        for item in [i for i in block if not (i.tag.endswith('}select-case-stmt') or \
-                                              i.tag.endswith('}case-stmt') or \
-                                              i.tag.endswith('}end-select-case-stmt'))]:
+        for item in [i for i in block
+                     if tag(i) not in ('select-case-stmt', 'case-stmt',
+                                       'end-select-case-stmt')]:
             if not non_code(item): nodes.append(item)
     return nodes
 
@@ -74,15 +72,15 @@ class Statements():
         #</f:named-E>
         inside = False
         par = self.getParent(node)
-        if par.tag.split('}')[1] == 'element':
+        if tag(par) == 'element':
             par = self.getParent(par)
-            if par.tag.split('}')[1] == 'element-LT':
+            if tag(par) == 'element-LT':
                 par = self.getParent(par)
-                if par.tag.split('}')[1] == 'parens-R':
+                if tag(par) == 'parens-R':
                     par = self.getParent(par)
-                    if par.tag.split('}')[1] == 'R-LT':
+                    if tag(par) == 'R-LT':
                         previous = self.getSiblings(par, before=True, after=False)
-                        if len(previous) > 0 and previous[-1].tag.split('}')[1] == 'N' and \
+                        if len(previous) > 0 and tag(previous[-1]) == 'N' and \
                            n2name(previous[-1]).upper() in [p.upper() for p in procList]:
                             inside = True
         return inside
@@ -100,11 +98,11 @@ class Statements():
         #</f:call-stmt>
         inside = False
         par = self.getParent(node)
-        if par.tag.split('}')[1] == 'arg':
+        if tag(par) == 'arg':
             par = self.getParent(par)
-            if par.tag.split('}')[1] == 'arg-spec':
+            if tag(par) == 'arg-spec':
                 par = self.getParent(par)
-                if par.tag.split('}')[1] == 'call-stmt':
+                if tag(par) == 'call-stmt':
                     inside = True
         return inside
 
@@ -259,16 +257,16 @@ class Statements():
                     node.tail = re.sub(r"(\n[ ]*)(\Z|[^\n ]+)", r"\1" + extra * ' ' + r"\2", node.tail)
 
             add_extra(e, extraindent) #Set indentation for the *next* node
-            if e.tag.split('}')[1] == 'C':
+            if tag(e) == 'C':
                 pass
-            elif e.tag.split('}')[1] == 'cpp':
+            elif tag(e) == 'cpp':
                 i = list(parent).index(e)
                 if i == 0:
                     #In this case, it would be a solution to add an empty comment before the
                     #node e to easilty control the indentation contained in the tail
                     raise PYFTError("How is it possible?")
                 parent[i - 1].tail = parent[i - 1].tail.rstrip(' ') #Remove the indentation
-            elif e.tag.split('}')[1] == 'a-stmt':
+            elif tag(e) == 'a-stmt':
                 sss = e.findall('./{*}E-1/{*}named-E/{*}R-LT/{*}array-R/' + \
                                 '{*}section-subscript-LT/{*}section-subscript')
                 if len([ss for ss in sss if ':' in alltext(ss)]) != len(table):
@@ -283,67 +281,68 @@ class Statements():
                     self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable
                 for cnt in e.findall('.//{*}cnt'):
                     add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
-            elif e.tag.split('}')[1] == 'if-stmt':
+            elif tag(e) == 'if-stmt':
                 logging.warning("An if statement is inside a code " + \
                                 "section transformed in DO loop in {f}".format(f=self.getFileName()))
                 #Update the statement contained in the action node
                 updateStmt(e.find('./{*}action-stmt')[0], table, kind, 0, e, varList, scopePath)
-            elif e.tag.split('}')[1] == 'if-construct':
+            elif tag(e) == 'if-construct':
                 logging.warning("An if construct is inside a code " + \
                                 "section transformed in DO loop in {f}".format(f=self.getFileName()))
                 for ifBlock in e.findall('./{*}if-block'): #Loop over the blocks (if, elseif, else)
                     for child in ifBlock: #Loop over each statement inside the block
-                        if child.tag.split('}')[1] not in ('if-then-stmt', 'else-if-stmt', 'else-stmt', 'end-if-stmt'):
+                        if tag(child) not in ('if-then-stmt', 'else-if-stmt',
+                                              'else-stmt', 'end-if-stmt'):
                             updateStmt(child, table, kind, extraindent, ifBlock, varList, scopePath)
                         else:
                             add_extra(child, extraindent) #Update indentation because the loop is here and not in recur
                             for cnt in child.findall('.//{*}cnt'):
                                 add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
-            elif e.tag.split('}')[1] == 'where-stmt':
+            elif tag(e) == 'where-stmt':
                 #Where statement becomes if statement
-                e.tag = e.tag.split('}')[0] + '}if-stmt'
+                e.tag = f'{{{NAMESPACE}}}if-stmt'
                 e.text = 'IF (' + e.text.split('(', 1)[1]
                 updateStmt(e.find('./{*}action-stmt')[0], table, kind, extraindent, e, varList, scopePath) #Update the action part
                 mask = e.find('./{*}mask-E')
-                mask.tag = mask.tag.split('}')[0] + '}condition-E' #rename the condition tag
+                mask.tag = f'{{{NAMESPACE}}}condition-E' #rename the condition tag
                 for namedE in mask.findall('.//{*}R-LT/..'):
                     self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable
                 for cnt in e.findall('.//{*}cnt'):
                     add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
-            elif e.tag.split('}')[1] == 'where-construct':
+            elif tag(e) == 'where-construct':
                 if kind != 'where' and kind is not None:
                     raise PYFTError('To keep the compatibility with the filepp version of loop " + \
                                     "expansion, no where construct must appear in mnh_expand_array blocks.')
                 #Where construct becomes if construct
-                e.tag = e.tag.split('}')[0] + '}if-construct'
+                e.tag = f'{{{NAMESPACE}}}if-construct'
                 for whereBlock in e.findall('./{*}where-block'): #Loop over the blocks (where, elsewhere)
-                    whereBlock.tag = whereBlock.tag.split('}')[0] + '}if-block'
+                    whereBlock.tag = f'{{{NAMESPACE}}}if-block'
                     for child in whereBlock: #Loop over each statement inside the block
-                        if child.tag.split('}')[1] == 'end-where-stmt':
+                        if tag(child) == 'end-where-stmt':
                             #rename ENDWHERE into ENDIF
-                            child.tag = child.tag.split('}')[0] + '}end-if-stmt'
+                            child.tag = f'{{{NAMESPACE}}}end-if-stmt'
                             child.text = 'END IF'
                             add_extra(child, extraindent) #Update indentation because the loop is here and not in recur
-                        elif child.tag.split('}')[1] in ('where-construct-stmt', 'else-where-stmt'):
+                        elif tag(child) in ('where-construct-stmt', 'else-where-stmt'):
                             add_extra(child, extraindent) #Update indentation because the loop is here and not in recur
-                            if child.tag.split('}')[1] == 'where-construct-stmt':
+                            if tag(child) == 'where-construct-stmt':
                                 #rename WHERE into IF (the THEN part is attached to the condition)
-                                child.tag = child.tag.split('}')[0] + '}if-then-stmt'
+                                child.tag = f'{{{NAMESPACE}}}if-then-stmt'
                                 child.text = 'IF (' + child.text.split('(', 1)[1]
                             else:
                                 #In where construct the same ELSEWHERE keyword is used with or without mask
                                 #Whereas for if structure ELSEIF is used with a condition and ELSE without condition
                                 if '(' in child.text:
                                     #rename ELSEWHERE into ELSEIF
-                                    child.tag = child.tag.split('}')[0] + '}else-if-stmt'
+                                    child.tag = f'{{{NAMESPACE}}}else-if-stmt'
                                     child.text = 'ELSE IF (' + child.text.split('(', 1)[1]
                                 else:
                                     #rename ELSEWHERE into ELSE
-                                    child.tag = child.tag.split('}')[0] + '}else-stmt'
+                                    child.tag = f'{{{NAMESPACE}}}else-stmt'
                                     child.text = 'ELSE'
                             for mask in child.findall('./{*}mask-E'): #would a find be enough?
                                 #add THEN
-                                mask.tag = mask.tag.split('}')[0] + '}condition-E'
+                                mask.tag = f'{{{NAMESPACE}}}condition-E'
                                 mask.tail += ' THEN'
                                 for namedE in mask.findall('.//{*}R-LT/..'):
                                     self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable in the condition
@@ -352,7 +351,7 @@ class Statements():
                         else:
                             updateStmt(child, table, kind, extraindent, whereBlock, varList, scopePath)
             else:
-                raise PYFTError('Unexpected tag found in mnh_expand directives: {t}'.format(t=e.tag.split('}')[1]))
+                raise PYFTError('Unexpected tag found in mnh_expand directives: {t}'.format(t=tag(e)))
             return e
 
         def closeLoop(loopdesc):
@@ -373,7 +372,7 @@ class Statements():
             tailSave = {} #Save tail content before transformation (to retrieve original indentation)
             scopePath = self.getScopePath(elem) if self.isScopeNode(elem) else scopePath
             for ie, e in enumerate(list(elem)): #we loop on elements in the natural order
-                if e.tag.split('}')[1] == 'C' and e.text.lstrip(' ').startswith('!$mnh_expand') and useMnhExpand:
+                if tag(e) == 'C' and e.text.lstrip(' ').startswith('!$mnh_expand') and useMnhExpand:
                     #This is an opening mnh directive
                     if in_mnh:
                         raise PYFTError('Nested mnh_directives are not allowed')
@@ -392,7 +391,7 @@ class Statements():
                     inner, outer, extraindent = self.createDoConstruct(table, indent=indent, concurrent=concurrent)
                     toinsert.append((elem, outer, ie)) #Place to insert the loop
 
-                elif e.tag.split('}')[1] == 'C' and e.text.lstrip(' ').startswith('!$mnh_end_expand') and useMnhExpand:
+                elif tag(e) == 'C' and e.text.lstrip(' ').startswith('!$mnh_end_expand') and useMnhExpand:
                     #This is a closing mnh directive
                     if not in_mnh:
                         raise PYFTError('End mnh_directive found before begin directive in {f}'.format(f=self.getFileName()))
@@ -410,11 +409,12 @@ class Statements():
                     inner.insert(-1, e) #Insert first in the DO loop
                     updateStmt(e, table, kind, extraindent, inner, varList, scopePath) #then update, providing new parent in argument
 
-                elif everywhere and e.tag.split('}')[1] in ('a-stmt', 'if-stmt', 'where-stmt', 'where-construct'):
+                elif everywhere and tag(e) in ('a-stmt', 'if-stmt', 'where-stmt',
+                                               'where-construct'):
                     #This node could contain array-syntax
 
                     #Is the node written using array-syntax? Getting the first array...
-                    if e.tag.split('}')[1] == 'a-stmt':
+                    if tag(e) == 'a-stmt':
                         #Left side of the assignment
                         arr = e.find('./{*}E-1/{*}named-E/{*}R-LT/{*}array-R/../..')
                         #Right side
@@ -426,7 +426,7 @@ class Statements():
                             #It is an array initialisation when there is no array-syntax on the right side
                             #If array-syntax is used without explicit '(:)', it could be detected as an initialisation
                             is_memSet = True
-                        elif len(E2) == 1 and E2[0].tag.split('}')[1] == 'named-E' and num == 1 and \
+                        elif len(E2) == 1 and tag(E2[0]) == 'named-E' and num == 1 and \
                             E2[0].find('.//{*}parens-R') is None:
                             #It is an array copy when there is only one child in the right hand side
                             #    and this child is a named-E and this child contains only
@@ -435,7 +435,7 @@ class Statements():
                         #Discard?
                         if (is_memSet and not updateMemSet) or (is_copy and not updateCopy):
                             arr = None
-                    elif e.tag.split('}')[1] == 'if-stmt':
+                    elif tag(e) == 'if-stmt':
                         #We only deal with assignment in the if statement case
                         arr = e.find('./{*}action-stmt/{*}a-stmt/{*}E-1/{*}named-E/{*}R-LT/{*}array-R/../..')
                         if arr is not None:
@@ -443,9 +443,9 @@ class Statements():
                             self.changeIfStatementsInIfConstructs(singleItem=e, parent=elem)
                             recur(e, scopePath) #to transform the content of the if
                             arr = None #to do nothing more on this node
-                    elif e.tag.split('}')[1] == 'where-stmt':
+                    elif tag(e) == 'where-stmt':
                         arr = e.find('./{*}mask-E//{*}named-E/{*}R-LT/{*}array-R/../..')
-                    elif e.tag.split('}')[1] == 'where-construct':
+                    elif tag(e) == 'where-construct':
                         arr = e.find('./{*}where-block/{*}where-construct-stmt/{*}mask-E//{*}named-E/{*}R-LT/{*}array-R/../..')
 
                     #Check if it is written using array-syntax and must not be excluded; then compute bounds
@@ -634,7 +634,7 @@ class Statements():
         parent = self.getParent(callStmt)
 
         # Expand the if-construct if the call-stmt is in a one-line if-construct
-        if parent.tag.endswith('}action-stmt'):
+        if tag(parent) == 'action-stmt':
             self.changeIfStatementsInIfConstructs(self.getParent(parent))
             parent = self.getParent(callStmt) #update parent
 
@@ -715,7 +715,7 @@ class Statements():
         localUseToAdd = node.findall('./{*}use-stmt')
         for n in node.findall('./{*}T-decl-stmt') + localUseToAdd + node.findall('./{*}implicit-none-stmt'):
             node.remove(n)
-        while node[1].tag.split('}')[1] == 'C':
+        while tag(node[1]) == 'C':
             node.remove(node[1])
 
         # Variable correspondance
@@ -740,7 +740,7 @@ class Statements():
                 #array
                 if len(RLTarray) > 1 or \
                    argnode.find('./{*}R-LT/{*}array-R') is None or \
-                   argnode.tag.split('}')[1] != 'named-E':
+                   tag(argnode) != 'named-E':
                     #Only simple cases are treated
                     raise PYFTError('Argument to complicated: ' + str(alltext(argnode)))
                 dim = RLTarray[0].find('./{*}section-subscript-LT')[:]
@@ -774,30 +774,30 @@ class Statements():
                     allreadySuppressed = []
                     while par and not removed and par not in allreadySuppressed:
                         toSuppress = None
-                        tag = par.tag.split('}')[1]
-                        if tag in ('a-stmt', 'print-stmt'):
+                        tagName = tag(par)
+                        if tagName in ('a-stmt', 'print-stmt'):
                             # Context 1: an a-stmt of type E1 = E2
                             toSuppress = par
-                        elif tag == 'call-stmt':
+                        elif tagName == 'call-stmt':
                             # We should rewrite the call statement without this optional argument
                             # But it is not easy: we must check that the argument is really optional
                             # for the called routine and we must add (if not already present)
                             # keywords for following arguments
                             raise NotImplementedError('call-stmt not (yet?) implemented')
-                        elif tag in ('if-stmt', 'where-stmt'):
+                        elif tagName in ('if-stmt', 'where-stmt'):
                             # Context 2: an if-stmt of type  : IF(variable) ...
                             toSuppress = par
-                        elif tag in ('if-then-stmt', 'else-if-stmt', 'where-construct-stmt',
+                        elif tagName in ('if-then-stmt', 'else-if-stmt', 'where-construct-stmt',
                                      'else-where-stmt'):
                             # Context 3: an if-block of type  : IF(variable) THEN...
                             # We delete the entire construct
                             toSuppress = node.getParent(par, 2)
-                        elif tag in ('select-case-stmt', 'case-stmt'):
+                        elif tagName in ('select-case-stmt', 'case-stmt'):
                             # Context 4: SELECT CASE (variable)... or CASE (variable)
                             # We deleted the entire construct
                             toSuppress = node.getParent(par, 2)
-                        elif tag.endswith('-block') or tag.endswith('-stmt') or \
-                             tag.endswith('-construct'):
+                        elif tagName.endswith('-block') or tagName.endswith('-stmt') or \
+                             tagName.endswith('-construct'):
                             # action-stmt, do-stmt, forall-construct-stmt, forall-stmt,
                             # if-block, where-block, selectcase-block,
                             #  must not contain directly
@@ -805,7 +805,7 @@ class Statements():
                             # statement in the previous cases.
                             # Some cases may have been overlooked and should be added above.
                             raise PYFTError(("We shouldn't be here. A case may have been " + \
-                                             "overlooked (tag={tag}).".format(tag=tag)))
+                                             "overlooked (tag={tag}).".format(tag=tagName)))
                         if toSuppress is not None:
                             removed = True
                             if toSuppress not in allreadySuppressed:
@@ -844,9 +844,9 @@ class Statements():
                     #3 We select the indexes (only for array argument and not structure argument containing an array)
                     #  using the occurrence to replace inside the subcontained routine body
                     RLT = namedE.find('./{*}R-LT')
-                    if RLT is not None and RLT[0].tag.split('}')[1] != 'component-R':
+                    if RLT is not None and tag(RLT[0]) != 'component-R':
                         #The variable name is immediately followed by a parenthesis
-                        assert RLT[0].tag.split('}')[1] in ('array-R', 'parens-R'), 'Internal error'
+                        assert tag(RLT[0]) in ('array-R', 'parens-R'), 'Internal error'
                         slices = RLT[0].findall('./{*}section-subscript-LT/{*}section-subscript')
                         slices += RLT[0].findall('./{*}element-LT/{*}element')
                     else:
@@ -891,8 +891,8 @@ class Statements():
                                 for i in (0, 1): #0 for lower bound and 1 for upper bound
                                     if dummy['dim'] is not None:
                                         #Parenthesis in the call statement
-                                        tag = './{*}lower-bound' if i == 0 else './{*}upper-bound'
-                                        desc_sub[i] = dummy['dim'][isl].find(tag)
+                                        tagName = './{*}lower-bound' if i == 0 else './{*}upper-bound'
+                                        desc_sub[i] = dummy['dim'][isl].find(tagName)
                                     else:
                                         desc_sub[i] = None
                                     if desc_sub[i] is not None:
@@ -941,8 +941,8 @@ class Statements():
 
                             #2 Update index with the offset and add indexes instead of ':'
                             if offset != 0:
-                                if sl.tag.split('}')[1] == 'element' or \
-                                   (sl.tag.split('}')[1] == 'section-subscript' and not ':' in alltext(sl)):
+                                if tag(sl) == 'element' or \
+                                   (tag(sl) == 'section-subscript' and not ':' in alltext(sl)):
                                     #Z(I) or last index of Z(:, I)
                                     bounds = sl
                                 else:
@@ -1060,7 +1060,7 @@ class Statements():
         for node in nodes:
             toRemove = True
             for n in node:
-                if n.tag.endswith('}op') or (n.tag.endswith('}literal-E') and '.FALSE.' in alltext(n)):
+                if tag(n) == 'op' or (tag(n) == 'literal-E' and '.FALSE.' in alltext(n)):
                     pass
                 else:
                     toRemove = False
@@ -1109,8 +1109,8 @@ class Statements():
                 #Insertion after the subroutine or function node
                 index = 2
             #If an include statements follows, it certainly contains an interface
-            while scope[index].tag.split('}')[1] in ('C', 'include', 'include-stmt') or \
-                  (scope[index].tag.split('}')[1] == 'cpp' and scope[index].text.startswith('#include')):
+            while tag(scope[index]) in ('C', 'include', 'include-stmt') or \
+                  (tag(scope[index]) == 'cpp' and scope[index].text.startswith('#include')):
                 index += 1
         else:
             #Statement must be inserted before the contains statement
@@ -1149,13 +1149,13 @@ class Statements():
         nodesToSuppress = []
         if not isinstance(nodes, list): nodes = [nodes]
         for node in nodes:
-            if node.tag.endswith('}if-stmt') or node.tag.endswith('}where-stmt'):
+            if tag(node) in ('if-stmt', 'where-stmt'):
                 action = node.find('./{*}action-stmt')
                 if action is not None and len(action) != 0:
                     nodesToSuppress.append(action[0])
                 else:
                     nodesToSuppress.append(node)
-            elif node.tag.endswith('}action-stmt'):
+            elif tag(node) == '}action-stmt':
                 if len(node) != 0:
                     nodesToSuppress.append(node[0])
                 else:
@@ -1168,28 +1168,28 @@ class Statements():
             #Loop to identify all the potential variables to remove
             for node in nodesToSuppress:
                 scopePath = self.getScopePath(node)
-                if node.tag.endswith('}do-construct'):
+                if tag(node) == 'do-construct':
                     #Try to remove variables used in the loop
                     varToCheck.extend([(scopePath, n2name(arg))
                                        for arg in node.find('./{*}do-stmt').findall('.//{*}N')])
-                elif node.tag.endswith('}if-construct') or node.tag.endswith('}if-stmt'):
+                elif tag(node) in ('if-construct', 'if-stmt'):
                     #Try to remove variables used in the conditions
                     varToCheck.extend([(scopePath, n2name(arg))
                                        for arg in node.findall('.//{*}condition-E//{*}N')])
-                elif node.tag.endswith('}where-construct') or node.tag.endswith('}where-stmt'):
+                elif tag(node) in ('where-construct', 'where-stmt'):
                     #Try to remove variables used in the conditions
                     varToCheck.extend([(scopePath, n2name(arg))
                                        for arg in node.findall('.//{*}mask-E//{*}N')])
-                elif node.tag.endswith('}call-stmt'):
+                elif tag(node) == 'call-stmt':
                     #We must check if we can suppress the variables used to call the subprogram
                     varToCheck.extend([(scopePath, n2name(arg))
                                        for arg in node.findall('./{*}arg-spec//{*}N')])
                     #And maybe, the subprogram comes from a module
                     varToCheck.append((scopePath,
                                        n2name(node.find('./{*}procedure-designator//{*}N'))))
-                elif node.tag.endswith('}a-stmt') or node.tag.endswith('}print-stmt'):
+                elif tag(node) in ('a-stmt', 'print-stmt'):
                     varToCheck.extend([(scopePath, n2name(arg)) for arg in node.findall('.//{*}N')])
-                elif node.tag.endswith('}selectcase-construct'):
+                elif tag(node) == 'selectcase-construct':
                     #Try to remove variables used in the selector and in conditions
                     varToCheck.extend([(scopePath, n2name(arg))
                                        for arg in node.findall('.//{*}case-E//{*}N')])
@@ -1201,7 +1201,7 @@ class Statements():
         for node in nodesToSuppress:
             parent = self.getParent(node)
             parents[id(node)] = parent
-            newlines = '\n' * (alltext(node).count('\n') if node.tag.endswith('-construct') else 0)
+            newlines = '\n' * (alltext(node).count('\n') if tag(node).endswith('-construct') else 0)
             if node.tail is not None or len(newlines) > 0:
                 previous = self.getSiblings(node, after=False)
                 if len(previous) == 0:
@@ -1221,28 +1221,28 @@ class Statements():
             parent = parents[id(node)]
             #If we have suppressed the statement in a if statement (one-line if) or where statement
             #we must suppress the entire if/where statement even when simplifyStruct is False
-            if parent.tag.endswith('}action-stmt'):
+            if tag(parent) == 'action-stmt':
                 newNodesToSuppress.append(self.getParent(parent))
 
             elif simplifyStruct:
-                if parent.tag.endswith('}do-construct') and len(_nodesInDo(parent)) == 0:
+                if tag(parent) == 'do-construct' and len(_nodesInDo(parent)) == 0:
                     newNodesToSuppress.append(parent)
-                elif parent.tag.endswith('}if-block'):
+                elif tag(parent) == 'if-block':
                     parPar = self.getParent(parent)
                     if len(_nodesInIf(parPar)) == 0:
                         newNodesToSuppress.append(parPar)
-                elif parent.tag.endswith('}where-block'):
+                elif tag(parent) == 'where-block':
                     parPar = self.getParent(parent)
                     if len(_nodesInWhere(parPar)) == 0:
                         newNodesToSuppress.append(parPar)
-                elif parent.tag.endswith('}selectcase-block'):
+                elif tag(parent) == 'selectcase-block':
                     parPar = self.getParent(parent)
                     if len(_nodesInCase(parPar)) == 0:
                         newNodesToSuppress.append(parPar)
 
         constructNodes, otherNodes = [], []
         for n in newNodesToSuppress:
-            if n.tag.endswith('-construct'):
+            if tag(n).endswith('-construct'):
                 if n not in constructNodes: constructNodes.append(n)
             else:
                 if n not in otherNodes: otherNodes.append(n)
@@ -1271,23 +1271,23 @@ class Statements():
     
         If a statement is passed, it is suppressed by removeStmtNode
         """
-        assert node.tag.endswith('-stmt') or node.tag.endswith('-construct'), \
+        assert tag(node).endswith('-stmt') or tag(node).endswith('-construct'), \
           "Don't know how to suppress only a part of a structure or of a statement"
     
         #This function removes inner statement to give a chance to identify and suppress unused variables
         #During this step, nodes are suppressed with simplifyStruct=False to prevent infinite loops
         #then the actual node is removed using removeStmtNode
     
-        if node.tag.endswith('-construct'):
+        if tag(node).endswith('-construct'):
             #inner nodes
             nodes = {'do-construct': _nodesInDo,
                      'if-construct': _nodesInIf,
                      'where-construct': _nodesInWhere,
-                     'selectcase-construct': _nodesInCase}[node.tag.split('}')[1]](node)
+                     'selectcase-construct': _nodesInCase}[tag(node)](node)
             #sort nodes by type
             constructNodes, otherNodes = [], []
             for n in nodes:
-                if n.tag.endswith('-construct'):
+                if tag(n).endswith('-construct'):
                     constructNodes.append(n)
                 else:
                     otherNodes.append(n)
@@ -1489,7 +1489,7 @@ class Statements():
                 raise RuntimeError("Something went wrong here....")
     
         #Suppression of continuation characters
-        if i + 1 < len(l) and l[i + 1].tag.endswith('}cnt'):
+        if i + 1 < len(l) and tag(l[i + 1]) == 'cnt':
             #Node is followed by a continuation character
             reason = 'lastOnLine'
             #If the node is followed by a continuation character and is just after another
@@ -1537,9 +1537,9 @@ class Statements():
                                     & X
                 """
                 j = i - 1
-                while j >= 0 and l[j].tag.endswith('}C'):
+                while j >= 0 and tag(l[j]) == 'C':
                     j -= 1
-                if j >= 0 and l[j].tag.endswith('}cnt'):
+                if j >= 0 and tag(l[j]) == 'cnt':
                     return l[j], l, j
                 elif j == -1:
                     #In the following special case, the '&' don't belong to the list but are siblings
@@ -1548,9 +1548,9 @@ class Statements():
                     #                  & X
                     siblings = self.getSiblings(l, before=True, after=False)
                     j2 = len(siblings) - 1
-                    while j2 >= 0 and siblings[j2].tag.endswith('}C'):
+                    while j2 >= 0 and tag(siblings[j2]) == 'C':
                         j2 -= 1
-                    if j2 >= 0 and siblings[j2].tag.endswith('}cnt'):
+                    if j2 >= 0 and tag(siblings[j2]) == 'cnt':
                         return siblings[j2], siblings, j2
                     else:
                         return None, None, None
