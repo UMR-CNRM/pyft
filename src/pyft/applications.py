@@ -7,7 +7,7 @@ import os
 import logging
 
 from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError
-from pyft.expressions import createExpr, createExprPart, createElem
+from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
 from pyft import NAMESPACE
 
@@ -71,6 +71,103 @@ class Applications():
                 self.removeVar([(v['scope'], v['n']) for v in varList
                                 if v['n'] == subroutine], simplify=simplify)
 
+    @debugDecor
+    def convertTypesInCompute(self):
+        """
+        Convert STR%VAR into single local variable contained in compute statements
+        e.g. 
+        ZA = 1 + CST%XG ==> ZA = 1 + XCST_G
+        ZA = 1 + PARAM_ICE%XRTMIN(3)  ==> ZA = 1 + XPARAM_ICE_XRTMIN3
+        RESTRICTION : works only if the r-component variable is contained in 1 parent structure.
+        Allowed for conversion : CST%XG
+        Not converted : TOTO%CST%XG (for now, recursion must be coded)
+        Not converted : TOTO%ARRAY(:) (shape of the array must be determined from E1)
+        """
+        scopes  = self.getScopes()
+        mod_type = scopes[0].path.split('/')[-1].split(':')[1][:4]
+        if mod_type == 'MODD':
+            pass
+        else:
+            for scope in scopes:
+                if 'sub:' in scope.path and 'interface' not in scope.path:
+                    newVarList = {}
+                    for aStmt in scope.findall('.//{*}a-stmt'):
+                        # Exclude statements in which the component-R is in E1 (e.g. PARAMI%XRTMIN(4) = 2)
+                        compoE1 = aStmt[0].findall('.//{*}component-R') # E1 is the first son of aStmt ==> aStmt[0]
+                        if len(compoE1) == 0:
+                            E2 = aStmt.findall('.//{*}E-2')[0]
+                            compoE2 = E2.findall('.//{*}component-R')
+                            if len(compoE2) >0:
+                                # Exclude stmt from which E2 is only a component-R e.g. IKB = D%NKB
+                                #  but ZLM(:,:) = MIN(ZLM(:,:),TURBN%XCADAP*ZLMW(:,:)) is not excluded 
+                                #  by checking that the 3rd parent must be E2.
+                                # (Careful: it also excludes affectation such as : ZCP(:,:)=CST%XCPD is it ok ?)
+                                if len(E2[0]) != 2 and not self.getParent(compoE2[0], 3).tag.endswith('E-2'):
+                                    for elcompoE2 in compoE2:
+        
+                                        # 1) Build the name of the new variable
+                                        objType = self.getParent(elcompoE2, 2) # The object STR%VAR
+                                        objTypeStr = alltext(objType)
+                                        namedENn = objType.find('.//{*}N/{*}n')
+                                        structure = namedENn.text
+                                        variable = elcompoE2.find('.//{*}ct').text
+                                        # If the variable is an array with index selection such as ICED%XRTMIN(1:KRR)
+                                        arrayIndices = ''
+                                        arrayRall = objType.findall('.//{*}array-R')
+                                        if len(arrayRall) > 0:
+                                            arrayR = copy.deepcopy(arrayRall[0]) # Save the array-R for the declaration 
+                                            txt = alltext(arrayR).replace(',','')
+                                            txt = txt.replace(':','')
+                                            txt = txt.replace('(','')
+                                            txt = txt.replace(')','')
+                                            arrayIndices = arrayIndices + txt
+                                        elif len(objType.findall('.//{*}element-LT')) > 0: # Case with single element such as ICED%XRTMIN(1)
+                                            for e in objType.findall('.//{*}element'):
+                                                arrayIndices = arrayIndices + alltext(e)
+                                        newName = variable[0] + structure + variable[1:] + arrayIndices
+                                        
+                                        # 2) Replace the namedE>N>n by the newName and delete R-LT
+                                        namedENn.text = newName
+                                        objType.remove(objType.find('.//{*}R-LT'))
+                                        
+                                        # 3) Add to the list of not already present for declaration
+                                        if newName not in newVarList.keys():
+                                            newVarList[newName] = (None,objTypeStr) if len(arrayRall) == 0 else (arrayR,objTypeStr)
+                                            
+                    # Add the declaration of the new variables and their affectation
+                    for el in newVarList:
+                        if el[0] == 'X' or el[0] == 'P' or el[0] == 'Z':
+                            varType = 'REAL'
+                        elif el[0] == 'L' or el[0] == 'O':
+                            varType = 'LOGICAL'
+                        elif el[0] == 'N' or el[0] == 'I' or el[0] == 'K':
+                            varType = 'INTEGER'
+                        elif el[0] == 'C':
+                            varType = 'CHARACTER(LEN=LEN(' + newVarList[el][1] + '))'
+                        else:
+                            raise PYFTError('Case not implemented for the first letter of the newVarName' + el + ' in convertTypesInCompute')
+                        varArray = ''
+                        # Handle the case the variable is an array
+                        if newVarList[el][0]:
+                            varArray = ', DIMENSION('
+                            for i,sub in enumerate(newVarList[el][0].findall('.//{*}section-subscript')):
+                                if len(sub.findall('.//{*}upper-bound')) > 0:
+                                    dimSize = simplifyExpr(alltext(sub.findall('.//{*}upper-bound')[0]) + '-' + alltext(sub.findall('.//{*}lower-bound')[0]) + ' + 1')
+                                elif len(sub.findall('.//{*}lover-bound')) >0:
+                                    dimSize = simplifyExpr(alltext(sub.findall('.//{*}lower-bound')[0]))
+                                else: # Case XRTMIN(:)
+                                    dimSize = 'SIZE(' + newVarList[el][1] + ',' + str(i+1) + ')'
+                                varArray = ', DIMENSION(' + dimSize + ','
+                            varArray = varArray[:-1] + ')'
+                        self.addVar([[scope.path, el, varType + varArray + ' :: ' + el, None]])
+                        
+                        # Affectation
+                        fortranSource = "SUBROUTINE FOO598756\n " + el + "=" + newVarList[el][1] + "\nEND SUBROUTINE"
+                        _, stmtfxtran = fortran2xml(fortranSource)
+                        stmtAffect = stmtfxtran.find('.//{*}a-stmt')
+                        self.insertStatement(scope.path, self.indent(stmtAffect), first=True)
+                        
+                     
     @debugDecor
     def deleteDrHook(self, simplify=False):
         """

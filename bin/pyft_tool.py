@@ -207,6 +207,9 @@ if __name__ == '__main__':
                                help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, ' +
                                     '**4, EXP, COS, SIN, ATAN2 into a self defined function BR_ ' +
                                     'for MesoNH bit-repro.')
+    gApplications.add_argument('--convertTypesInCompute', default=False, action='store_true',
+                               help='Use single variable instead of variable contained in structure in ' + \
+                                    'compute statement for optimization issue ')
 
     #openACC
     gOpenACC = parser.add_argument_group('OpenACC')
@@ -374,6 +377,7 @@ if __name__ == '__main__':
             if arg == '--shumanFUNCtoCALL': pft.shumanFUNCtoCALL()
             if arg == '--buildACCTypeHelpers': pft.buildACCTypeHelpers()
             if arg == '--mathFunctoBRFunc': pft.mathFunctoBRFunc()
+            if arg == '--convertTypesInCompute': pft.convertTypesInCompute()
 
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
