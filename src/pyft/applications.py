@@ -741,7 +741,7 @@ class Applications():
         """
         # Power integer allowed for BR_Pn and functions converted (from modi_bitrep.f90)
         powerBR_list = [2, 3, 4]
-        mathBR_list = ['LOG', 'EXP', 'COS', 'SIN', 'ASIN', 'ATAN', 'ATAN2']
+        mathBR_list = ['ALOG','LOG', 'EXP', 'COS', 'SIN', 'ASIN', 'ATAN', 'ATAN2']
 
         for scope in self.getScopes():
             # 1/2 Look for all operations and seek for power **
@@ -838,7 +838,10 @@ class Applications():
             # 2/2 Look for all specific functions LOG, ATAN, EXP,etc
             for n in scope.findall('.//{*}named-E/{*}N/{*}n'):
                 if alltext(n).upper() in mathBR_list:
-                    n.text = 'BR_' + n.text
+                    if  alltext(n).upper() == 'ALOG':
+                        n.text = 'BR_LOG'
+                    else:
+                        n.text = 'BR_' + n.text
                     # Add necessary module in the current scope
                     self.addModuleVar([(scope.path, 'MODI_BITREP', None)])
 
