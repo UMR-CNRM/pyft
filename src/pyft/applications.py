@@ -6,7 +6,7 @@ import copy
 import os
 import logging
 
-from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError, tag
+from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError, tag, tostring
 from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
 from pyft import NAMESPACE
@@ -94,17 +94,17 @@ class Applications():
                     for aStmt in scope.findall('.//{*}a-stmt'):
                         # Exclude statements in which the component-R is in E1 (e.g. PARAMI%XRTMIN(4) = 2)
                         compoE1 = aStmt[0].findall('.//{*}component-R') # E1 is the first son of aStmt ==> aStmt[0]
+                        RLTE1 = aStmt[0].findall('.//{*}R-LT')
                         if len(compoE1) == 0:
                             E2 = aStmt.findall('.//{*}E-2')[0]
-                            compoE2 = E2.findall('.//{*}component-R')
+                            compoE2 = aStmt.findall('.//{*}component-R')
                             if len(compoE2) >0:
-                                # Exclude stmt from which E2 is only a component-R e.g. IKB = D%NKB
-                                #  but ZLM(:,:) = MIN(ZLM(:,:),TURBN%XCADAP*ZLMW(:,:)) is not excluded 
-                                #  by checking that the 3rd parent must be E2.
-                                # (Careful: it also excludes affectation such as : ZCP(:,:)=CST%XCPD is it ok ?)
-                                if len(E2[0]) != 2 and not tag(self.getParent(compoE2[0], 3)) == 'E-2':
+                                # Exclude stmt from which E2 has only 1 named-E/{*}N/{*}n e.g. IKB = D%NKB
+                                #  warning, it does not handle yet op in simple statement such as ZEXPL = 1.- TURBN%XIMPL
+                                # Include stmt from which E2 has 1 named-E/{*}N/{*}n AND E1 is an array; e.g. ZDELTVPT(JIJ,JK)=CSTURB%XLINF
+                                nb_namedEinE2 = len(E2.findall('.//{*}named-E/{*}N/{*}n'))
+                                if nb_namedEinE2 > 1 or nb_namedEinE2 == 1 and len(RLTE1) ==1:
                                     for elcompoE2 in compoE2:
-        
                                         # 1) Build the name of the new variable
                                         objType = self.getParent(elcompoE2, 2) # The object STR%VAR
                                         objTypeStr = alltext(objType)
