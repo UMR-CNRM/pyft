@@ -217,6 +217,10 @@ if __name__ == '__main__':
                           help='Add !$acc data present and !$acc end data directives')
     gOpenACC.add_argument('--addACC_routine_seq', default=False, action='store_true',
                           help='Add "!$acc routine seq" to routines under stopScopes')
+    gOpenACC.add_argument('--craybyPassDOCONCURRENT', default=False, action='store_true',
+                          help='remove acc loop independant collapse for BR_ fonctions and mnh_undef(OPENACC) macro' +\
+                              ' use DO CONCURRENT with mnh_undef(LOOP)')
+    
    
     #Checks
     gChecks = parser.add_argument_group('Check options')
@@ -381,6 +385,7 @@ if __name__ == '__main__':
 
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
+            if arg == '--craybyPassDOCONCURRENT': pft.craybyPassDOCONCURRENT()
             if arg == '--addACC_routine_seq': pft.addACC_routine_seq(args.stopScopes.split('#'))
 
             #Cosmetics

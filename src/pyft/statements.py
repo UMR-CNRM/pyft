@@ -150,7 +150,7 @@ class Statements():
     @debugDecor
     def removeArraySyntax(self, concurrent=False, useMnhExpand=True, everywhere=True,
                           loopVar=None, reuseLoop=True, funcList=None,
-                          updateMemSet=False, updateCopy=False):
+                          updateMemSet=False, updateCopy=False, addAccIndependentCollapse=True):
         """
         Transform array syntax into DO loops
         :param concurrent: use 'DO CONCURRENT' instead of simple 'DO' loops
@@ -171,6 +171,7 @@ class Statements():
                          statements that make use of them. None is equivalent to an empty list.
         :param updateMemSet: True to put affectation to constante in DO loops
         :param updateCopy: True to put array copy in DO loops
+        :param addAccIndependentCollapse: True to add !$acc loop independent collapse(X) before the DO construct
 
         Notes: * With useMnhExpand, the function checks if the coding is conform to what is needed
                  for the filepp/mnh_expand tool (to not breack compatibility with this tool)
@@ -355,7 +356,7 @@ class Statements():
             return e
 
         def closeLoop(loopdesc):
-            """Helper function to deal with indetation"""
+            """Helper function to deal with indentation"""
             if loopdesc:
                 inner, outer, indent, extraindent = loopdesc
                 if inner[-2].tail is not None:
@@ -366,6 +367,7 @@ class Statements():
         toinsert = [] #list of nodes to insert
         toremove = [] #list of nodes to remove
         varList = [] #list of variables
+        
         def recur(elem, scopePath):
             in_mnh = False #are we in a DO loop created by a mnh directive
             in_everywhere = False #are we in a created DO loop (except loops created with mnh directive)
@@ -387,6 +389,14 @@ class Statements():
                         #We add, to the tail of the previous node, the tail of the directive (except one \n)
                         if elem[ie - 1].tail is None: elem[ie - 1].tail = ''
                         elem[ie - 1].tail += e.tail.replace('\n', '', 1).rstrip(' ')
+                    
+                    #Building acc loop collapse independent directive
+                    if addAccIndependentCollapse:
+                        accCollapse = createElem('C')
+                        accCollapse.text = ('!$acc loop independent collapse(' + str(len(table.keys())) + ')')
+                        accCollapse.tail = '\n' + indent * ' '
+                        toinsert.append((elem,accCollapse,ie))
+
                     #Building loop
                     inner, outer, extraindent = self.createDoConstruct(table, indent=indent, concurrent=concurrent)
                     toinsert.append((elem, outer, ie)) #Place to insert the loop

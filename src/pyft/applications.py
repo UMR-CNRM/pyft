@@ -927,7 +927,7 @@ class Applications():
 
                dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = getDimsAndMNHExpandIndexes(zshugradwkDim, dimWorkingVar)
 
-               fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$acc loop collapse("+str(zshugradwkDim)+") independent\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
+               fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
                                 computingVarName + " = " + alltext(workingItem) +"\n" + \
                                 "!$mnh_end_expand_array("+mnhExpandArrayIndexes+")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
                _, cfxtran = fortran2xml(fortranSource)
@@ -938,12 +938,11 @@ class Applications():
                # Insert the directives and the computeStmt
                parStmt.insert(indexForCall, commentsExpand[0])
                parStmt.insert(indexForCall+1, commentsExpand[1])
-               parStmt.insert(indexForCall+2, commentsExpand[2])
-               parStmt.insert(indexForCall+3, computeStmt)
+               parStmt.insert(indexForCall+2, computeStmt)
+               parStmt.insert(indexForCall+3, commentsExpand[2])
                parStmt.insert(indexForCall+4, commentsExpand[3])
-               parStmt.insert(indexForCall+5, commentsExpand[4])
-               parStmt.insert(indexForCall+6, commentsExpand[5]) # This is \n ! empty comment to increase readibility
-               indexForCall+=7
+               parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+               indexForCall+=6
 
            # Add the new CALL statement
            if zshugradwkDim == 1: dimSuffRoutine='2D'
@@ -1115,7 +1114,6 @@ class Applications():
 
                             fortranSource = "SUBROUTINE FOO598756\n"+ \
                                             "!$acc kernels\n" + \
-                                            "!$acc loop collapse("+str(arrayDim)+") independent\n" + \
                                             "!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
                                             "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!" + \
                                             "$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
@@ -1125,10 +1123,9 @@ class Applications():
                             indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
                             parStmt.insert(indexForCall, commentsExpand[0])
                             parStmt.insert(indexForCall + 1, commentsExpand[1])
-                            parStmt.insert(indexForCall + 2, commentsExpand[2])
+                            parStmt.insert(indexForCall + 3, commentsExpand[2])
                             parStmt.insert(indexForCall + 4, commentsExpand[3])
-                            parStmt.insert(indexForCall + 5, commentsExpand[4])
-                            parStmt.insert(indexForCall + 6, commentsExpand[5]) # This is \n ! empty comment to increase readibility
+                            parStmt.insert(indexForCall + 5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
 
                     # For all saved intermediate newComputeStmt, add parenthesis around all variables
                     for stmt in computeStmtforParenthesis:

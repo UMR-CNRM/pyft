@@ -2,10 +2,96 @@
 This module implements the functions relative to openacc
 """
 
-from pyft.util import debugDecor, fortran2xml, n2name
+from pyft.util import debugDecor, fortran2xml, n2name, alltext
 from pyft.expressions import createElem
 
 class Openacc():
+    @debugDecor
+    def craybyPassDOCONCURRENT(self):
+        """
+        By pass a bug of the CRAY compiler in which the vectorisation is not done with BR_ fonctions use or locally.
+        On all expanded compute kernels with !$acc loop independent collapse(X) placed :
+            - if BR_ fonction is used : !$acc loop independent collapse(X) is removed and the nested DO loops are factorised into DO CONCURRENT
+            - if a mnh_undef(OPENACC) macro is in place, !$acc loop collapse independant(X) is removed 
+            - if a mnh_undef(LOOP) macro is in place the nested DO loops are factorised into DO CONCURRENT
+        """
+        def checkPresenceofBR(node):
+            """Return True if a BR_ (math BIT-REPRODUCTIBILITY) function is present in the node"""
+            mathBR_list = ['ALOG','LOG', 'EXP', 'COS', 'SIN', 'ASIN', 'ATAN', 'ATAN2', 'P2','P3','P4']
+            namedE = node.findall('.//{*}named-E/{*}N/{*}n')
+            for el in namedE:
+                if alltext(el) in ['BR_' + e for e in mathBR_list]:
+                    return True
+                    break
+            return False
+        def getStatementsInDoConstruct(node,savelist):
+            for n in node:
+                if 'do-construct' in n.tag:
+                    getStatementsInDoConstruct(n,savelist)
+                elif 'do-stmt' not in n.tag:
+                    savelist.append(n)
+                else:
+                    pass
+        
+        useNestedLoops = True # Cray compiler needs nested loops by default
+        useAccLoopIndependent = True # Cray compiler needs nested !$acc loop independent collapse(X) by default
+        toremove = [] #list of nodes to remove
+        comments = self.findall('.//{*}C')
+        
+        for comment in comments:
+            if comment.text.startswith('!$mnh_undef(LOOP)'):
+                useNestedLoops = False # Use DO CONCURRENT
+            if comment.text.startswith('!$mnh_undef(OPENACC)'):
+                useAccLoopIndependent = False #
+                
+            if comment.text.startswith('!$mnh_define(LOOP)'):
+                useNestedLoops = True # Use DO CONCURRENT
+            if comment.text.startswith('!$mnh_define(OPENACC)'):
+                useAccLoopIndependent = True #
+                
+            if comment.text.startswith('!$acc loop independent collapse('):
+                # Get the statements content in the DO-construct
+                par = self.getParent(comment)
+                ind = list(par).index(comment)
+                nestedLoop = par[ind + 1]
+                statements = []
+                getStatementsInDoConstruct(nestedLoop,statements)
+                    
+                # Check presence of BR_ within the statements
+                isBR_present = False
+                for stmt in statements:
+                    if checkPresenceofBR(stmt): 
+                        isBR_present = True
+                        break
+                    
+                # Remove !$acc loop independent collapse if BR_ is present or if !$mnh_undef(OPENACC)
+                if not useAccLoopIndependent or isBR_present:
+                    toremove.append((self, comment))
+                
+                # Use DO CONCURRENT instead of nested-loop if BR_ is present or if !$mnh_undef(LOOP)
+                if not useNestedLoops or isBR_present:
+                    # Determine the table of indices
+                    doStmt = nestedLoop.findall('.//{*}do-stmt')
+                    table = {}
+                    for do in reversed(doStmt):
+                        table[do.find('.//{*}do-V/{*}named-E/{*}N/{*}n').text] = [alltext(do.find('.//{*}lower-bound')),
+                                                                                  alltext(do.find('.//{*}upper-bound'))]
+                    
+                    # Create the do-construct
+                    inner, outer, extraindent = self.createDoConstruct(table, indent=len(nestedLoop.tail), concurrent=True)
+                    
+                    # Insert the statements in the new do-construct
+                    for stmt in statements:
+                        inner.insert(-1, stmt)
+                    
+                    # Insert the new do-construct and delete all the old do-construct
+                    par.insert(ind,outer)
+                    toremove.append((par, nestedLoop))
+                    
+        #Suppression of nodes
+        for parent, elem in toremove:
+            parent.remove(elem)                 
+                            
     @debugDecor
     def addACC_data(self):
         """
