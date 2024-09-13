@@ -6,7 +6,7 @@ This module implements the scope stuff
 
 import copy
 
-from pyft.variables import Variables
+from pyft.variables import Variables, updateVarList
 from pyft.cosmetics import Cosmetics
 from pyft.applications import Applications
 from pyft.statements import Statements
@@ -44,8 +44,10 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :param enableCache: True to cache node parents
         :param tree: an optional Tree instance
         """
+        super().__init__()
         self._xml = xml
         self._fullXml = xml if fullXml is None else fullXml
+        self._mainScope = self if parentPYFTscope is None else parentPYFTscope._mainScope
         self._path = scopePath
         self._parentPYFTscope = parentPYFTscope
         self.tree = Tree() if tree is None else tree
@@ -80,6 +82,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
     def __delitem__(self, *args, **kwargs): return self._xml.__delitem__(*args, **kwargs)
     def __len__(self, *args, **kwargs): return self._xml.__len__(*args, **kwargs)
 
+    @updateVarList
     def remove(self, node):
         """
         Remove node from the xml
@@ -324,6 +327,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         """
         return self._fullXml.find('.//{*}file').attrib['name']
 
+    @updateVarList
     def empty(self, addStmt=None, simplify=False):
         """
         Empties the scope by removing all statements except dummy arguments declaration

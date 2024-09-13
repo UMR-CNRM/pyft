@@ -326,7 +326,7 @@ if __name__ == '__main__':
             if arg == '--renameFf': pft.renameLower()
     
             #Variables
-            if arg == '--showVariables': pft.showVarList()
+            if arg == '--showVariables': pft.varList.showVarList()
             if arg == '--attachArraySpecToEntity': pft.attachArraySpecToEntity()
             if arg == '--removeVariable': pft.removeVar(args.removeVariable, **simplify)
             if arg == '--addVariable': pft.addVar([[v[0], v[1], v[2], (int(v[3]) if isint(v[3]) else None)] for v in args.addVariable])

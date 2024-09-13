@@ -4,9 +4,11 @@ This module implements functions for delaing with cpp directives
 
 from pyft.util import debugDecor, alltext, PYFTError, tag
 from pyft.tree import updateTree
+from pyft.variables import updateVarList
 
 class Cpp:
     @debugDecor
+    @updateVarList
     @updateTree('signal')
     def applyCPPifdef(self, keys):
         """

@@ -387,7 +387,6 @@ class Tree():
                                                  self._wrapH, tree=self, verbosity=self._verbosity)
                 filename = file
             filename = filename[2:] if filename.startswith('./') else filename
-            varList = pft.getVarList()
 
             # Loop on scopes
             self._scopes[filename] = []
@@ -432,7 +431,7 @@ class Tree():
                 for name in [n2name(c.find('./{*}N')).upper()
                              for c in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
                     # But we can exclude some names if they are declared as arrays
-                    var = pft.findVar(name, scope.path, varList=varList)
+                    var = pft.varList.findVar(name, scope.path)
                     if var is None or var['as'] is None:
                         self._funcList[filename][scope.path].add(name)
                 self._funcList[filename][scope.path] = list(self._funcList[filename][scope.path])

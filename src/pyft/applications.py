@@ -9,6 +9,7 @@ import logging
 from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError, tag, tostring
 from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
+from pyft.variables import updateVarList
 from pyft import NAMESPACE
 
 def _loopVarPHYEX(lower_decl, upper_decl, lower_used, upper_used, name, i):
@@ -59,16 +60,13 @@ class Applications():
         If Simplify is True, also remove all variables only needed for these calls
         :param simplify : if True, remove variables that are now unused
         """
-        varList = None
         for subroutine in ('ROTATE_WIND', 'UPDATE_ROTATE_WIND', 'BL_DEPTH_DIAG_3D',
                            'TM06_H', 'TURB_HOR_SPLT'):
             #Remove call statements
             nb = self.removeCall(subroutine, None, simplify=simplify)
             #Remove use statement
             if nb > 0:
-                if varList is None:
-                    varList = self.getVarList()
-                self.removeVar([(v['scope'], v['n']) for v in varList
+                self.removeVar([(v['scopePath'], v['n']) for v in self.varList
                                 if v['n'] == subroutine], simplify=simplify)
 
     @debugDecor
@@ -264,12 +262,12 @@ class Applications():
                 # but only to SUBROUTINES
                 if 'sub:' in scope.path and 'func' not in scope.path and 'interface' not in scope.path:
                     subRoutineName = scope.path.split('/')[-1].split(':')[1]
-                    varList = self.getVarList(scope.path)
 
                     # Look for all intent arrays only
                     arraysIn, arraysInOut, arraysOut = [], [], []
-                    for var in varList:
-                         if var['arg'] and var['as'] and 'TYPE' not in var['t'] and 'REAL' in var['t']:
+                    for var in scope.varList:
+                         if var['arg'] and var['as'] and 'TYPE' not in var['t'] and \
+                            'REAL' in var['t'] and var['scopePath'] == scope.path:
                              if var['i'] == 'IN':
                                  arraysIn.append(var)
                              if var['i'] == 'INOUT':
@@ -450,6 +448,7 @@ class Applications():
         return self.inlineContainedSubroutines(simplify=simplify, loopVar=_loopVarPHYEX)
 
     @debugDecor
+    @updateVarList
     def removeIJDim(self, stopScopes, parser=None, parserOptions=None, wrapH=False, simplify=False):
         """
         Transform routines to be called in a loop on columns
@@ -469,21 +468,20 @@ class Applications():
                         'JJ':('D%NJB', 'D%NJT'),
                         'JIJ':('D%NIJB', 'D%NIJT')}
 
-        def slice2index(namedE, scopePath, varList):
+        def slice2index(namedE, scopePath):
             """
             Transform a slice on the horizontal dimension into an index
             Eg.: X(1:D%NIJT, 1:D%NKT) => X(JIJ, 1:D%NKT) Be careful, this array is not contiguous.
                  X(1:D%NIJT, JK) => X(JIJ, JK)
             :param namedE: array to transform
             :param scopePath: scope path where the array is
-            :param varList: list of variables
             """
             # Loop on all array dimensions
             for isub, sub in enumerate(namedE.findall('./{*}R-LT/{*}array-R/{*}section-subscript-LT' + \
                                                       '/{*}section-subscript')):
                 if ':' in alltext(sub):
                     loopIndex, _, _ = self.findIndexArrayBounds(namedE, isub,
-                                                                varList, scopePath, _loopVarPHYEX)
+                                                                scopePath, _loopVarPHYEX)
                     if loopIndex in indexToCheck.keys(): # To be transformed
                         if sub.text == ':':
                             sub.text = None
@@ -513,12 +511,10 @@ class Applications():
                     ss.remove(lowerBound)
 
         # 0 - Preparation
-        varList = self.getVarList()
-        self.addArrayParentheses(varList=varList)
+        self.addArrayParentheses()
         self.expandAllArraysPHYEX()
         if simplify:
             self.attachArraySpecToEntity()
-        varList = self.getVarList() #Update list with indexes added by expandAllArraysPHYEX
         HupperBounds = [v[1] for v in indexToCheck.values()] #Upper bounds for horizontal dimensions
 
         #Loop on all scopes (reversed order); except functions (in particular FWSED from ice4_sedimentation_stat)
@@ -564,7 +560,7 @@ class Applications():
                         # 2.1 Loop on all arrays in the expression using this intrinsic function
                         #     to replace horizontal dimensions by indexes
                         for namedE in parToUse.findall('.//{*}R-LT/{*}array-R/../..'):
-                            slice2index(namedE, scope.path, varList)
+                            slice2index(namedE, scope.path)
 
                         # 2.2 Replace intrinsic function when argument becomes a scalar
                         if intr.find('.//{*}R-LT/{*}array-R') is None:
@@ -604,45 +600,34 @@ class Applications():
 
                     if scope.path in stopScopes:
                         #List of dummy arguments whose shape cannot be modified
-                        preserveShape = [v['n'] for v in varList if (v['scope'] == scope.path and v['arg'])]
+                        preserveShape = [v['n'] for v in self.varList
+                                         if (v['scopePath'] == scope.path and v['arg'])]
                     else:
                         preserveShape = []
 
                     # 4 - For all subroutines or modi_ interface
                     if 'sub:' in scope.path:
-                        # Remove dimensions in variable declaration statements
-                        for decl in scope.findall('.//{*}T-decl-stmt/{*}EN-decl-LT/{*}EN-decl'):
-                            name = n2name(decl.find('./{*}EN-N/{*}N')).upper()
-                            if name not in preserveShape:
-                                varsShape = decl.findall('.//{*}shape-spec-LT')
-                                for varShape in varsShape:
-                                    n = varShape.findall('.//{*}shape-spec')
-                                    if (len(n) == 1 and alltext(n[0]) in HupperBounds) \
-                                    or (len(n) == 2 and (alltext(n[0]) in HupperBounds and \
-                                                         alltext(n[1]) in HupperBounds)):
-                                        #Transform array declaration into scalar declaration
-                                        itemToRemove = self.getParent(varShape)
-                                        self.getParent(itemToRemove).remove(itemToRemove)
                         # Remove suppressed dimensions "Z(JIJI)" => "Z"
                         # We cannot do this based upon declaration transformation because an array can be
                         # declared in one scope and used in another sub-scope
                         for namedE in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..'):
                             if not n2name(namedE.find('./{*}N')).upper() in preserveShape:
-                                var = self.findVar(n2name(namedE.find('./{*}N')).upper(),
-                                                   scope.path, varList=varList)
+                                var = self.varList.findVar(n2name(namedE.find('./{*}N')).upper(),
+                                                           scope.path)
                                 if var is not None and var['as'] is not None and len(var['as']) > 0:
                                     subs = namedE.findall('./{*}R-LT/{*}parens-R/{*}element-LT/{*}element')
                                     if (len(subs) == 1 and var['as'][0][1] in HupperBounds) or \
                                        (len(subs) == 2 and var['as'][0][1] in HupperBounds and \
                                                            var['as'][1][1] in HupperBounds):
                                         namedE.remove(namedE.find('./{*}R-LT'))
+
                         # Remove (:) or (:,:) for horizontal array in call-statement
                         # or replace ':' by index
                         for call in scope.findall('.//{*}call-stmt'):
                             for namedE in call.findall('./{*}arg-spec//{*}named-E'):
                                 subs = namedE.findall('.//{*}section-subscript')
-                                var = self.findVar(n2name(namedE.find('./{*}N')).upper(),
-                                                   scope.path, varList=varList)
+                                var = self.varList.findVar(n2name(namedE.find('./{*}N')).upper(),
+                                                           scope.path)
                                 if len(subs) > 0 and (var is None or var['as'] is None or len(var['as']) < len(subs)):
                                     #Before adding a warning, functions (especially unpack) must be recognised
                                     #logging.warning(("Don't know if first dimension of {name} must be " + \
@@ -662,16 +647,34 @@ class Applications():
                                     remove = len(subs) == 1
                                     index = len(subs) > 1 and len([sub for sub in subs if ':' in alltext(sub)]) ==  1
                                 else:
-                                   remove = False
-                                   index = False
+                                    remove = False
+                                    index = False
                                 if remove:
                                     if n2name(namedE.find('./{*}N')).upper() in preserveShape:
-                                        slice2index(namedE, scope.path, varList)
+                                        slice2index(namedE, scope.path)
                                     else:
                                         RLT = namedE.find('.//{*}R-LT')
                                         self.getParent(RLT).remove(RLT)
                                 if index:
-                                    slice2index(namedE, scope.path, varList)
+                                    slice2index(namedE, scope.path)
+
+                        # Remove dimensions in variable declaration statements
+                        # This modification must be done after other modifications so that
+                        # the findVar method still return an array
+                        for decl in scope.findall('.//{*}T-decl-stmt/{*}EN-decl-LT/{*}EN-decl'):
+                            name = n2name(decl.find('./{*}EN-N/{*}N')).upper()
+                            if name not in preserveShape:
+                                varsShape = decl.findall('.//{*}shape-spec-LT')
+                                for varShape in varsShape:
+                                    n = varShape.findall('.//{*}shape-spec')
+                                    if (len(n) == 1 and alltext(n[0]) in HupperBounds) \
+                                    or (len(n) == 2 and (alltext(n[0]) in HupperBounds and \
+                                                         alltext(n[1]) in HupperBounds)):
+                                        #Transform array declaration into scalar declaration
+                                        itemToRemove = self.getParent(varShape)
+                                        self.getParent(itemToRemove).remove(itemToRemove)
+                                        # We should set self.varList to None here to clear the cache
+                                        # but we don't to save some computational time
 
                 # 4 - Values for removed indexes
                 for loopIndex in indexRemoved:
@@ -680,9 +683,11 @@ class Applications():
                     self.addArgInTree(scope.path, 'D', 'TYPE(DIMPHYEX_t) :: D',
                                       0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
                                       parser=parser, parserOptions=parserOptions, wrapH=wrapH)
-                    # Check loop index presence at declaration of the scope
-                    if self.findVar(loopIndex, scope.path, varList=varList, exactScope=True) is None:
-                        self.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]])
+                # Check loop index presence at declaration of the scope
+                self.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]
+                             for loopIndex in indexRemoved
+                             if self.varList.findVar(loopIndex, scope.path,
+                                                     exactScope=True) is None])
 
     @debugDecor
     def removePHYEXUnusedLocalVar(self, scopePath=None, excludeList=None, simplify=False):
@@ -908,7 +913,7 @@ class Applications():
 
            # Detect if the workingItem contains expressions, if so: create a compute statement embedded by mnh_expand directives
            opE = workingItem.findall('.//{*}op-E')
-           self.addArrayParenthesesInNode(workingItem, None, scope.path)
+           self.addArrayParenthesesInNode(workingItem, scope.path)
            computeStmt = []
            dimSuffVar = str(zshugradwkDim) + 'D'
            dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = getDimsAndMNHExpandIndexes(zshugradwkDim, dimWorkingVar)
@@ -916,10 +921,10 @@ class Applications():
                nbzshugradwk+=1
                computingVarName = 'ZSHUGRADWK'+str(nbzshugradwk)+'_'+str(zshugradwkDim)+'D'
                # Add the declaration of the new computing var and workingVar if not already present
-               if not self.findVar(computingVarName, scope.path):
+               if not self.varList.findVar(computingVarName, scope.path):
                    self.addVar([[scope.path, computingVarName, dimWorkingVar + computingVarName, None]])
                else: # Case of nested shuman/gradients with a working variable already declared. dimWorkingVar is only set again for mnhExpandArrayIndexes
-                    computeVar = self.findVar(computingVarName, scope.path)
+                    computeVar = self.varList.findVar(computingVarName, scope.path)
                     dimWorkingVar = 'REAL, DIMENSION('
                     for dims in computeVar['as'][:arrayDim]:
                         dimWorkingVar += dims[1] + ','
@@ -966,7 +971,7 @@ class Applications():
            par_ofgrandparItemFuncN.insert(indexWorkingVar,xmlWorkingvar)
 
            # Add the declaration of the shuman-gradient workingVar if not already present
-           if not self.findVar(workingVar, scope.path):
+           if not self.varList.findVar(workingVar, scope.path):
                 self.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, None]])
 
            return callStmt, computeStmt, nbzshugradwk
@@ -1024,14 +1029,14 @@ class Applications():
                                         # 1) if the stmt is from an a-astmt, check E1
                                         E1var = foundStmtandCalls[stmt][0].findall('.//{*}E-1/{*}named-E/{*}N')
                                         if len(E1var) > 0:
-                                            var = self.findVar(alltext(E1var[0]), scope.path)
+                                            var = self.varList.findVar(alltext(E1var[0]), scope.path)
                                             allSubscripts = foundStmtandCalls[stmt][0].findall('.//{*}E-1//{*}named-E/{*}R-LT/{*}array-R/{*}section-subscript-LT')
                                         # 2) if the stmt is from a call-stmt, check the first <named-E><N> in the function
                                         else:
                                             elPar = self.getParent(el, level=2)  # MXM(...)
                                             callVar = elPar.findall('.//{*}named-E/{*}N')
                                             if alltext(el)[0] == 'G': # If it is a gradient, the array on which the gradient is applied is the last argument
-                                                var = self.findVar(alltext(callVar[-1]), scope.path) # callVar[-1] is array on which the gradient is applied
+                                                var = self.varList.findVar(alltext(callVar[-1]), scope.path) # callVar[-1] is array on which the gradient is applied
                                                 shumanIsCalledOn = scope.getParent(callVar[-1])
                                             else: # Shumans
                                                 var, inested = None, 0
@@ -1039,7 +1044,7 @@ class Applications():
                                                     # While the var is not an array already declared
                                                     # callVar[0] is the first array on which the
                                                     #function is applied
-                                                    var = self.findVar(alltext(callVar[inested]), scope.path)
+                                                    var = self.varList.findVar(alltext(callVar[inested]), scope.path)
                                                     inested+=1
                                                 shumanIsCalledOn = scope.getParent(callVar[inested-1])
                                             allSubscripts = shumanIsCalledOn.findall('.//{*}R-LT/{*}array-R/{*}section-subscript-LT')
@@ -1105,7 +1110,7 @@ class Applications():
                             if nbzshugradwk > maxnb_zshugradwk: maxnb_zshugradwk = nbzshugradwk
 
                         # Add parenthesis around all variables
-                        self.addArrayParenthesesInNode(foundStmtandCalls[stmt][0], None, scope.path)
+                        self.addArrayParenthesesInNode(foundStmtandCalls[stmt][0], scope.path)
 
                         # For the last compute statement, add mnh_expand and acc kernels if not call statement
                         if tag(foundStmtandCalls[stmt][0]) != 'call-stmt':
@@ -1129,7 +1134,7 @@ class Applications():
 
                     # For all saved intermediate newComputeStmt, add parenthesis around all variables
                     for stmt in computeStmtforParenthesis:
-                        self.addArrayParenthesesInNode(stmt, None, scope.path)
+                        self.addArrayParenthesesInNode(stmt, scope.path)
 
     @debugDecor
     @updateTree('signal')
@@ -1142,7 +1147,6 @@ class Applications():
                 typeName = scope.path.split('/')[-1].split(':')[1]
                 filename = os.path.join(os.path.dirname(self.getFileName()),
                                         "modd_util_{t}.F90".format(t=typeName.lower()))
-                varList = self.getVarList(scope.path)
                 self.tree.signal(filename)
                 with open(filename, 'w') as f:
                     f.write("""
@@ -1151,7 +1155,7 @@ USE {m}, ONLY: {t}
 CONTAINS
 SUBROUTINE COPY_{t} (YD, LDCREATED)""".format(t=typeName, m=scope.path.split('/')[-2].split(':')[1]))
 
-                    for var in varList:
+                    for var in scope.varList:
                         if 'TYPE(' in var['t'].replace(' ', '').upper():
                             f.write("""
 USE MODD_UTIL_{t}""".format(t=var['t'].replace(' ', '')[5:-1]))
@@ -1171,7 +1175,7 @@ IF (.NOT. LLCREATED) THEN
   !$acc update device (YD)
 ENDIF""".format(t=typeName))
 
-                    for var in varList:
+                    for var in scope.varList:
                         if var['allocatable']:
                             f.write("""
 IF (ALLOCATED (YD%{v})) THEN
@@ -1197,7 +1201,7 @@ END SUBROUTINE COPY_{t}
 
 SUBROUTINE WIPE_{t} (YD, LDDELETED)""".format(t=typeName))
 
-                    for var in varList:
+                    for var in scope.varList:
                         if 'TYPE(' in var['t'].replace(' ', '').upper():
                             f.write("""
 USE MODD_UTIL_{t}""".format(t=var['t'].replace(' ', '')[5:-1]))
@@ -1213,7 +1217,7 @@ IF (PRESENT (LDDELETED)) THEN
   LLDELETED = LDDELETED
 ENDIF""".format(t=typeName))
 
-                    for var in varList:
+                    for var in scope.varList:
                         if 'TYPE(' in var['t'].replace(' ', '').upper():
                             if var['as'] is not None and len(var['as']) != 0:
                                 indexes = ['LBOUND(YD%{v}, 1) + I - 1'.format(v=var['n'])]
