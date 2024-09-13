@@ -2,10 +2,19 @@
 This module implements the functions relative to openacc
 """
 
-from pyft.util import debugDecor, fortran2xml, n2name, alltext
+import re
+from pyft.util import debugDecor, fortran2xml, n2name, alltext, tag
 from pyft.expressions import createElem
 
 class Openacc():
+    @debugDecor
+    def removeACC(self):
+        """
+        Remove openACC directives
+        """
+        self.removeComments(excl_directives=[],
+                            pattern=re.compile(r'^\!\$ACC ', re.IGNORECASE))
+
     @debugDecor
     def craybyPassDOCONCURRENT(self):
         """

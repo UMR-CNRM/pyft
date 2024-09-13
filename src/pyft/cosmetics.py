@@ -147,26 +147,31 @@ class Cosmetics():
                 e.tail = re.sub(r"\n[  \n]*\n", r"\n", e.tail)
 
     @debugDecor
-    def removeComments(self, excl_directives=None):
+    def removeComments(self, excl_directives=None, pattern=None):
         """
         :param excl_directives: some lines are directives and must stay unindented. The cpp
                                 directives are automatically recognized by fxtran but others
                                 appear as FORTRAN comments and must be indentified here. This
                                 option can take the following values:
                                  - None: to recognize as directives the lines begining
-                                         with '!$OMP' or '!$mnh' (default)
+                                         with '!$OMP', '!$mnh', '!$acc' or '!$ACC' (default)
                                  - []: to suppress the exclusion
                                  - [...]: to give another list of line beginings to consider
+        :param pattern: remove only comments matching the pattern (string or re.compile output)
         """
         if excl_directives is None:
-            excl_directives = ['!$OMP', '!$mnh']
+            excl_directives = ['!$OMP', '!$mnh', '!$ACC', '!$acc']
+
+        if isinstance(pattern, str):
+            pattern = re.compile(pattern)
 
         def recur(elem):
             tail_upper = None
             for ie in range(len(elem))[::-1]: #Loop from the end to the begining
                 e = elem[ie]
                 if tag(e) == 'C' and \
-                   not any(e.text.startswith(d) for d in excl_directives):
+                   not any(e.text.startswith(d) for d in excl_directives) and \
+                   (pattern is None or pattern.match(e.text)):
                     #Don't loose the tail (containing new line character and indentation)
                     if ie != 0:
                         #It exists an element before, we add the current tail to this previsous element

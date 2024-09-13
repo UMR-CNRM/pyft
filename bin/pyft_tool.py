@@ -220,8 +220,9 @@ if __name__ == '__main__':
     gOpenACC.add_argument('--craybyPassDOCONCURRENT', default=False, action='store_true',
                           help='remove acc loop independant collapse for BR_ fonctions and mnh_undef(OPENACC) macro' +\
                               ' use DO CONCURRENT with mnh_undef(LOOP)')
-    
-   
+    gOpenACC.add_argument('--removeACC', default=False, action='store_true',
+                          help='remove all ACC directives')
+
     #Checks
     gChecks = parser.add_argument_group('Check options')
     gChecks.add_argument('--checkIMPLICIT', choices={'Warn', 'Err'}, default=None,
@@ -387,6 +388,7 @@ if __name__ == '__main__':
             if arg == '--addACC_data': pft.addACC_data()
             if arg == '--craybyPassDOCONCURRENT': pft.craybyPassDOCONCURRENT()
             if arg == '--addACC_routine_seq': pft.addACC_routine_seq(args.stopScopes.split('#'))
+            if arg == '--removeACC': pft.removeACC()
 
             #Cosmetics
             if arg == '--upperCase': pft.upperCase()

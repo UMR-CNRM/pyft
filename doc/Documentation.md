@@ -266,6 +266,8 @@ by scopes defined by the --stopScopes option.
 
 **\--buildACCTypeHelpers** build module files containing helpers to copy user type structures.
 
+**\--removeACC** remove ACC directives
+
 ### Preprocessor
 
 **\--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys.
