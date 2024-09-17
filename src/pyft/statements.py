@@ -8,6 +8,7 @@ import copy
 from pyft.util import n2name, non_code, debugDecor, alltext, PYFTError, tag
 from pyft.expressions import createExprPart, createArrayBounds, createElem
 from pyft.tree import updateTree
+from pyft.variables import updateVarList
 from pyft import NAMESPACE
 
 def _nodesInIf(ifNode):
@@ -235,7 +236,7 @@ class Statements():
                 kind = directive[17:].lstrip(' ').split('(')[0].strip()
             return table, kind
 
-        def updateStmt(e, table, kind, extraindent, parent, varList, scopePath):
+        def updateStmt(e, table, kind, extraindent, parent, scopePath):
             """
             Updates the statement given the table dictionnary '(:, :)' is replaced by '(JI, JK)' if
             table.keys() is ['JI', 'JK']
@@ -243,7 +244,6 @@ class Statements():
             :param table: dictionnary retruned by the decode function
             :param kind: kind of mnh directives: 'array' or 'where'
                                                  or None if transformation is not governed by mnh directive
-            :param varList: description of declared variables
             :param scopePath: current scope path
             """
 
@@ -279,14 +279,14 @@ class Statements():
                                     "parethesis inside mnh directive sections.")
                 #We loop on named-E nodes (and not directly on array-R nodes to prevent using the costly getParent)
                 for namedE in e.findall('.//{*}R-LT/..'):
-                    self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable
+                    self.arrayR2parensR(namedE, table, scopePath) #Replace slices by variable
                 for cnt in e.findall('.//{*}cnt'):
                     add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
             elif tag(e) == 'if-stmt':
                 logging.warning("An if statement is inside a code " + \
                                 "section transformed in DO loop in {f}".format(f=self.getFileName()))
                 #Update the statement contained in the action node
-                updateStmt(e.find('./{*}action-stmt')[0], table, kind, 0, e, varList, scopePath)
+                updateStmt(e.find('./{*}action-stmt')[0], table, kind, 0, e, scopePath)
             elif tag(e) == 'if-construct':
                 logging.warning("An if construct is inside a code " + \
                                 "section transformed in DO loop in {f}".format(f=self.getFileName()))
@@ -294,7 +294,7 @@ class Statements():
                     for child in ifBlock: #Loop over each statement inside the block
                         if tag(child) not in ('if-then-stmt', 'else-if-stmt',
                                               'else-stmt', 'end-if-stmt'):
-                            updateStmt(child, table, kind, extraindent, ifBlock, varList, scopePath)
+                            updateStmt(child, table, kind, extraindent, ifBlock, scopePath)
                         else:
                             add_extra(child, extraindent) #Update indentation because the loop is here and not in recur
                             for cnt in child.findall('.//{*}cnt'):
@@ -303,11 +303,11 @@ class Statements():
                 #Where statement becomes if statement
                 e.tag = f'{{{NAMESPACE}}}if-stmt'
                 e.text = 'IF (' + e.text.split('(', 1)[1]
-                updateStmt(e.find('./{*}action-stmt')[0], table, kind, extraindent, e, varList, scopePath) #Update the action part
+                updateStmt(e.find('./{*}action-stmt')[0], table, kind, extraindent, e, scopePath) #Update the action part
                 mask = e.find('./{*}mask-E')
                 mask.tag = f'{{{NAMESPACE}}}condition-E' #rename the condition tag
                 for namedE in mask.findall('.//{*}R-LT/..'):
-                    self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable
+                    self.arrayR2parensR(namedE, table, scopePath) #Replace slices by variable
                 for cnt in e.findall('.//{*}cnt'):
                     add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
             elif tag(e) == 'where-construct':
@@ -346,11 +346,11 @@ class Statements():
                                 mask.tag = f'{{{NAMESPACE}}}condition-E'
                                 mask.tail += ' THEN'
                                 for namedE in mask.findall('.//{*}R-LT/..'):
-                                    self.arrayR2parensR(namedE, table, varList, scopePath) #Replace slices by variable in the condition
+                                    self.arrayR2parensR(namedE, table, scopePath) #Replace slices by variable in the condition
                             for cnt in child.findall('.//{*}cnt'):
                                 add_extra(cnt, extraindent) #Add indentation spaces after continuation characters
                         else:
-                            updateStmt(child, table, kind, extraindent, whereBlock, varList, scopePath)
+                            updateStmt(child, table, kind, extraindent, whereBlock, scopePath)
             else:
                 raise PYFTError('Unexpected tag found in mnh_expand directives: {t}'.format(t=tag(e)))
             return e
@@ -366,8 +366,8 @@ class Statements():
 
         toinsert = [] #list of nodes to insert
         toremove = [] #list of nodes to remove
-        varList = [] #list of variables
-        
+        newVarList = [] #list of new variables
+
         def recur(elem, scopePath):
             in_mnh = False #are we in a DO loop created by a mnh directive
             in_everywhere = False #are we in a created DO loop (except loops created with mnh directive)
@@ -393,9 +393,9 @@ class Statements():
                     #Building acc loop collapse independent directive
                     if addAccIndependentCollapse:
                         accCollapse = createElem('C')
-                        accCollapse.text = ('!$acc loop independent collapse(' + str(len(table.keys())) + ')')
+                        accCollapse.text = '!$acc loop independent collapse(' + str(len(table.keys())) + ')'
                         accCollapse.tail = '\n' + indent * ' '
-                        toinsert.append((elem,accCollapse,ie))
+                        toinsert.append((elem, accCollapse, ie))
 
                     #Building loop
                     inner, outer, extraindent = self.createDoConstruct(table, indent=indent, concurrent=concurrent)
@@ -417,7 +417,7 @@ class Statements():
                     #This statement is between the opening and closing mnh directive
                     toremove.append((elem, e)) #we remove it from its old place
                     inner.insert(-1, e) #Insert first in the DO loop
-                    updateStmt(e, table, kind, extraindent, inner, varList, scopePath) #then update, providing new parent in argument
+                    updateStmt(e, table, kind, extraindent, inner, scopePath) #then update, providing new parent in argument
 
                 elif everywhere and tag(e) in ('a-stmt', 'if-stmt', 'where-stmt',
                                                'where-construct'):
@@ -476,15 +476,13 @@ class Statements():
                         #At least one intrinsic array function is used
                         newtable = None
                     else:
-                        if len(varList) == 0:
-                            #Get all the variables declared in the tree
-                            varList.extend(self.getVarList())
                         #Guess a variable name
                         if arr is not None:
-                            newtable, varNew = self.findArrayBounds(arr, varList, scopePath, loopVar)
+                            newtable, varNew = self.findArrayBounds(arr, scopePath, loopVar, newVarList)
                             for v in varNew:
                                 v['new'] = True
-                            varList.extend(varNew)
+                                if v not in newVarList:
+                                    newVarList.append(v)
                         else:
                             newtable = None
 
@@ -512,7 +510,7 @@ class Statements():
                         tailSave[e] = e.tail #save tail for future indentation computation
                         toremove.append((elem, e)) #we remove it from its old place
                         inner.insert(-1, e) #Insert first in the DO loop
-                        updateStmt(e, table, kind, extraindent, inner, varList, scopePath) #then update, providing new parent in argument
+                        updateStmt(e, table, kind, extraindent, inner, scopePath) #then update, providing new parent in argument
                         if not reuseLoop:
                             #Prevent from reusing this DO loop
                             in_everywhere = closeLoop(in_everywhere)
@@ -532,15 +530,12 @@ class Statements():
         for parent, elem in toremove:
             parent.remove(elem)
         #And variable creation
-        checkNewVarList = []
-        for v in varList:
-            if v.get('new', False) and v not in checkNewVarList:
-                checkNewVarList.append(v)
-        self.addVar([(v['scope'], v['n'], 'INTEGER :: {name}'.format(name=v['n']), None)
-                     for v in checkNewVarList])
+        self.addVar([(v['scopePath'], v['n'], 'INTEGER :: {name}'.format(name=v['n']), None)
+                     for v in newVarList])
 
     @debugDecor
     @updateTree('signal')
+    @updateVarList
     def inlineContainedSubroutines(self, simplify=False, loopVar=None):
         """
         Inline all contained subroutines in the main subroutine
@@ -575,12 +570,10 @@ class Statements():
             for callStmtNn in scope.findall('.//{*}call-stmt/{*}procedure-designator/{*}named-E/{*}N/{*}n'):
                 for containedRoutine in [cr for cr in containedRoutines if alltext(callStmtNn) == cr]:
                     # name of the routine called = a contained subroutine => inline
-                    self.inline(
-                           containedRoutines[containedRoutine],
-                           self.getParent(callStmtNn, level=4),
-                           scope.path, containedRoutines[containedRoutine].path, # Scope paths
-                           self.getVarList(), # Must be recomputed each time to take into account new variable
-                           simplify=simplify, loopVar=loopVar)
+                    self.inline(containedRoutines[containedRoutine],
+                                self.getParent(callStmtNn, level=4),
+                                scope.path, containedRoutines[containedRoutine].path,  # Scope paths
+                                simplify=simplify, loopVar=loopVar)
 
         for scope in scopes: #loop on all subroutines
             if scope.path.count('sub:') >= 2:
@@ -597,8 +590,9 @@ class Statements():
 
     @debugDecor
     @updateTree()
+    @updateVarList
     def inline(self, subContained, callStmt, mainScopePath, subScopePath,
-               varList, simplify=False, loopVar=None):
+               simplify=False, loopVar=None):
         """
         Inline a subContainted subroutine
         Steps :
@@ -613,7 +607,6 @@ class Statements():
         :param callStmt: the call-stmt to replace
         :param mainScopePath: scope path of the main (calling) subroutine
         :param subScopePath: scope path of the contained subroutine to include
-        :param varList: var list of all scopes
         :param simplify: try to simplify code (construct or variables becoming useless)
         :param loopVar: None to create new variable for each added DO loop (around ELEMENTAL subroutine calls)
                         or a function that return the name of the variable to use for the loop control.
@@ -653,27 +646,26 @@ class Statements():
         prefix = subContained.findall('.//{*}prefix')
         if len(prefix) > 0 and 'ELEMENTAL' in [p.text.upper() for p in prefix]:
             #Add missing parentheses
-            self.addArrayParenthesesInNode(callStmt, varList=varList, scopePath=mainScopePath)
+            self.addArrayParenthesesInNode(callStmt, scopePath=mainScopePath)
 
             #Add explcit bounds
-            self.addExplicitArrayBounds(node=callStmt, varList=varList, scopePath=mainScopePath)
+            self.addExplicitArrayBounds(node=callStmt, scopePath=mainScopePath)
 
             #Detect if subroutine is called on arrays
             arrayRincallStmt = callStmt.findall('.//{*}array-R')
             if len(arrayRincallStmt) > 0: #Called on arrays
                 # Look for an array affectation to guess the DO loops to put around the call
                 table, newVar = self.findArrayBounds(self.getParent(arrayRincallStmt[0], 2),
-                                                     varList, mainScopePath, loopVar)
+                                                     mainScopePath, loopVar)
 
                 # Add declaration of loop index if missing
                 for varName in table.keys():
-                    if not self.findVar(varName, mainScopePath, varList):
+                    if not self.varList.findVar(varName, mainScopePath):
                         v = {'as': [], 'asx': [],
                              'n': varName, 'i': None, 't': 'INTEGER', 'arg': False,
                              'use': False, 'opt': False, 'allocatable': False,
-                             'parameter': False, 'init': None, 'scope': mainScopePath}
+                             'parameter': False, 'init': None, 'scopePath': mainScopePath}
                         self.addVar([[mainScopePath, v['n'], self.varSpec2stmt(v), None]])
-                        varList.append(v)
 
                 # Create the DO loops
                 inner, outer, _ = self.createDoConstruct(table)
@@ -686,7 +678,7 @@ class Statements():
                 for namedE in callStmt.findall('./{*}arg-spec/{*}arg/{*}named-E'):
                     # Replace slices by indexes if any
                     if namedE.find('./{*}R-LT'):
-                        self.arrayR2parensR(namedE, table, varList, mainScopePath)
+                        self.arrayR2parensR(namedE, table, mainScopePath)
 
         # Deep copy the object to possibly modify the original one multiple times
         node = copy.deepcopy(subContained)
@@ -694,25 +686,27 @@ class Statements():
         # Get local variables that are not present in the main routine for later addition
         localVarToAdd = []
         subst = []
+        varList = copy.deepcopy(self.varList)  # Copy to be able to update it with pending changes
         for var in [v for v in varList
-                    if not v['arg'] and not v['use'] and v['scope'] == subScopePath]: #for local variables only
-            if self.findVar(var['n'], mainScopePath, varList):
+                    if not v['arg'] and not v['use'] and
+                       v['scopePath'] == subScopePath]:  # for local variables only
+            if varList.findVar(var['n'], mainScopePath):
                # Variable is already defined in main or upper, there is a name conflict,
                # the local variable must be renamed before being declared in the main routine
                newName = re.sub(r'_\d+$', '', var['n'])
                i = 1
-               while self.findVar(newName + '_' + str(i), subScopePath, varList):
+               while varList.findVar(newName + '_' + str(i), subScopePath):
                    i += 1
                newName += '_' + str(i)
                node.renameVar(var['n'], newName)
                subst.append((var['n'], newName))
                var['n'] = newName
-            var['scope'] = mainScopePath #important for findVar(.., mainScopePath,...) to find it
+            var['scopePath'] = mainScopePath #important for varList.findVar(.., mainScopePath) to find it
             localVarToAdd.append(var)
 
         #In case a substituted variable is used in the declaration of another variable
         for oldName, newName in subst:
-            for v in localVarToAdd + varList:
+            for v in localVarToAdd + varList[:]:
                 if v['as'] is not None:
                    v['as'] = [[re.sub(r'\b' +oldName + r'\b', newName, dim[i])
                                if dim[i] is not None else None
@@ -841,15 +835,15 @@ class Statements():
                         N.remove(n)
 
                     #1 We get info about variables (such as declared in the main or in the contained routines)
-                    desc_main = self.findVar(dummy['name'], mainScopePath, varList)
-                    desc_sub = self.findVar(name, subScopePath, varList)
+                    desc_main = varList.findVar(dummy['name'], mainScopePath)
+                    desc_sub = varList.findVar(name, subScopePath)
                     #In case variable is used for the declaration of another variable, we must update desc_sub
-                    for n in range(len(varList)):
-                        if varList[n]['as'] is not None:
-                            varList[n]['as'] = [[re.sub(r'\b' + name + r'\b', dummy['name'], dim[i])
-                                                 if dim[i] is not None else None
-                                                 for i in (0, 1)]
-                                                for dim in varList[n]['as']]
+                    for var in varList:
+                        if var['as'] is not None:
+                            var['as'] = [[re.sub(r'\b' + name + r'\b', dummy['name'], dim[i])
+                                          if dim[i] is not None else None
+                                          for i in (0, 1)]
+                                         for dim in var['as']]
 
                     #3 We select the indexes (only for array argument and not structure argument containing an array)
                     #  using the occurrence to replace inside the subcontained routine body
