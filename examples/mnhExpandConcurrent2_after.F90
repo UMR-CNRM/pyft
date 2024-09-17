@@ -12,6 +12,7 @@ REAL, DIMENSION(5, 6) :: ZZZ
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !Exemple le plus simple
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   ZZ(JI)=1.
 END DO
@@ -19,6 +20,7 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !Le même avec les bornes définies dans les expressions
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   ZZ(JI)=1.
 END DO
@@ -26,6 +28,7 @@ END DO
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !Une varainte avec deux dimensions
 
+!$acc loop independent collapse(2)
 DO CONCURRENT (JJ=1:6, JI=1:5)
   ZZZ(JI, JJ)=1.
 END DO
@@ -34,6 +37,7 @@ END DO
 !Exemples avec des IF
 IOPT=1
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   IF(IOPT==1) THEN
     ZZ(JI)=1.
@@ -46,6 +50,7 @@ DO CONCURRENT (JI=1:5)
   ENDIF
 END DO
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   ZZ(JI)=1.
   IF (IOPT==1) ZZ(JI)=2.
@@ -59,6 +64,7 @@ DO JI=1, 5
   ICASE(JI)=JI
 ENDDO
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   IF (ICASE(JI)==1) THEN
     ZZ(JI)=1.
@@ -71,6 +77,7 @@ DO CONCURRENT (JI=1:5)
   END IF
 END DO
 
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=1:5)
   ZZ(JI)=1.
   IF (ICASE(JI)==1) ZZ(JI)=2.

@@ -899,7 +899,7 @@ class Applications():
 
            # workingItem = Content of the function
            indexForCall = list(parStmt).index(stmt)
-           if inComputeStmt: indexForCall -=3 # one for !$mnh_expand, one for !$acc kernels, one for !$acc loop collapse(X) independent added at the previous call to FUNCtoROUTINE
+           if inComputeStmt: indexForCall -=2 # one for !$mnh_expand, one for !$acc kernels added at the previous call to FUNCtoROUTINE
            siblsItemFuncN = scope.getSiblings(parItemFuncN, after=True, before=False)
            workingItem = siblsItemFuncN[0][0][0]
            # Case where & is present in the working item. We must look for all contents until the last ')'

@@ -368,7 +368,7 @@ if __name__ == '__main__':
             #mnhExpand must be before inlineContainedSubroutines as inlineContainedSubroutines can change
             #variable names used by mnh_expand directives
             assert not (args.mnhExpand and args.mnhExpandConcurrent), "Only one of --mnhExpand and --mnhExpandConcurrent"
-            if arg == '--mnhExpand': pft.removeArraySyntax(everywhere=False)
+            if arg == '--mnhExpand': pft.removeArraySyntax(everywhere=False, addAccIndependentCollapse=False)
             if arg == '--mnhExpandConcurrent': pft.removeArraySyntax(concurrent=True, everywhere=False)
             if arg == '--inlineContainedSubroutines': pft.inlineContainedSubroutines(**simplify)
             if arg == '--inlineContainedSubroutinesPHYEX': pft.inlineContainedSubroutinesPHYEX(**simplify)

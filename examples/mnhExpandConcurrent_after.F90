@@ -233,6 +233,7 @@ REAL, DIMENSION(D%NIJT) :: ZDZ_STOP,&           ! Exact Height of the LCL above 
                           ZTHV_MINUS_HALF,&    ! Thv at flux point(kk)  
                           ZTHV_PLUS_HALF       ! Thv at flux point(kk+kkl)
 REAL                   :: ZDZ                  ! Delta Z used in computations
+INTEGER :: J1
 INTEGER :: JKLIM
 
 !
@@ -281,6 +282,7 @@ IF (OENTR_DETR) THEN
   PBUO_INTEG=0.
 
   PFRAC_ICE_UP(:,:)=0.
+  !$acc loop independent collapse(2)
   DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
     PRSAT_UP(JI, JK)=PRVM(JI, JK) ! should be initialised correctly but is (normaly) not used
   END DO
@@ -305,18 +307,21 @@ DO JSV=1,KSV
 END DO
 !                     
 !          Initialisation of updraft characteristics 
+!$acc loop independent collapse(2)
 DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
   PTHL_UP(JI, JK)=ZTHLM_F(JI, JK)
   PRT_UP(JI, JK)=ZRTM_F(JI, JK)
   PU_UP(JI, JK)=ZUM_F(JI, JK)
   PV_UP(JI, JK)=ZVM_F(JI, JK)
 END DO
+!$acc loop independent collapse(3)
 DO CONCURRENT (JSV=1:KSV, JK=1:D%NKT, JI=D%NIJB:D%NIJE)
   PSV_UP(JI, JK, JSV)=ZSVM_F(JI, JK, JSV)
 END DO
 
 ! Computation or initialisation of updraft characteristics at the KKB level
 ! thetal_up,rt_up,thetaV_up, w2,Buoyancy term and mass flux (PEMF)
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   PTHL_UP(JI, D%NKB)= ZTHLM_F(JI, D%NKB)+ &
                               & MAX(0.,MIN(ZTMAX,(PSFTH(JI)/SQRT(ZTKEM_F(JI, D%NKB)))* PARAMMF%XALP_PERT))
@@ -330,6 +335,7 @@ IF (OENTR_DETR) THEN
   CALL MZM_MF(D, PRHODREF(:,:), ZRHO_F (:,:))
   CALL MZM_MF(D, PRVM(:,:), ZRVM_F (:,:))
 
+  !$acc loop independent collapse(2)
   DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
     ! thetav at mass and flux levels
     ZTHVM_F(JI, JK)=ZTHM_F(JI, JK)* &
@@ -341,6 +347,7 @@ IF (OENTR_DETR) THEN
   END DO
 
   ZW_UP2(:,:)=0.
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     ZW_UP2(JI, D%NKB) = MAX(0.0001,(2./3.)*ZTKEM_F(JI, D%NKB))
 
@@ -354,6 +361,7 @@ IF (OENTR_DETR) THEN
              PRV_UP(:,D%NKB),PRC_UP(:,D%NKB),PRI_UP(:,D%NKB),ZRSATW(:),ZRSATI(:), OOCEAN=.FALSE., &
              PBUF=ZBUF(:,:), KB=D%NIJB, KE=D%NIJE)
 
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     ! compute updraft thevav and buoyancy term at KKB level
     PTHV_UP(JI, D%NKB) = ZTH_UP(JI, D%NKB)*&
@@ -365,12 +373,14 @@ IF (OENTR_DETR) THEN
   ! Closure assumption for mass flux at KKB level
   !
 
+  !$acc loop independent collapse(2)
   DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
     ZG_O_THVREF(JI, JK)=CST%XG/ZTHVM_F(JI, JK)
   END DO
 
   ! compute L_up
   GLMIX=.TRUE.
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     ZTKEM_F(JI, D%NKB)=0.
   END DO
@@ -380,6 +390,7 @@ IF (OENTR_DETR) THEN
     CALL MZF_MF(D, ZWK, ZDUDZ)
     CALL GZ_M_W_MF(D, PVM, PDZZ, ZWK)
     CALL MZF_MF(D, ZWK, ZDVDZ)
+    !$acc loop independent collapse(2)
     DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
       ZSHEAR(JI, JK) = SQRT(ZDUDZ(JI, JK)**2 + ZDVDZ(JI, JK)**2)
     END DO
@@ -394,6 +405,7 @@ IF (OENTR_DETR) THEN
   CALL COMPUTE_BL89_ML(D, CST, CSTURB, PDZZ,ZTKEM_F(:,D%NKB),&
                       &ZG_O_THVREF(:,D%NKB),ZTHVM,D%NKB,GLMIX,.FALSE.,ZSHEAR,ZLUP)
 #endif
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     ZLUP(JI)=MAX(ZLUP(JI),1.E-10)
 
@@ -407,10 +419,13 @@ IF (OENTR_DETR) THEN
     IF(PDX==0. .OR. PDY==0.) THEN                                                                                                   
       CALL PRINT_MSG(NVERB_FATAL, 'GEN', 'COMPUTE_UPDRAFT', 'PDX or PDY is NULL with option LGZ!')                                  
     ENDIF
-    ZSURF(D%NIJB:D%NIJE)=TANH(PARAMMF%XGZ*SQRT(PDX*PDY)/ZLUP(D%NIJB:D%NIJE))
+    DO CONCURRENT (J1=D%NIJB:D%NIJE)
+      ZSURF(J1)=TANH(PARAMMF%XGZ*SQRT(PDX*PDY)/ZLUP(J1))
+    END DO
   ELSE
     ZSURF(D%NIJB:D%NIJE)=1.
   END IF
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     IF (ZWTHVSURF(JI)>0.) THEN
       PEMF(JI, D%NKB) = PARAMMF%XCMF * ZSURF(JI) * ZRHO_F(JI, D%NKB) *  &
@@ -425,6 +440,7 @@ IF (OENTR_DETR) THEN
     END IF
   END DO
 ELSE
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     GTEST(JI)=PEMF(JI, D%NKB+D%NKL)>0.
   END DO
@@ -454,6 +470,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
 
 
   ! to find the LCL (check if JK is LCL or not)
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     IF ((PRC_UP(JI, JK)+PRI_UP(JI, JK)>0.).AND.(.NOT.(GTESTLCL(JI)))) THEN
         KKLCL(JI) = JK           
@@ -464,6 +481,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
   ! COMPUTE PENTR and PDETR at mass level JK
   IF (OENTR_DETR) THEN
     IF(JK/=D%NKB) THEN
+      !$acc loop independent collapse(1)
       DO CONCURRENT (JI=D%NIJB:D%NIJE)
         ZRC_MIX(JI, JK) = ZRC_MIX(JI, JK-D%NKL) ! guess of Rc of mixture
         ZRI_MIX(JI, JK) = ZRI_MIX(JI, JK-D%NKL) ! guess of Ri of mixture
@@ -479,6 +497,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
                            PENTR(:,JK),PDETR(:,JK),ZENTR_CLD(:,JK),ZDETR_CLD(:,JK),&
                            ZBUO_INTEG_DRY(:,JK), ZBUO_INTEG_CLD(:,JK), &
                            ZPART_DRY(:)   )
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       PBUO_INTEG(JI, JK)=ZBUO_INTEG_DRY(JI, JK)+ZBUO_INTEG_CLD(JI, JK)
 
@@ -495,12 +514,14 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
       END IF
     END DO
   ELSE !OENTR_DETR
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       GTEST(JI) = (PEMF(JI, JK+D%NKL)>0.)
     END DO
   END IF !OENTR_DETR
   
   ! stop the updraft if MF becomes negative
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     IF (GTEST(JI).AND.(PEMF(JI, JK+D%NKL)<=0.)) THEN
       PEMF(JI, JK+D%NKL)=0.
@@ -531,6 +552,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
   
   IF(OMIXUV) THEN
     IF(JK/=D%NKB) THEN
+      !$acc loop independent collapse(1)
       DO CONCURRENT (JI=D%NIJB:D%NIJE)
         IF (GTEST(JI)) THEN
           PU_UP(JI, JK+D%NKL) = (PU_UP(JI, JK)*(1-0.5*ZMIX2(JI)) + &
@@ -548,6 +570,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
         END IF
       END DO
     ELSE
+      !$acc loop independent collapse(1)
       DO CONCURRENT (JI=D%NIJB:D%NIJE)
         IF (GTEST(JI)) THEN
           PU_UP(JI, JK+D%NKL) = (PU_UP(JI, JK)*(1-0.5*ZMIX2(JI)) + &
@@ -566,6 +589,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
   ENDIF !OMIXUV
   DO JSV=1,KSV 
     IF (ONOMIXLG .AND. JSV >= KSV_LGBEG .AND. JSV<= KSV_LGEND) CYCLE
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       IF (GTEST(JI)) THEN 
         PSV_UP(JI, JK+D%NKL, JSV) = (PSV_UP(JI, JK, JSV)*(1-0.5*ZMIX2(JI)) + &
@@ -577,6 +601,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
   IF (OENTR_DETR) THEN
 
     ! Compute non cons. var. at level JK+KKL
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       ZRC_UP(JI)=PRC_UP(JI, JK) ! guess = level just below
       ZRI_UP(JI)=PRI_UP(JI, JK) ! guess = level just below
@@ -585,6 +610,7 @@ DO JK=D%NKB,D%NKE-D%NKL,D%NKL
             PTHL_UP(:,JK+D%NKL),PRT_UP(:,JK+D%NKL),ZTH_UP(:,JK+D%NKL),              &
             ZRV_UP(:),ZRC_UP(:),ZRI_UP(:),ZRSATW(:),ZRSATI(:), OOCEAN=.FALSE., &
             PBUF=ZBUF(:,:), KB=D%NIJB, KE=D%NIJE)
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       IF (GTEST(JI)) THEN
         PRC_UP(JI, JK+D%NKL)=ZRC_UP(JI)
@@ -660,10 +686,12 @@ ENDDO
 
 IF(OENTR_DETR) THEN
 
+  !$acc loop independent collapse(2)
   DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
     PW_UP(JI, JK)=SQRT(ZW_UP2(JI, JK))
   END DO
 
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     PEMF(JI, D%NKB) =0.
   END DO
@@ -678,16 +706,19 @@ IF(OENTR_DETR) THEN
      PDEPTH(JI) = MAX(0., PZZ(JI,KKCTL(JI)) -  PZZ(JI,KKLCL(JI)) )
   END DO
 
+  !$acc loop independent collapse(1)
   DO CONCURRENT (JI=D%NIJB:D%NIJE)
     GWORK1(JI)= (GTESTLCL(JI) .AND. (PDEPTH(JI) > ZDEPTH_MAX1) )
   END DO
   DO JK=1, D%NKT
+    !$acc loop independent collapse(1)
     DO CONCURRENT (JI=D%NIJB:D%NIJE)
       GWORK2(JI, JK) = GWORK1(JI)
       ZCOEF(JI, JK) = (1.-(PDEPTH(JI)-ZDEPTH_MAX1)/(ZDEPTH_MAX2-ZDEPTH_MAX1))
       ZCOEF(JI, JK)=MIN(MAX(ZCOEF(JI, JK),0.),1.)
     END DO
   ENDDO
+  !$acc loop independent collapse(2)
   DO CONCURRENT (JK=1:D%NKT, JI=D%NIJB:D%NIJE)
     IF (GWORK2(JI, JK)) THEN 
       PEMF(JI, JK)     = PEMF(JI, JK)     * ZCOEF(JI, JK)
@@ -833,6 +864,7 @@ REAL, DIMENSION(D%NIJT),   INTENT(OUT)    ::  PPART_DRY ! ratio of dry part at t
 !                ------------------
   
 ZCOEFFMF_CLOUD=PARAMMF%XENTR_MF * CST%XG / PARAMMF%XCRAD_MF
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   ZG_O_THVREF_ED(JI)=CST%XG/PTHVM(JI, KK)
 
@@ -875,6 +907,7 @@ DO JI=D%NIJB,D%NIJE
 END DO
 
 !               1.5 Gradient and flux values of thetav
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   IF(KK/=KKB)THEN
     ZCOEFF_MINUS_HALF(JI)=((PTHVM(JI, KK)-PTHVM(JI, KK-KKL))/PDZZ(JI, KK))
@@ -942,6 +975,7 @@ ENDDO
 ! Compute theta_v of updraft at flux level KK+KKL                   
 !MIX variables are used to avoid declaring new variables
 !but we are dealing with updraft and not mixture
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   ZRCMIX(JI)=PRC_UP(JI)
   ZRIMIX(JI)=PRI_UP(JI)
@@ -951,6 +985,7 @@ CALL TH_R_FROM_THL_RT(CST,NEB,D%NIJT,HFRAC_ICE,ZFRAC_ICE,&
              ZTHMIX,ZRVMIX,ZRCMIX,ZRIMIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
              PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   ZTHV_UP_F2(JI) = ZTHMIX(JI)*(1.+ZRVORD*ZRVMIX(JI))/(1.+PRT_UP(JI))
 END DO
@@ -1031,6 +1066,7 @@ CALL TH_R_FROM_THL_RT(CST,NEB,D%NIJT,HFRAC_ICE,ZFRAC_ICE,&
              ZTHMIX,ZRVMIX,PRC_MIX,PRI_MIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
              PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   ZTHVMIX(JI) = ZTHMIX(JI)*(1.+ZRVORD*ZRVMIX(JI))/(1.+ZMIXRT(JI))
 
@@ -1045,6 +1081,7 @@ CALL TH_R_FROM_THL_RT(CST,NEB,D%NIJT,HFRAC_ICE,ZFRAC_ICE,&
              ZTHMIX,ZRVMIX,PRC_MIX,PRI_MIX,&
              ZRSATW_ED, ZRSATI_ED,OOCEAN=.FALSE.,&
              PBUF=ZBUF, KB=D%NIJB, KE=D%NIJE)
+!$acc loop independent collapse(1)
 DO CONCURRENT (JI=D%NIJB:D%NIJE)
   ZTHVMIX_F2(JI) = ZTHMIX(JI)*(1.+ZRVORD*ZRVMIX(JI))/(1.+ZMIXRT(JI))
 END DO
