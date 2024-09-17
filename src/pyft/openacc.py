@@ -120,13 +120,13 @@ class Openacc():
                 # - interface subroutine from a MODI
                 # but only to SUBROUTINES
                 if 'sub:' in scope.path and 'func' not in scope.path and 'interface' not in scope.path:
-                    varList = self.getVarList(scope.path)
-
                     # Look for all intent arrays only
                     arraysIntent = []
-                    for var in varList:
-                         if var['arg'] and var['as'] and 'TYPE' not in var['t']: #intent arrays, not of type TYPE (only REAL, INTEGER, CHARACTER)
-                             arraysIntent.append(var['n'])
+                    for var in scope.varList:
+                        # intent arrays, not of type TYPE (only REAL, INTEGER, CHARACTER)
+                        if var['arg'] and var['as'] and 'TYPE' not in var['t'] and \
+                           var['scopePath'] == scope.path:
+                            arraysIntent.append(var['n'])
                     # Check if there is any intent variables
                     if len(arraysIntent) == 0:
                         break

@@ -323,7 +323,9 @@ object can be created. This object analizes all the source code files present in
 specified directories to build a compilation tree and an execution tree. These trees
 can be explored and/or plotted through methods of this object.
 
-In addition to these three classes, the module contains some functions in pyft.util and
+Another class, VarList, represents the list of variables defined in a scope.
+
+In addition to these four classes, the module contains some functions in pyft.util and
 pyft.expressions.
 
 ### The developer's point of view
@@ -336,7 +338,7 @@ Several decorators are available:
  - debugDecor (defined in tool): ease the debugging/profiling when logLevel is set
    to info or debug. The additional cost is low, except when the method is called
    many times; in this case, the decorator should not be used.
- - updateTree() (defined in Tree): this decorator should be used for methods that can
+ - updateTree() (defined in tree): this decorator should be used for methods that can
    modify the execution tree. When decorated, the file is analized again to update
    the Tree object. updateTree can take a parameter:
    - 'file': in his case the current PYFTscope object is analyzed
@@ -344,6 +346,10 @@ Several decorators are available:
    - 'signal': some files or PYFTscope objects are analysed to update the Tree object.
      These files or PYFTscope objects are designed with the signal method of the Tree
      object.
+  - updateVarList (defined in variables): this decorator should be used for methods that
+    can modify the variables (existence, name, characteristics). It suppresses the
+    cached version of the variable list (VarList instance) attached to the PYFT
+    instance.
 
 ## Examples and tests
 
