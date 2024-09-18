@@ -34,22 +34,21 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                        'prog': 'program-unit',
                        'interface': 'interface-construct'}
 
-    def __init__(self, xml, fullXml=None, scopePath='/', parentPYFTscope=None,
+    def __init__(self, xml, scopePath='/', parentScope=None,
                  enableCache=False, tree=None):
         """
         :param xml: xml corresponding to this PYFTscope
         :param ns: name space
         :param scopePath: scope path ('/' separated string) of this node
-        :param parentPYFTscope: parent PYFTscope instance
+        :param parentScope: parent PYFTscope instance
         :param enableCache: True to cache node parents
         :param tree: an optional Tree instance
         """
         super().__init__()
         self._xml = xml
-        self._fullXml = xml if fullXml is None else fullXml
-        self._mainScope = self if parentPYFTscope is None else parentPYFTscope._mainScope
+        self._mainScope = self if parentScope is None else parentScope._mainScope
         self._path = scopePath
-        self._parentPYFTscope = parentPYFTscope
+        self._parentScope = parentScope
         self.tree = Tree() if tree is None else tree
         self.__cacheParent = {}
         if enableCache:
@@ -105,6 +104,20 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         """
         return self._path
 
+    @property
+    def mainScope(self):
+        """
+        Return the main scope (the upper scope in the file)
+        """
+        return self._mainScope
+
+    @property
+    def parentScope(self):
+        """
+        Return the parent of the current scope
+        """
+        return self._parentScope
+
     #No @debugDecor for this low-level method
     def getParent(self, item, level=1):
         """
@@ -116,7 +129,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
             # We check if the registered parent is still the right one
             # node must be in its parent, and the parent chain must go to the root node
             return node in self.__cacheParent.get(id(node), []) and \
-                   (self.__cacheParent[id(node)] == self._fullXml or \
+                   (self.__cacheParent[id(node)] == self.mainScope.node or \
                     check(self.__cacheParent[id(node)]))
 
         assert level >= 1
@@ -124,7 +137,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         if check(item):
             parent = self.__cacheParent[id(item)]
         else:
-            for p in self._fullXml.iter():
+            for p in self.mainScope.node.iter():
                 if item in list(p):
                     parent = p
                     if self.__cacheParent:
@@ -239,8 +252,8 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                                 childNode = child
                         else:
                             childNode = child
-                        results.append(PYFTscope(childNode, fullXml=self._fullXml,
-                                                 scopePath=scopePath, parentPYFTscope=self,
+                        results.append(PYFTscope(childNode,
+                                                 scopePath=scopePath, parentScope=self,
                                                  enableCache=False, tree=self.tree))
                         if level != 1:
                             results.extend(_getRecur(child, level - 1, scopePath))
@@ -325,7 +338,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :return: the name of the input file name or 'unknown' if not available
                  in the xml fragment provided
         """
-        return self._fullXml.find('.//{*}file').attrib['name']
+        return self.mainScope.node.find('.//{*}file').attrib['name']
 
     @updateVarList
     def empty(self, addStmt=None, simplify=False):

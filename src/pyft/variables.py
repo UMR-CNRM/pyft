@@ -34,7 +34,7 @@ def updateVarList(func):
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
-        self._mainScope._varList = None
+        self.mainScope._varList = None
         return result
     return wrapper
 
@@ -243,11 +243,11 @@ class Variables():
         Returns the varList object corresponding to the node
         """
         # Evaluate the varList object if not already done
-        if self._mainScope._varList is None:
-            self._mainScope._varList = VarList(self._mainScope)
+        if self.mainScope._varList is None:
+            self.mainScope._varList = VarList(self.mainScope)
 
         # Restrict the object to the current node
-        return self._mainScope._varList.restrict(self.path, tag(self.node) == 'virtual')
+        return self.mainScope._varList.restrict(self.path, tag(self.node) == 'virtual')
 
     #No @debugDecor for this low-level method
     def _normalizeUniqVar(self, scopeVarList):
