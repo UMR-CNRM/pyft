@@ -3,8 +3,8 @@ This module implements the functions relative to openacc
 """
 
 import re
-from pyft.util import debugDecor, fortran2xml, n2name, alltext, tag
-from pyft.expressions import createElem
+from pyft.util import debugDecor, n2name, alltext, tag
+from pyft.expressions import createElem, createExpr
 
 class Openacc():
     @debugDecor
@@ -142,16 +142,11 @@ class Openacc():
                         count += 1
                     list_var_end = list_var[:-3] # remove last comma and &
 
-                    fortranSource = "SUBROUTINE FOO598756\n"+ list_var_end + ")\nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
-                    comment = cfxtran.findall('.//{*}C')
-                    for com in comment:
+                    for com in createExpr(list_var_end + ')'):
                         self.insertStatement(scope.path, self.indent(com), first=True)
 
                     #2) !$acc end data
-                    fortranSource = "SUBROUTINE FOO598756\n !$acc end data \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
-                    comment = cfxtran.find('.//{*}C')
+                    comment = createElem('C', text='!$acc end data', tail='\n')
                     self.insertStatement(scope.path, self.indent(comment), first=False)
 
     @debugDecor

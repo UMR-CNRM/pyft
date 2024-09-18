@@ -271,7 +271,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         scope = [scope for scope in self.getScopes(excludeContains=excludeContains)
                  if scope.path == scopePath]
         if len(scope) != 1:
-            raise PYFTError(f'{scopePath} ot found (or found several times')
+            raise PYFTError(f'{scopePath} not found (or found several times')
         return scope[0]
 
     @debugDecor

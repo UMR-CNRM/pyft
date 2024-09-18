@@ -7,7 +7,7 @@ import copy
 import re
 from functools import wraps
 
-from pyft.util import PYFTError, debugDecor, alltext, fortran2xml, isExecutable, n2name, tag
+from pyft.util import PYFTError, debugDecor, alltext, isExecutable, n2name, tag
 from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr, createElem
 from pyft.tree import updateTree
 import pyft.pyft
@@ -505,9 +505,7 @@ class Variables():
                 if scopePath.split('/')[-1].split(':')[0] == 'type':
                     #Add declaration statement in type declaration
                     #Statement building
-                    fortranSource = "MODULE MODU_{var}\nTYPE TYP_{var}\n{decl}\nEND TYPE\nEND MODULE".format(var=name, decl=declStmt)
-                    _, xml = fortran2xml(fortranSource)
-                    ds = xml.find('.//{*}' + declStmtTag)
+                    ds = createExpr(declStmt)[0]
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
                     #node insertion
@@ -520,9 +518,7 @@ class Variables():
                 else:
                     #Add declaration statement (not type declaration case)
                     #Statement building
-                    fortranSource = "SUBROUTINE SUB_{var}\n{decl}\nEND SUBROUTINE".format(var=name, decl=declStmt)
-                    _, xml = fortran2xml(fortranSource)
-                    ds = xml.find('.//{*}' + declStmtTag)
+                    ds = createExpr(declStmt)[0]
                     previousTail = '\n' + declStmt[:re.search('\S', declStmt).start()]
 
                     #node insertion index
@@ -592,12 +588,10 @@ class Variables():
     
             if insertUse:
                 #Statement building
-                fortranSource = "SUBROUTINE FOO598756\nUSE {}".format(moduleName)
+                stmt = f'USE {moduleName}'
                 if len(varName) > 0:
-                    fortranSource += ', ONLY:{}'.format(', '.join(varName))
-                fortranSource += "\nEND SUBROUTINE"
-                _, xml = fortran2xml(fortranSource)
-                us = xml.find('.//{*}use-stmt')
+                    stmt += ', ONLY:{}'.format(', '.join(varName))
+                us = createExpr(stmt)[0]
     
                 #node insertion index
                 if len(useLst) != 0:

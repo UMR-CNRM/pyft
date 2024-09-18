@@ -725,7 +725,7 @@ IF(OENTR_DETR) THEN
 ENDIF
 
 IF (LHOOK) CALL DR_HOOK('COMPUTE_UPDRAFT',1,ZHOOK_HANDLE)
-!$acc end data 
+!$acc end data
 CONTAINS
           SUBROUTINE COMPUTE_ENTR_DETR(D, CST, NEBN, PARAMMF,&
                             KK,KKB,KKE,KKL,OTEST,OTESTLCL,&
@@ -1140,7 +1140,7 @@ DO JIJ=IIJB,IIJE
   ENDIF
 ENDDO
 
-!$acc end data 
+!$acc end data
 END SUBROUTINE COMPUTE_ENTR_DETR
 !MNH_LIC Copyright 2006-2022 CNRS, Meteo-France and Universite Paul Sabatier
 !MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
@@ -1345,7 +1345,7 @@ DO II=1,JITER
   ENDDO
 ENDDO
 
-!$acc end data 
+!$acc end data
 END SUBROUTINE TH_R_FROM_THL_RT
 
 !MNH_LIC Copyright 2006-2019 CNRS, Meteo-France and Universite Paul Sabatier
