@@ -10,20 +10,28 @@ function usage {
   echo "Usage: $0 [--update] [--debug] [file]\*"
   echo "  --update to update reference instead of comparing to it"
   echo "  --debug copy resulting file in the example directory when different from the reference"
+  echo "  --clean remove debug files"
   echo "  If file names are present on the command line, tests are limited to these files"
 }
 update='n'
 debug='n'
+clean='n'
 tests=""
 while [ -n "$1" ]; do
   case "$1" in
     '-h') usage; exit;;
     '--update') update='y';;
     '--debug') debug='y';;
+    '--clean') clean='y';;
     *) tests+=" $1";;
   esac
   shift
 done
+
+#Cleaning
+if [ "$clean" == 'y' ]; then
+  rm -f *_trans.F90 desctree.json
+fi
 
 #Temporary directory
 TMP_LOC=$(mktemp -d)
@@ -33,6 +41,10 @@ trap "\rm -rf $TMP_LOC" EXIT
 DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 cp $DIR/*.F90 $DIR/*.h $TMP_LOC
 cd $TMP_LOC
+
+#descTree fils must not exist
+[ "$debug" == 'y' ] && jsonpath="$DIR/" || jsonpath=""
+[ -f ${jsonpath}desctree.json ] && rm ${jsonpath}desctree.json
 
 FAIL=""
 ERROR="" #Crash
@@ -54,7 +66,6 @@ for file in $tests; do
   if [ "$transfo" == "" ]; then
     ERROR+=" $name"
   else
-    [ "$debug" == 'y' ] && jsonpath="$DIR/" || jsonpath=""
     output=$(pyft_tool.py --wrapH --tree . --descTree ${jsonpath}desctree.json --logLevel error \
              $file $trans $transfo 2>&1)
     res=$?
