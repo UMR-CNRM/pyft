@@ -12,11 +12,18 @@ from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
 from pyft import NAMESPACE
 
 
-def createElem(tagName):
+def createElem(tagName, text=None, tail=None):
     """
     :param tagName: tag of the element to create
+    :param text: None or text of the element
+    :param tail: None or tail of the element
     """
-    return ET.Element(f'{{{NAMESPACE}}}{tagName}')
+    node = ET.Element(f'{{{NAMESPACE}}}{tagName}')
+    if text is not None:
+        node.text = text
+    if tail is not None:
+        node.tail = tail
+    return node
 
 
 @lru_cache
@@ -94,13 +101,23 @@ def createExprPart(value):
     """
     return copy.deepcopy(_cached_createExprPart(value))
 
+
+@lru_cache
+def _cached_createExpr(value):
+    """
+    :param value: statements to convert into xml
+    :return: the xml fragment corresponding to value (list of nodes)
+    """
+    return fortran2xml("SUBROUTINE T\n{v}\nEND".format(v=value))[1].find('.//{*}program-unit')[1:-1]
+
+
 @debugDecor
 def createExpr(value):
     """
     :param value: statements to convert into xml
     :return: the xml fragment corresponding to value (list of nodes)
     """
-    return fortran2xml("SUBROUTINE T\n{v}\nEND".format(v=value))[1].find('.//{*}program-unit')[1:-1]
+    return copy.deepcopy(_cached_createExpr(value))
 
 @debugDecor
 def simplifyExpr(expr, add=None, sub=None):

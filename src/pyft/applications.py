@@ -6,7 +6,7 @@ import copy
 import os
 import logging
 
-from pyft.util import debugDecor, alltext, fortran2xml, n2name, isStmt, PYFTError, tag, tostring
+from pyft.util import debugDecor, alltext, n2name, isStmt, PYFTError, tag, tostring
 from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
 from pyft.variables import updateVarList
@@ -160,9 +160,7 @@ class Applications():
                         self.addVar([[scope.path, el, varType + varArray + ' :: ' + el, None]])
                         
                         # Affectation
-                        fortranSource = "SUBROUTINE FOO598756\n " + el + "=" + newVarList[el][1] + "\nEND SUBROUTINE"
-                        _, stmtfxtran = fortran2xml(fortranSource)
-                        stmtAffect = stmtfxtran.find('.//{*}a-stmt')
+                        stmtAffect = createExpr(el + "=" + newVarList[el][1])[0]
                         self.insertStatement(scope.path, self.indent(stmtAffect), first=True)
                         
                      
@@ -218,7 +216,6 @@ class Applications():
         """
         def addMPPDB_CHECK_statement(var, subRoutineName, strMSG='beg:'):
             ifBeg, ifEnd, addD, addLastDim, addSecondDimType = '', '', '', '', ''
-            lookForIf = False
             # Test if the variable is declared with the PHYEX D% structure,
             # in that case, use the PHYEX MPPDB_CHECK interface
             if var['as'][0][1]: # If not NoneType
@@ -235,21 +232,12 @@ class Applications():
                     keyDimMerge = var['as'][-1][1].split(',')[2][:-1] # e.g. OCLOUDMODIFLM
                     ifBeg = 'IF (' + keyDimMerge + ') THEN\n'
                     ifEnd = '\nEND IF\n'
-                    lookForIf = True
             if var['opt']:
                 ifBeg = ifBeg + 'IF (PRESENT(' + var['n'] + ')) THEN\n IF (SIZE(' + var['n'] + ',1) > 0) THEN\n'
                 ifEnd = ifEnd + '\nEND IF\nEND IF'
-                lookForIf = True
             argsMPPDB = var['n'] + ", " + "\"" + subRoutineName + " " + strMSG+var['n'] + "\""
-            fortranSource = "SUBROUTINE FOO598756\n " + ifBeg + "CALL MPPDB_CHECK(" + \
-                            addD + argsMPPDB + addLastDim + addSecondDimType + ")" + \
-                            ifEnd + "\nEND SUBROUTINE"
-            _, callMPPDBfxtran = fortran2xml(fortranSource)
-            if lookForIf:
-                stmt = callMPPDBfxtran.find('.//{*}if-construct')
-            else:
-                stmt = callMPPDBfxtran.find('.//{*}call-stmt')
-            return stmt
+            return createExpr(ifBeg + "CALL MPPDB_CHECK(" + addD + argsMPPDB +
+                              addLastDim + addSecondDimType + ")" + ifEnd)[0]
         scopes  = self.getScopes()
         mod_type = scopes[0].path.split('/')[-1].split(':')[1][:4]
         if mod_type == 'MODD':
@@ -282,23 +270,13 @@ class Applications():
                     self.addModuleVar([(scope.path, 'MODE_MPPDB', None)])
 
                     # Prepare some FORTRAN comments
-                    fortranSource = "SUBROUTINE FOO598756\n !Check all IN arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
-                    commentIN = cfxtran.find('.//{*}C')
-                    fortranSource = "SUBROUTINE FOO598756\n !Check all INOUT arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
-                    commentINOUT = cfxtran.find('.//{*}C')
-                    fortranSource = "SUBROUTINE FOO598756\n !Check all OUT arrays \nEND SUBROUTINE"
-                    _, cfxtran = fortran2xml(fortranSource)
-                    commentOUT = cfxtran.find('.//{*}C')
+                    commentIN = createElem('C', text='!Check all IN arrays', tail='\n')
+                    commentINOUT = createElem('C', text='!Check all INOUT arrays', tail='\n')
+                    commentOUT = createElem('C', text='!Check all OUT arrays', tail='\n')
 
                     # 1) variables IN and INOUT block (beggining of the routine)
                     if len(arraysIn) + len(arraysInOut) > 0:
-                        fortranSource = "SUBROUTINE FOO598756\n" + \
-                                        "  IF (MPPDB_INITIALIZED) THEN\n" + \
-                                        "  END IF \nEND SUBROUTINE"
-                        _, ifMPPDBinitfxtran = fortran2xml(fortranSource)
-                        ifMPPDBinit = ifMPPDBinitfxtran.find('.//{*}if-construct')
+                        ifMPPDBinit = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
                         ifMPPDB = ifMPPDBinit.find('.//{*}if-block')
 
                         # Variables IN
@@ -322,11 +300,7 @@ class Applications():
 
                     # 2) variables INOUT and OUT block (end of the routine)
                     if len(arraysInOut) + len(arraysOut) > 0:
-                        fortranSource = "SUBROUTINE FOO598756\n" + \
-                                        "  IF (MPPDB_INITIALIZED) THEN\n" + \
-                                        "  END IF \nEND SUBROUTINE"
-                        _, ifMPPDBendfxtran = fortran2xml(fortranSource)
-                        ifMPPDBend = ifMPPDBendfxtran.find('.//{*}if-construct')
+                        ifMPPDBend = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
                         ifMPPDB = ifMPPDBend.find('.//{*}if-block')
 
                         # Variables INOUT
@@ -932,21 +906,17 @@ class Applications():
 
                dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = getDimsAndMNHExpandIndexes(zshugradwkDim, dimWorkingVar)
 
-               fortranSource = "SUBROUTINE FOO598756\n"+ "!$acc kernels\n!$mnh_expand_array("+mnhExpandArrayIndexes+")\n" + \
-                                computingVarName + " = " + alltext(workingItem) +"\n" + \
-                                "!$mnh_end_expand_array("+mnhExpandArrayIndexes+")\n!$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-               _, cfxtran = fortran2xml(fortranSource)
-               computeStmt = cfxtran.find('.//{*}a-stmt')
-               workingItem = cfxtran.find('.//{*}E-1')
-               commentsExpand = cfxtran.findall('.//{*}C')
-
-               # Insert the directives and the computeStmt
-               parStmt.insert(indexForCall, commentsExpand[0])
-               parStmt.insert(indexForCall+1, commentsExpand[1])
-               parStmt.insert(indexForCall+2, computeStmt)
-               parStmt.insert(indexForCall+3, commentsExpand[2])
-               parStmt.insert(indexForCall+4, commentsExpand[3])
-               parStmt.insert(indexForCall+5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+               # Insert the directives and the compute statement
+               mnhOpenDir = "!$mnh_expand_array(" + mnhExpandArrayIndexes + ")"
+               mnhCloseDir = "!$mnh_end_expand_array(" + mnhExpandArrayIndexes + ")"
+               computeStmt = createExpr(computingVarName + " = " + alltext(workingItem))[0]
+               workingItem = computeStmt.find('.//{*}E-1')
+               parStmt.insert(indexForCall, createElem('C', text='!$acc kernels', tail='\n'))
+               parStmt.insert(indexForCall + 1, createElem('C', text=mnhOpenDir, tail='\n'))
+               parStmt.insert(indexForCall + 2, computeStmt)
+               parStmt.insert(indexForCall + 3, createElem('C', text=mnhCloseDir, tail='\n'))
+               parStmt.insert(indexForCall + 4, createElem('C', text='!$acc end kernels', tail='\n'))
+               parStmt.insert(indexForCall + 5, createElem('C', text='!', tail='\n')) # To increase readibility
                indexForCall+=6
 
            # Add the new CALL statement
@@ -954,9 +924,9 @@ class Applications():
            workingVar = 'Z' + funcName + dimSuffVar +  '_WORK' + str(localShumansCount[funcName])
            gpuGradientImplementation = '_PHY(D, '
            if funcName == 'GY_U_UV' or funcName == 'GX_V_UV': gpuGradientImplementation = '_DEVICE('
-           fortranSource = "SUBROUTINE FOO598756\n"+ "CALL " + funcName+dimSuffRoutine + gpuGradientImplementation + alltext(workingItem) + ", " + workingVar + ")"  + "\nEND SUBROUTINE"
-           _, cfxtran = fortran2xml(fortranSource)
-           callStmt = cfxtran.find('.//{*}call-stmt')
+           callStmt = createExpr("CALL " + funcName + dimSuffRoutine +
+                                 gpuGradientImplementation + alltext(workingItem) +
+                                 ", " + workingVar + ")")[0]
            parStmt.insert(indexForCall, callStmt)
 
            # Remove the function/gradient from the original statement
@@ -1117,20 +1087,20 @@ class Applications():
                             # get mnhExpandArrayIndexes
                             dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = getDimsAndMNHExpandIndexes(arrayDim, dimWorkingVar) # Here dimSuffRoutine, dimSuffVar are not used
 
-                            fortranSource = "SUBROUTINE FOO598756\n"+ \
-                                            "!$acc kernels\n" + \
-                                            "!$mnh_expand_array("+ mnhExpandArrayIndexes +")\n" + \
-                                            "!$mnh_end_expand_array("+ mnhExpandArrayIndexes +")\n!" + \
-                                            "$acc end kernels" + "\n!" + "\nEND SUBROUTINE"
-                            _, cfxtran = fortran2xml(fortranSource)
-                            commentsExpand = cfxtran.findall('.//{*}C')
                             parStmt = self.getParent(foundStmtandCalls[stmt][0])
                             indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
-                            parStmt.insert(indexForCall, commentsExpand[0])
-                            parStmt.insert(indexForCall + 1, commentsExpand[1])
-                            parStmt.insert(indexForCall + 3, commentsExpand[2])
-                            parStmt.insert(indexForCall + 4, commentsExpand[3])
-                            parStmt.insert(indexForCall + 5, commentsExpand[4]) # This is \n ! empty comment to increase readibility
+                            mnhOpenDir = "!$mnh_expand_array(" + mnhExpandArrayIndexes + ")"
+                            mnhCloseDir = "!$mnh_end_expand_array(" + mnhExpandArrayIndexes + ")"
+                            parStmt.insert(indexForCall,
+                                           createElem('C', text="!$acc kernels", tail='\n'))
+                            parStmt.insert(indexForCall + 1,
+                                           createElem('C', text=mnhOpenDir, tail='\n'))
+                            parStmt.insert(indexForCall + 3,
+                                           createElem('C', text=mnhCloseDir, tail='\n'))
+                            parStmt.insert(indexForCall + 4,
+                                           createElem('C', text="!$acc end kernels", tail='\n'))
+                            parStmt.insert(indexForCall + 5,
+                                           createElem('C', text="!", tail='\n'))  # For readibility
 
                     # For all saved intermediate newComputeStmt, add parenthesis around all variables
                     for stmt in computeStmtforParenthesis:
