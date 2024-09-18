@@ -14,7 +14,21 @@ class Openacc():
         """
         self.removeComments(excl_directives=[],
                             pattern=re.compile(r'^\!\$ACC ', re.IGNORECASE))
-
+        
+    @debugDecor
+    def removebyPassDOCONCURRENT(self):
+        """
+        Remove macro !$mnh_(un)def(OPENACC) and !$mnh_(un)def(LOOP) directives for other compiler than Cray
+        """
+        
+        self.removeComments(excl_directives=[],
+                            pattern=re.compile(r'^\!\$mnh_undef\(LOOP\)'))
+        self.removeComments(excl_directives=[],
+                            pattern=re.compile(r'^\!\$mnh_undef\(OPENACC\)'))
+        self.removeComments(excl_directives=[],
+                            pattern=re.compile(r'^\!\$mnh_define\(LOOP\)'))
+        self.removeComments(excl_directives=[],
+                            pattern=re.compile(r'^\!\$mnh_define\(OPENACC\)'))
     @debugDecor
     def craybyPassDOCONCURRENT(self):
         """

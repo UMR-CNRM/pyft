@@ -222,7 +222,8 @@ if __name__ == '__main__':
                               ' use DO CONCURRENT with mnh_undef(LOOP)')
     gOpenACC.add_argument('--removeACC', default=False, action='store_true',
                           help='remove all ACC directives')
-
+    gOpenACC.add_argument('--removebyPassDOCONCURRENT', default=False, action='store_true',
+                          help='remove macro !$mnh_(un)def(OPENACC) and !$mnh_(un)def(LOOP) directives')
     #Checks
     gChecks = parser.add_argument_group('Check options')
     gChecks.add_argument('--checkIMPLICIT', choices={'Warn', 'Err'}, default=None,
@@ -387,6 +388,7 @@ if __name__ == '__main__':
             #OpenACC
             if arg == '--addACC_data': pft.addACC_data()
             if arg == '--craybyPassDOCONCURRENT': pft.craybyPassDOCONCURRENT()
+            if arg == '--removebyPassDOCONCURRENT': pft.removebyPassDOCONCURRENT()
             if arg == '--addACC_routine_seq': pft.addACC_routine_seq(args.stopScopes.split('#'))
             if arg == '--removeACC': pft.removeACC()
 
