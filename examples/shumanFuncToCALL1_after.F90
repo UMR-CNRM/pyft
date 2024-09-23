@@ -566,14 +566,16 @@ IF ( TPFILE%LOPENED .AND. TURBN%LTURB_FLX ) THEN
 END IF
 !
 ! Complete the U tendency
-CALL MXF_PHY(D, PDXX(:, :, :), ZMXF3D_WORK1)
 IF (.NOT. OFLAT) THEN
-  !$acc kernels
+  CALL MXF_PHY(D, PDXX(:, :, :), ZMXF3D_WORK1)
+!$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PRHODJ(:, :, :) * ZFLX(:, :, :) / ZMXF3D_WORK1(:, :, :)
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 !$acc end kernels
 !
+CALL DXM_PHY(D, ZSHUGRADWK1_3D, ZDXM3D_WORK1)
+CALL MZM_PHY(D, PDXX(:, :, :), ZMZM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK2_3D(:, :, :) = PRHODJ(:, :, :)*ZFLX(:, :, :)
@@ -581,7 +583,6 @@ ZSHUGRADWK2_3D(:, :, :) = PRHODJ(:, :, :)*ZFLX(:, :, :)
 !$acc end kernels
 !
 CALL MZM_PHY(D, ZSHUGRADWK2_3D, ZMZM3D_WORK2)
-CALL MZM_PHY(D, PDXX(:, :, :), ZMZM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = ZMZM3D_WORK2(:, :, :) * PINV_PDZZ(:, :, :)
@@ -589,7 +590,6 @@ ZSHUGRADWK1_3D(:, :, :) = ZMZM3D_WORK2(:, :, :) * PINV_PDZZ(:, :, :)
 !$acc end kernels
 !
 CALL MXM_PHY(D, ZSHUGRADWK1_3D, ZMXM3D_WORK1)
-CALL DXM_PHY(D, ZSHUGRADWK1_3D, ZDXM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PDZX(:, :, :) / ZMZM3D_WORK1(:, :, :) * ZMXM3D_WORK1(:, :, :)
@@ -605,9 +605,9 @@ PRUS(:,:,:)=PRUS(:, :, :)                                            &
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 !$acc end kernels
 !
-CALL MXF_PHY(D, PDXX(:, :, :), ZMXF3D_WORK1)
 ELSE
-  !$acc kernels
+  CALL MXF_PHY(D, PDXX(:, :, :), ZMXF3D_WORK1)
+!$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PRHODJ(:, :, :) * ZFLX(:, :, :) / ZMXF3D_WORK1(:, :, :)
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
@@ -764,14 +764,16 @@ END IF
 !
 ! Complete the V tendency
 IF (.NOT. O2D) THEN
-  CALL MYF_PHY(D, PDYY(:, :, :), ZMYF3D_WORK1)
-IF (.NOT. OFLAT) THEN
-    !$acc kernels
+  IF (.NOT. OFLAT) THEN
+    CALL MYF_PHY(D, PDYY(:, :, :), ZMYF3D_WORK1)
+!$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PRHODJ(:, :, :) * ZFLX(:, :, :) / ZMYF3D_WORK1(:, :, :)
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 !$acc end kernels
 !
+CALL DYM_PHY(D, ZSHUGRADWK1_3D, ZDYM3D_WORK1)
+CALL MZM_PHY(D, PDYY(:, :, :), ZMZM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK2_3D(:, :, :) = PRHODJ(:, :, :)*ZFLX(:, :, :)
@@ -779,7 +781,6 @@ ZSHUGRADWK2_3D(:, :, :) = PRHODJ(:, :, :)*ZFLX(:, :, :)
 !$acc end kernels
 !
 CALL MZM_PHY(D, ZSHUGRADWK2_3D, ZMZM3D_WORK2)
-CALL MZM_PHY(D, PDYY(:, :, :), ZMZM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = ZMZM3D_WORK2(:, :, :) * PINV_PDZZ(:, :, :)
@@ -787,7 +788,6 @@ ZSHUGRADWK1_3D(:, :, :) = ZMZM3D_WORK2(:, :, :) * PINV_PDZZ(:, :, :)
 !$acc end kernels
 !
 CALL MYM_PHY(D, ZSHUGRADWK1_3D, ZMYM3D_WORK1)
-CALL DYM_PHY(D, ZSHUGRADWK1_3D, ZDYM3D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PDZY(:, :, :) / ZMZM3D_WORK1(:, :, :) *                      &
@@ -804,9 +804,9 @@ PRVS(:,:,:)=PRVS(:, :, :)                                          &
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 !$acc end kernels
 !
-CALL MYF_PHY(D, PDYY(:, :, :), ZMYF3D_WORK1)
 ELSE
-    !$acc kernels
+    CALL MYF_PHY(D, PDYY(:, :, :), ZMYF3D_WORK1)
+!$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)
 ZSHUGRADWK1_3D(:, :, :) = PRHODJ(:, :, :) * ZFLX(:, :, :) / ZMYF3D_WORK1(:, :, :)
 !$mnh_end_expand_array(JI=1:IIT,JJ=1:IJT,JK=1:IKT)

@@ -233,7 +233,6 @@ REAL, DIMENSION(D%NIJT) :: ZDZ_STOP,&           ! Exact Height of the LCL above 
                           ZTHV_MINUS_HALF,&    ! Thv at flux point(kk)  
                           ZTHV_PLUS_HALF       ! Thv at flux point(kk+kkl)
 REAL                   :: ZDZ                  ! Delta Z used in computations
-INTEGER :: J1
 INTEGER :: JKLIM
 
 !
@@ -419,8 +418,9 @@ IF (OENTR_DETR) THEN
     IF(PDX==0. .OR. PDY==0.) THEN                                                                                                   
       CALL PRINT_MSG(NVERB_FATAL, 'GEN', 'COMPUTE_UPDRAFT', 'PDX or PDY is NULL with option LGZ!')                                  
     ENDIF
-    DO CONCURRENT (J1=D%NIJB:D%NIJE)
-      ZSURF(J1)=TANH(PARAMMF%XGZ*SQRT(PDX*PDY)/ZLUP(J1))
+    !$acc loop independent collapse(1)
+    DO CONCURRENT (JI=D%NIJB:D%NIJE)
+      ZSURF(JI)=TANH(PARAMMF%XGZ*SQRT(PDX*PDY)/ZLUP(JI))
     END DO
   ELSE
     ZSURF(D%NIJB:D%NIJE)=1.

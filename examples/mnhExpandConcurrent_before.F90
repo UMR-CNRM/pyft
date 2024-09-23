@@ -407,7 +407,9 @@ IF (OENTR_DETR) THEN
     IF(PDX==0. .OR. PDY==0.) THEN                                                                                                   
       CALL PRINT_MSG(NVERB_FATAL, 'GEN', 'COMPUTE_UPDRAFT', 'PDX or PDY is NULL with option LGZ!')                                  
     ENDIF
+    !$mnh_expand_array(JI=D%NIJB:D%NIJE)
     ZSURF(D%NIJB:D%NIJE)=TANH(PARAMMF%XGZ*SQRT(PDX*PDY)/ZLUP(D%NIJB:D%NIJE))
+    !$mnh_end_expand_array(JI=D%NIJB:D%NIJE)
   ELSE
     ZSURF(D%NIJB:D%NIJE)=1.
   END IF
