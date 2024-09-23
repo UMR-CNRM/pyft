@@ -392,9 +392,9 @@ class Statements():
                     
                     #Building acc loop collapse independent directive
                     if addAccIndependentCollapse:
-                        accCollapse = createElem('C')
-                        accCollapse.text = '!$acc loop independent collapse(' + str(len(table.keys())) + ')'
-                        accCollapse.tail = '\n' + indent * ' '
+                        accCollapse = createElem('C', text='!$acc loop independent collapse(' +
+                                                 str(len(table.keys())) + ')',
+                                                 tail='\n' + indent * ' ')
                         toinsert.append((elem, accCollapse, ie))
 
                     #Building loop
@@ -952,9 +952,8 @@ class Statements():
                                 else:
                                     low = sl.find('./{*}lower-bound')
                                     if low is None:
-                                        low = createElem('lower-bound')
+                                        low = createElem('lower-bound', tail=sl.text)
                                         low.append(createExprPart(desc_sub[0]))
-                                        low.tail = sl.text #':'
                                         sl.text = None
                                         sl.insert(0, low)
                                     up = sl.find('./{*}upper-bound')
@@ -1343,9 +1342,8 @@ class Statements():
             #</f:do-construct>
             triplets = []
             for v, (l, u) in list(loopVariables.items())[::-1]: #Better for vectorisation with some compilers
-                V = createElem('V')
+                V = createElem('V', tail='=')
                 V.append(createExprPart(v))
-                V.tail = '='
                 lower, upper = createArrayBounds(l, u, 'DOCONCURRENT')
 
                 triplet = createElem('forall-triplet-spec')
@@ -1353,22 +1351,17 @@ class Statements():
 
                 triplets.append(triplet)
 
-            tripletLT = createElem('forall-triplet-spec-LT')
-            tripletLT.tail = ')'
+            tripletLT = createElem('forall-triplet-spec-LT', tail=')')
             for triplet in triplets[:-1]:
                 triplet.tail = ', '
             tripletLT.extend(triplets)
 
-            dostmt = createElem('do-stmt')
-            dostmt.text = 'DO CONCURRENT ('
-            dostmt.tail = '\n'
+            dostmt = createElem('do-stmt', text='DO CONCURRENT (', tail='\n')
             dostmt.append(tripletLT)
-            enddostmt = createElem('end-do-stmt')
-            enddostmt.text = 'END DO'
+            enddostmt = createElem('end-do-stmt', text='END DO')
 
-            doconstruct = createElem('do-construct')
+            doconstruct = createElem('do-construct', tail='\n')
             doconstruct.extend([dostmt, enddostmt])
-            doconstruct.tail = '\n'
             inner = outer = doconstruct
             doconstruct[0].tail += (indent + 2) * ' ' #Indentation for the statement after DO
         else:
@@ -1382,22 +1375,17 @@ class Statements():
             #  <f:end-do-stmt>END DO</f:end-do-stmt>
             #</f:do-construct>\n
             def make_do(v, l, u):
-                doV = createElem('do-V')
+                doV = createElem('do-V', tail='=')
                 doV.append(createExprPart(v))
-                doV.tail = '='
                 lower, upper = createArrayBounds(l, u, 'DO')
 
-                dostmt = createElem('do-stmt')
-                dostmt.text = 'DO '
-                dostmt.tail = '\n'
+                dostmt = createElem('do-stmt', text='DO ', tail='\n')
                 dostmt.extend([doV, lower, upper])
 
-                enddostmt = createElem('end-do-stmt')
-                enddostmt.text = 'END DO'
+                enddostmt = createElem('end-do-stmt', text='END DO')
 
-                doconstruct = createElem('do-construct')
+                doconstruct = createElem('do-construct', tail='\n')
                 doconstruct.extend([dostmt, enddostmt])
-                doconstruct.tail = '\n'
                 return doconstruct
 
             outer = None

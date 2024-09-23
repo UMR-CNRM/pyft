@@ -553,9 +553,8 @@ class Applications():
                                 N.find('./{*}n').text = 'MERGE'
                                 elementLT = intr.find('./{*}R-LT/{*}parens-R/{*}element-LT')
                                 for v in (1, 0):
-                                    element = createElem('element')
+                                    element = createElem('element', tail=', ')
                                     element.append(createExprPart(v))
-                                    element.tail = ', '
                                     elementLT.insert(0, element)
 
                 if simplify:
@@ -745,9 +744,7 @@ class Applications():
 
                     # Prepare the object that will contain the left and right of Pow
                     RLT = createElem('R-LT')
-                    parensR = createElem('parens-R')
-                    parensR.text = '('
-                    parensR.tail = ')'
+                    parensR = createElem('parens-R', text='(', tail = ')')
                     elementLT = createElem('element-LT')
 
                     # Regarding the right part of pow(), build a new node expression :
@@ -795,9 +792,8 @@ class Applications():
             	        #  </f:R-LT>
                         #</f:named-E>
                         BRP = createExprPart('BR_POW')
-                        leftElement = createElem('element')
+                        leftElement = createElem('element', tail=',')
                         leftElement.append(leftOfPow)
-                        leftElement.tail = ','
                         rightElement = createElem('element')
                         rightElement.append(rightOfPow)
                         elementLT.append(leftElement)

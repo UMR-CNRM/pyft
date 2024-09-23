@@ -47,32 +47,26 @@ def _cached_createExprPart(value):
     allowed += allowed.upper() + '0123456789_'
 
     if isint(value) or isfloat(value) or value.upper() in ('.TRUE.', '.FALSE.'):
-        l = createElem('l')
-        l.text = str(value)
+        l = createElem('l', text=str(value))
         node = createElem('literal-E')
         node.append(l)
     elif "'" in value or '"' in value:
-        S = createElem('S')
-        S.text = value
+        S = createElem('S', text=value)
         node = createElem('string-E')
         node.append(S)
     elif all([c in allowed for c in value]):
-        n = createElem('n')
-        n.text = value
+        n = createElem('n', text=value)
         N = createElem('N')
         N.append(n)
         node = createElem('named-E')
         node.append(N)
     elif re.match(r'[a-zA-Z_][a-zA-Z0-9_]*%[a-zA-Z_][a-zA-Z0-9_]*$', value):
         #A%B
-        n = createElem('n')
-        n.text = value.split('%')[0]
+        n = createElem('n', text=value.split('%')[0])
         N = createElem('N')
         N.append(n)
-        ct = createElem('ct')
-        ct.text = value.split('%')[1]
-        componentR = createElem('component-R')
-        componentR.text = '%'
+        ct = createElem('ct', text=value.split('%')[1])
+        componentR = createElem('component-R', text='%')
         componentR.append(ct)
         RLT = createElem('R-LT')
         RLT.append(componentR)

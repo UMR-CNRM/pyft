@@ -239,8 +239,7 @@ class Cosmetics():
                            e.tail.replace('\n', '').replace('\t', '').lstrip(' ') != '':
                             #tail contains text, probably an endding ')', after a carriage return
                             #Thus, there is no '&' to begin line
-                            new = createElem('cnt')
-                            new.text = '&'
+                            new = createElem('cnt', text='&')
                             #'&' must be put before any text on the following line containing code
                             i = 0
                             while e.tail[i] in (' ', '\n', '\t'): i += 1
@@ -249,8 +248,7 @@ class Cosmetics():
                             elem.insert(ie + 1, new)
                         elif tag(nextNode) != 'cnt':
                             #There is no '&' to begin next line
-                            new = createElem('cnt')
-                            new.text = '&'
+                            new = createElem('cnt', text='&')
                             if len(commentsAfter) > 0:
                                 #'&' must be put before any text on the following line containing code
                                 i = 0

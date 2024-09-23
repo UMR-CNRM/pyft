@@ -174,9 +174,8 @@ class Openacc():
                                            includeInterfaces=True,
                                            includeStopScopes=True):
                 name = n2name(scope[0].find('.//{*}N')).upper()
-                acc = createElem('C')
-                acc.text = '!$acc routine ({routine}) seq'.format(routine=name)
-                acc.tail = scope[0].tail
+                acc = createElem('C', text='!$acc routine ({routine}) seq'.format(routine=name),
+                                 tail=scope[0].tail)
                 scope[0].tail = '\n'
                 scope.insert(1, acc)
 

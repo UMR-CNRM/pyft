@@ -490,8 +490,7 @@ class Variables():
                 if argLst is None:
                    #This was a subroutine or function without dummy arguments
                    locNode[0][0].tail = '('
-                   argLst = createElem('dummy-arg-LT')
-                   argLst.tail = ')'
+                   argLst = createElem('dummy-arg-LT', tail=')')
                    locNode[0].insert(1, argLst)
                 self.insertInList(pos, argN, argLst)
     
@@ -773,16 +772,12 @@ class Variables():
                         #would need to find the source code of the subroutine)
                         RLT = createElem('R-LT')
                         namedE.insert(list(namedE).index(N) + 1, RLT)
-                        arrayR = createElem('array-R')
-                        arrayR.text = '('
+                        arrayR = createElem('array-R', text='(')
                         RLT.append(arrayR)
-                        sectionSubscriptLT = createElem('section-subscript-LT')
-                        sectionSubscriptLT.tail = ')'
+                        sectionSubscriptLT = createElem('section-subscript-LT', tail=')')
                         arrayR.append(sectionSubscriptLT)
                         for _ in var['as']:
-                            sectionSubscript = createElem('section-subscript')
-                            sectionSubscript.text = ':'
-                            sectionSubscript.tail = ', '
+                            sectionSubscript = createElem('section-subscript', text=':', tail=', ')
                             sectionSubscriptLT.append(sectionSubscript)
                         sectionSubscript.tail = None #last one
 
@@ -1030,15 +1025,12 @@ class Variables():
         arrayR = RLT.find('./{*}array-R') #Not always in first position, eg: ICED%XRTMIN(:)
         if arrayR is not None:
             index = list(RLT).index(arrayR)
-            parensR = createElem('parens-R')
-            parensR.text = '('
-            parensR.tail = ')'
+            parensR = createElem('parens-R', text='(', tail=')')
             elementLT = createElem('element-LT')
             parensR.append(elementLT)
             ivar = -1
             for ss in RLT[index].findall('./{*}section-subscript-LT/{*}section-subscript'):
-                element = createElem('element')
-                element.tail = ', '
+                element = createElem('element', tail=', ')
                 elementLT.append(element)
                 if ':' in alltext(ss):
                     ivar += 1
@@ -1348,8 +1340,7 @@ class Variables():
                 if argList is None:
                     #Call without argument
                     callFuncStmt.find('./{*}procedure-designator').tail = '('
-                    argList = createElem('arg-spec')
-                    argList.tail = ')'
+                    argList = createElem('arg-spec', tail=')')
                     callFuncStmt.append(argList)
             item = createExprPart(varNameToUse)
             previous = pos - 1 if pos >= 0 else len(argList) + pos #convert negative pos using length
@@ -1364,11 +1355,9 @@ class Variables():
                 #We use the key=val syntax whereever it is possible because it's safer in case of optional arguments
                 #If previous arg, or following arg is already with a key=val syntax, we can (must) use it
                 #If the inserted argument is the last one of the list, it also can use this syntax
-                k = createElem('k')
-                k.text = varName
-                argN = createElem('arg-N')
+                k = createElem('k', text=varName)
+                argN = createElem('arg-N', tail='=')
                 argN.append(k)
-                argN.tail = '='
                 argN.set('n', varName)
                 container.append(argN)
             container.append(item)
