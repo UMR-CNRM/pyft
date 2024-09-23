@@ -1200,7 +1200,7 @@ class Variables():
     @debugDecor
     def isVarUsed(self, varList, strictScope=False, dummyAreAlwaysUsed=False):
         """
-        :param varList: list of variables to remove if unused. Each item is a list or tuple of two elements.
+        :param varList: list of variables to test. Each item is a list or tuple of two elements.
                         The first one describes where the variable is declared, the second one is the name
                         of the variable. The first element is a '/'-separated path with each element
                         having the form 'module:<name of the module>', 'sub:<name of the subroutine>' or
@@ -1225,14 +1225,15 @@ class Variables():
         To know if a variable can be removed, you must use strictScope=False
         """
         varList = self._normalizeUniqVar(varList)
+        allScopes = {scope.path: scope for scope in self.getScopes(excludeContains=True)}
 
         #Computes in which scopes variable must be searched
         if strictScope:
-            locsVar = [([scopePath], varName) for scopePath, varName in varList]
+            locsVar = {(scopePath, varName): [scopePath]
+                       for scopePath, varName in varList}
         else:
             #Function to determine if var is declared in this scope, with cache
             allVar = {}
-            allScopes = {scope.path: scope for scope in self.getScopes(excludeContains=True)}
             def _varInLoc(var, scopePath):
                 #Is the variable declared in this scope
                 if not scopePath in allVar:
