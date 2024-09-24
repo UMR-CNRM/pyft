@@ -1418,8 +1418,8 @@ class Variables():
                                              stopScopes, moduleVarList, otherNames,
                                              parser=parser, parserOptions=parserOptions, wrapH=wrapH)
                             #Add the argument to calls (subroutine or function)
-                            scopeUpNode = createElem('virtual')
-                            scopeUpNode.extend(xml.getScopeNode(scopeUp, excludeContains=True))
+                            scopeUpNode = xml.getScopeNode(scopeUp, excludeContains=True)
+
                             name = scopePath.split('/')[-1].split(':')[1].upper()
                             isCalled = False
                             varNameToUse = varName
