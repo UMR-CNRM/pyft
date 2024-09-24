@@ -1198,22 +1198,22 @@ class Variables():
         return varListToRemove
 
     @debugDecor
-    def isVarUsed(self, varList, strictScope=False, dummyAreAlwaysUsed=False):
+    def isVarUsed(self, varList, exactScope=False, dummyAreAlwaysUsed=False):
         """
         :param varList: list of variables to test. Each item is a list or tuple of two elements.
                         The first one describes where the variable is declared, the second one is the name
                         of the variable. The first element is a '/'-separated path with each element
                         having the form 'module:<name of the module>', 'sub:<name of the subroutine>' or
                         'func:<name of the function>'
-        :param strictScope: True to search strictly in scope
+        :param exactScope: True to search strictly in scope
         :param dummyAreAlwaysUsed: Returns True if variable is a dummy argument
         :return: a dict whose keys are the elements of varList, and values are True when the variable is
                  used, False otherwise
     
-        If strictScope is True, the function will search for variable usage
+        If exactScope is True, the function will search for variable usage
         only in this scope. But this feature has a limited interest.
     
-        If strictScope is False:
+        If exactScope is False:
           - if scopePath is a subroutine/function in a contains section,
             and if the variable is not declared in this scope, usages are
             searched in the module/subroutine/function upper that declared
@@ -1222,33 +1222,22 @@ class Variables():
             contains sections, usages are searched in all subroutines/functions
             in the contains section
 
-        To know if a variable can be removed, you must use strictScope=False
+        To know if a variable can be removed, you must use exactScope=False
         """
         varList = self._normalizeUniqVar(varList)
         allScopes = {scope.path: scope for scope in self.getScopes(excludeContains=True)}
 
         #Computes in which scopes variable must be searched
-        if strictScope:
+        if exactScope:
             locsVar = {(scopePath, varName): [scopePath]
                        for scopePath, varName in varList}
         else:
-            #Function to determine if var is declared in this scope, with cache
-            allVar = {}
-            def _varInLoc(var, scopePath):
-                #Is the variable declared in this scope
-                if not scopePath in allVar:
-                    allVar[scopePath] = [var for var in allScopes[scopePath].varList
-                                         if var['scopePath'] == scopePath]
-                return var.upper() in [v['n'].upper() for v in allVar[scopePath]]
-
             locsVar = {}
             for scopePath, varName in varList:
-                path = scopePath
-
-                #Should we search in upper levels
-                while('/' in path and not _varInLoc(varName, path)):
-                    #Declared upper, we must start the search one level upper
-                    path = '/'.join(path.split('/')[:-1])
+                # We search everywhere if var declaration is not found
+                # Otherwise, we search from the scope where the variable is declared
+                var = self.varList.findVar(varName, scopePath)
+                path = scopePath.split('/')[0] if var is None else var['scopePath']
 
                 #We start search from here but we must include all routines in contains
                 #that do not declare again the same variable name
@@ -1257,7 +1246,8 @@ class Variables():
                     if l.startswith(path + '/') and \
                        l.split('/')[-1].split(':')[0] != 'type':
                         #l is a scope path contained inside path and is not a type declaration
-                        if not _varInLoc(varName, l): #there is not another variable with same name declared inside
+                        if self.varList.findVar(varName, l, exactScope=True) is None:
+                            # There is not another variable with same name declared inside
                             testScopes.append(l) #if variable is used here, it is used
                 locsVar[(scopePath, varName)] = testScopes
 
