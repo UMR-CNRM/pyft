@@ -163,6 +163,8 @@ if __name__ == '__main__':
     gApplications = parser.add_argument_group('Options to apply upper level transformation')
     gApplications.add_argument('--deleteDrHook', default=False, action='store_true',
                                help='Delete DR HOOK use')
+    gApplications.add_argument('--addDrHook', default=False, action='store_true',
+                               help='Add DR HOOK')
     gApplications.add_argument('--deleteBudgetDDH', default=False, action='store_true',
                                help='Delete Budget/DDH use')
     gApplications.add_argument('--deleteNonColumnCallsPHYEX', default=False, action='store_true',
@@ -363,6 +365,8 @@ if __name__ == '__main__':
                                                  parser=args.parser, parserOptions=parserOptions,
                                                  wrapH=args.wrapH)
             if arg == '--deleteDrHook': pft.deleteDrHook(**simplify)
+            if arg == '--addDrHook':
+                pft.addDrHook()
             if arg == '--deleteBudgetDDH': pft.deleteBudgetDDH(**simplify)
             if arg == '--deleteNonColumnCallsPHYEX': pft.deleteNonColumnCallsPHYEX(**simplify)
             if arg == '--addMPPDB_CHECKS': pft.addMPPDB_CHECKS()

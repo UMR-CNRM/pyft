@@ -220,6 +220,8 @@ call statements must be suppressed (it is a scope path as described in [Concepts
 
 **\--deleteDrHook** removes DrHook statements.
 
+**\--addDrHook** adds DrHook statements.
+
 **\--deleteBudgetDDH** delete Budget/DDH use.
 
 **\--deleteNonColumnCallsPHYEX** delete call to PHYEX routines that needs information on horizontal

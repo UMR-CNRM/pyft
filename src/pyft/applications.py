@@ -175,6 +175,30 @@ class Applications():
         self.removeCall('DR_HOOK', None, simplify=simplify)
 
     @debugDecor
+    def addDrHook(self):
+        """
+        Add DR_HOOK calls.
+        """
+        for scope in [scope for scope in self.getScopes(excludeContains=True)
+                      if scope.path.split('/')[-1].split(':')[0] in ('func', 'sub') and
+                      (len(scope.path.split('/')) == 1 or
+                       scope.path.split('/')[-2].split(':')[0] != 'interface')]:
+            name = scope.path.split(':')[-1].upper()
+            # Add USE YOMHOOK,    ONLY: LHOOK, DR_HOOK, JPHOOK
+            self.addModuleVar([[scope.path, 'YOMHOOK', ['LHOOK', 'DR_HOOK', 'JPHOOK']]])
+            # REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+            self.addVar([[scope.path, 'ZHOOK_HANDLE', 'REAL(KIND=JPHOOK) :: ZHOOK_HANDLE',
+                          None]])
+            # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 0, ZHOOK_HANDLE)
+            self.insertStatement(scope.path,
+                                 createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
+                                            "0, ZHOOK_HANDLE)")[0], True)
+            # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 1, ZHOOK_HANDLE)
+            self.insertStatement(scope.path,
+                                 createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
+                                            "1, ZHOOK_HANDLE)")[0], False)
+
+    @debugDecor
     def deleteBudgetDDH(self, simplify=False):
         """
         Remove Budget calls.
