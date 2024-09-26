@@ -23,6 +23,6 @@ label="compute_frac_ice.func.h"
 3 -> 5
 subgraph cluster_R {
 {rank=same 2}
-label="plotExecTree_before.F90"
+label="plotCompilTree_before.F90"
 }
 }

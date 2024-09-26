@@ -1,5 +1,5 @@
 !#PYFT transfo: --dryRun --plotExecTree plotExecTree_trans.dot
-! Thi is a hack to produce a png file instead of source-2source transformation
+! This is a hack to produce a png file instead of source-2source transformation
 
 
 SUBROUTINE PLOTEXEC
