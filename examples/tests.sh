@@ -60,8 +60,8 @@ for file in $tests; do
   elif [[ $file == *_checkOK.F90 || $file == *_checkKO.F90 ]]; then
     name=$file
   fi
-  ref=${name}_after.F90
-  trans=${name}_trans.F90
+  ref=$DIR/${name}_after.* # Allow for an extansion change
+  trans=${name}_trans."${ref##*.}"
   transfo=$(grep "!#PYFT transfo: " $file | cut -c 17-)
   if [ "$transfo" == "" ]; then
     ERROR+=" $name"

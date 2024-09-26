@@ -1,0 +1,28 @@
+digraph D {
+2 [label="sub:PLOTEXEC" color="green"]
+subgraph cluster_3 {
+label="mnhExpand_after.F90"
+3 [label="module:MODE_COMPUTE_UPDRAFT3/sub:COMPUTE_UPDRAFT" color="green"]
+}
+2 -> 3
+subgraph cluster_4 {
+label="mnhExpand_after.F90"
+4 [label="module:MODE_COMPUTE_UPDRAFT3/sub:COMPUTE_UPDRAFT/sub:COMPUTE_ENTR_DETR" color="green"]
+}
+3 -> 4
+subgraph cluster_5 {
+label="th_r_from_thl_rt.func.h"
+5 [label="sub:TH_R_FROM_THL_RT" color="green"]
+}
+4 -> 5
+subgraph cluster_6 {
+label="compute_frac_ice.func.h"
+6 [label="sub:COMPUTE_FRAC_ICE" color="green"]
+}
+5 -> 6
+3 -> 5
+subgraph cluster_R {
+{rank=same 2}
+label="plotExecTree_before.F90"
+}
+}

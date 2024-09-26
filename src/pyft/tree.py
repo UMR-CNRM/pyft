@@ -614,11 +614,14 @@ class Tree():
         """
         assert kind in ('compilation_tree', 'execution_tree')
 
+        hashValues = {0: 1}
+
         def myHash(obj):
-            result = str(hash(obj))
-            if result[0] == '-':
-                result = 'M' + result[1:]  # to minus sign
-            return result
+            objHash = hash(obj)
+            if objHash not in hashValues:
+                hashValues[0] += 1
+                hashValues[objHash] = hashValues[0]
+            return str(hashValues[objHash])
 
         def createNode(node, label=None):
             result = ""
@@ -654,10 +657,8 @@ class Tree():
                 return None
             return [f for f, l in self._scopes.items() if scopePath in l][0]
 
-        def recur(node, level, down):
+        def recur(node, level, down, var):
             if level is None or level > 0:
-                var = self._execution_tree if kind == 'execution_tree' \
-                      else self._compilation_tree
                 if down:
                     result = var.get(node, [])
                 else:
@@ -666,7 +667,7 @@ class Tree():
                     add(createNode(res, filename(res)))
                     add(createLink(node, res) if down else createLink(res, node))
                     if level is None or level > 1:
-                        recur(res, None if level is None else level - 1, down)
+                        recur(res, None if level is None else level - 1, down, var)
 
         # Are all the central scopes in the same file
         printInFrame = False
@@ -681,13 +682,17 @@ class Tree():
             else:
                 printInFrame = False
 
+        # Order the tree to obtain deterministic graphs
+        var = self._execution_tree if kind == 'execution_tree' else self._compilation_tree
+        var = {k: sorted(var[k]) for k in sorted(var)}
+
         dot = ["digraph D {\n"]
         if not isinstance(centralNodeList, list):
             centralNodeList = [centralNodeList]
         for centralNode in centralNodeList:
             add(createNode(centralNode, None if printInFrame else filename(centralNode)))
-            recur(centralNode, plotMaxLower, True)
-            recur(centralNode, plotMaxUpper, False)
+            recur(centralNode, plotMaxLower, True, var)
+            recur(centralNode, plotMaxUpper, False, var)
         if frame:
             if kind == 'compilation_tree':
                 frameText = None
