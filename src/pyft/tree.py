@@ -1,5 +1,5 @@
 """
-This module contains the functions to browse the tree
+This module contains the Tree class to browse the tree
 """
 
 import glob
@@ -45,6 +45,9 @@ def updateTree(method='file'):
 
 
 class Tree():
+    """
+    Class to browse the Tree
+    """
     def __init__(self, tree=None, descTreeFile=None,
                  parser=None, parserOptions=None, wrapH=False,
                  verbosity=None):
@@ -119,7 +122,8 @@ class Tree():
         """
         result = []
         if self.tree is not None:
-            for t in self.tree:
+            for tdir in self.tree:
+                # FIXME tdir not used!!!!
                 result += glob.glob("**/")
         return result
 
@@ -130,8 +134,8 @@ class Tree():
         :return: list of directories and subdirectories
         """
         filenames = []
-        for t in self.tree:
-            for filename in glob.glob(t + '/**/*', recursive=True):
+        for tDir in self.tree:
+            for filename in glob.glob(tDir + '/**/*', recursive=True):
                 if os.path.splitext(filename)[1] not in ('', '.json', '.fypp', '.txt'):
                     # We only keep files with extension
                     filenames.append(filename)
@@ -171,6 +175,7 @@ class Tree():
     def _incInScope(self):
         """Fill and return the self._cache_incInScope cached value"""
         if self.isValid and self._cache_incInScope is None:
+            # pylint: disable-next=pointless-statement
             self._compilation_tree  # self._cache_incInScope computed at the same time
         return self._cache_incInScope
 
@@ -193,18 +198,19 @@ class Tree():
                         subdir = []
                         basename = []
                         # Loop on each file found in the source tree
-                        for f in self._cache_compilation_tree:
-                            if os.path.normpath(inc) == os.path.normpath(f):
+                        for file in self._cache_compilation_tree:
+                            if os.path.normpath(inc) == os.path.normpath(file):
                                 # Exactly the same file name (including directories)
-                                same.append(f)
-                            elif (not os.path.isabs(f)) and \
-                                 os.path.realpath(inc) == os.path.realpath(os.path.join(os.path.dirname(inc), f)):
+                                same.append(file)
+                            elif ((not os.path.isabs(file)) and
+                                  os.path.realpath(inc) == os.path.realpath(os.path.join(
+                                      os.path.dirname(inc), file))):
                                 # The include statement refers to a file contained in the
                                 # directory where inc is
-                                subdir.append(f)
-                            elif os.path.basename(inc) == os.path.basename(f):
+                                subdir.append(file)
+                            elif os.path.basename(inc) == os.path.basename(file):
                                 # Same name excluding the directories
-                                basename.append(f)
+                                basename.append(file)
                         if len(same) > 1:
                             same = subdir = basename = []
                         if len(subdir) > 1:
@@ -225,24 +231,24 @@ class Tree():
                         self._cache_compilation_tree[filename].append(incFilename)
                         if found:
                             self._cache_incInScope[scopePath].append(incFilename)
-        
+
             # Compilation_tree computation: use
             for filename, uList in self._useList.items():
                 # Loop on each use statement
-                for modName, _ in [use for l in uList.values() for use in l]:
+                for modName, _ in [use for li in uList.values() for use in li]:
                     moduleScopePath = 'module:' + modName
                     # Loop on scopes to find the module
                     found = []
-                    for f, scopes in self._scopes.items():
+                    for file, scopes in self._scopes.items():
                         if moduleScopePath in scopes:
-                            found.append(f)
+                            found.append(file)
                     if len(found) == 1:
                         self._cache_compilation_tree[filename].append(found[0])
                     else:
-                        logging.info(('Several or none file containing the scope path {scopePath} ' +
-                                      'have been found for file {filename}'
-                                     ).format(scopePath=moduleScopePath, filename=filename))
-        
+                        logging.info(('Several or none file containing the scope path ' +
+                                      '{scopePath} have been found for file {filename}'
+                                      ).format(scopePath=moduleScopePath, filename=filename))
+
             # Compilation_tree: cleaning (uniq values)
             for filename, depList in self._cache_compilation_tree.items():
                 self._cache_compilation_tree[filename] = list(set(depList))
@@ -263,80 +269,92 @@ class Tree():
                     # Loop on scopes
                     for scopePath, cList in callScopes.items():
                         # Loop on calls
-                        for c in set(cList):
+                        for call in set(cList):
                             foundInUse = []
                             foundElsewhere = []
                             foundInInclude = []
                             foundInContains = []
                             foundInSameScope = []
-        
+
                             # We look for sub:c or interface:c
                             for kind in (canonicKind, 'interface'):
                                 # Loop on each use statement in scope or in upper scopes
-                                uList = [self._useList[filename][sc] for sc in self._useList[filename]
+                                uList = [self._useList[filename][sc]
+                                         for sc in self._useList[filename]
                                          if (sc == scopePath or scopePath.startswith(sc + '/'))]
-                                for modName, only in [use for l in uList for use in l]:
+                                for modName, only in [use for li in uList for use in li]:
                                     moduleScope = 'module:' + modName
-                                    callScope = moduleScope + '/' + kind + ':' + c
+                                    callScope = moduleScope + '/' + kind + ':' + call
                                     if len(only) > 0:
                                         # There is a "ONLY" keyword
-                                        if c in only and callScope in allScopes:
+                                        if call in only and callScope in allScopes:
                                             foundInUse.append(callScope)
                                     else:
                                         # There is no "ONLY"
                                         for _, scopes in self._scopes.items():
                                             if callScope in scopes:
                                                 foundInUse.append(callScope)
-        
+
                                 # Look for subroutine directly accessible
-                                callScope = kind + ':' + c
+                                callScope = kind + ':' + call
                                 for _, scopes in self._scopes.items():
                                     if callScope in scopes:
                                         foundElsewhere.append(callScope)
-        
+
                                 # Look for include files
-                                callScope = kind + ':' + c
+                                callScope = kind + ':' + call
                                 for incFile in self._incInScope[scopePath]:
                                     if callScope in self._scopes[incFile]:
                                         foundInInclude.append(callScope)
-        
+
                                 # Look for contained routines
-                                callScope = scopePath + '/' + kind + ':' + c
+                                callScope = scopePath + '/' + kind + ':' + call
                                 if callScope in self._scopes[filename]:
                                     foundInContains.append(callScope)
-        
+
                                 # Look for routine in the same scope
                                 if '/' in scopePath:
-                                    callScope = scopePath.rsplit('/', 1)[0] + '/' + kind + ':' + c
+                                    callScope = scopePath.rsplit('/', 1)[0] + '/' + kind + \
+                                                ':' + call
                                 else:
-                                    callScope = kind + ':' + c
+                                    callScope = kind + ':' + call
                                 if callScope in self._scopes[filename]:
                                     foundInSameScope.append(callScope)
-        
+
                             # Final selection
                             foundInUse = list(set(foundInUse))  # If a module is used several times
-                            if len(foundInUse + foundInInclude + foundInContains + foundInSameScope) > 1:
-                                logging.error(('Several definition of the program unit found for {callScope} ' + \
-                                               'called in {scopePath}:').format(callScope=c, scopePath=scopePath))
-                                logging.error('  found {i} time(s) in USE statements'.format(i=len(foundInUse)))
-                                logging.error('  found {i} time(s) in include files'.format(i=len(foundInInclude)))
-                                logging.error('  found {i} time(s) in CONTAINS block'.format(i=len(foundInContains)))
-                                logging.error('  found {i} time(s) in the same scope'.format(i=len(foundInSameScope)))
+                            if len(foundInUse + foundInInclude +
+                                   foundInContains + foundInSameScope) > 1:
+                                logging.error(('Several definition of the program unit found for '
+                                               '{callScope} called in {scopePath}:').format(
+                                               callScope=call, scopePath=scopePath))
+                                logging.error('  found {i} time(s) in USE statements'.format(
+                                              i=len(foundInUse)))
+                                logging.error('  found {i} time(s) in include files'.format(
+                                              i=len(foundInInclude)))
+                                logging.error('  found {i} time(s) in CONTAINS block'.format(
+                                              i=len(foundInContains)))
+                                logging.error('  found {i} time(s) in the same scope'.format(
+                                              i=len(foundInSameScope)))
                                 self._cache_execution_tree[scopePath].append('??')
-                            elif len(foundInUse + foundInInclude + foundInContains + foundInSameScope) == 1:
-                                r = (foundInUse + foundInInclude + foundInContains + foundInSameScope)[0]
-                                if canonicKind != 'func' or r in allScopes:
-                                    self._cache_execution_tree[scopePath].append(r)
+                            elif len(foundInUse + foundInInclude +
+                                     foundInContains + foundInSameScope) == 1:
+                                rr = (foundInUse + foundInInclude +
+                                      foundInContains + foundInSameScope)[0]
+                                if canonicKind != 'func' or rr in allScopes:
+                                    self._cache_execution_tree[scopePath].append(rr)
                             elif len(foundElsewhere) > 1:
-                                logging.info(('Several definition of the program unit found for {callScope} ' + \
-                                              'called in {scopePath}').format(callScope=c, scopePath=scopePath))
+                                logging.info(('Several definition of the program unit found for '
+                                              '{callScope} called in {scopePath}').format(
+                                              callScope=call, scopePath=scopePath))
                             elif len(foundElsewhere) == 1:
                                 self._cache_execution_tree[scopePath].append(foundElsewhere[0])
                             else:
                                 if canonicKind != 'func':
-                                    logging.info(('No definition of the program unit found for {callScope} ' + \
-                                                  'called in {scopePath}').format(callScope=c, scopePath=scopePath))
-        
+                                    logging.info(('No definition of the program unit found for '
+                                                  '{callScope} called in {scopePath}').format(
+                                                  callScope=call, scopePath=scopePath))
+
             # Execution_tree: named interface
             # We replace named interface by the list of routines declared in this interface
             # This is not perfect because only one routine is called and not all
@@ -357,7 +375,7 @@ class Tree():
                                     execList.append(subscopeIn)
                                 else:
                                     execList.append(sub.split('/')[-1])
-        
+
             # Execution_tree: cleaning (uniq values)
             for scopePath, execList in self._cache_execution_tree.items():
                 self._cache_execution_tree[scopePath] = list(set(execList))
@@ -400,22 +418,28 @@ class Tree():
                 self._scopes[filename].append(scope.path)
                 # We add, to this list, the "MODULE PROCEDURE" declared in INTERFACE statements
                 if scope.path.split('/')[-1].split(':')[0] == 'interface':
-                    for name in [n2name(N).upper()
+                    for name in [n2name(nodeN).upper()
                                  for moduleproc in scope.findall('./{*}procedure-stmt')
-                                 for N in moduleproc.findall('./{*}module-procedure-N-LT/{*}N')]:
-                        for s in scopes:
-                            if re.search(scope.path.rsplit('/', 1)[0] + '/[a-zA-Z]*:' + name, s.path):
-                                self._scopes[filename].append(scope.path + '/' + s.path.split('/')[-1])
+                                 for nodeN in moduleproc.findall('./{*}module-procedure-N-LT/' +
+                                                                 '{*}N')]:
+                        for sc in scopes:
+                            if re.search(scope.path.rsplit('/', 1)[0] + '/[a-zA-Z]*:' + name,
+                                         sc.path):
+                                self._scopes[filename].append(scope.path + '/' +
+                                                              sc.path.split('/')[-1])
 
                 # include, use, call and functions
                 # Fill compilation_tree
-                # Includes give directly the name of the source file but possibly without the directory
-                self._includeList[filename][scope.path] = [f.text
-                                           for f in scope.findall('.//{*}include/{*}filename')] #cpp
-                self._includeList[filename][scope.path].extend([extractString(f.text)
-                                           for f in scope.findall('.//{*}include/{*}filename/{*}S')]) #FORTRAN
+                # Includes give directly the name of the source file but possibly without
+                # the directory
+                self._includeList[filename][scope.path] = \
+                    [file.text for file in scope.findall('.//{*}include/{*}filename')]  # cpp
+                self._includeList[filename][scope.path].extend(
+                    [extractString(file.text)
+                     for file in scope.findall('.//{*}include/{*}filename/{*}S')])  # FORTRAN
 
-                # For use statements, we need to scan all the files to know which one contains the module
+                # For use statements, we need to scan all the files to know which one
+                # contains the module
                 self._useList[filename][scope.path] = []
                 for use in scope.findall('.//{*}use-stmt'):
                     modName = n2name(use.find('./{*}module-N/{*}N')).upper()
@@ -424,12 +448,13 @@ class Tree():
 
                 # Fill execution tree
                 # We need to scan all the files to find which one contains the subroutine/function
-                self._callList[filename][scope.path] = list(set(n2name(c.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
-                                                 for c in scope.findall('.//{*}call-stmt')))
+                self._callList[filename][scope.path] = \
+                    list(set(n2name(call.find('./{*}procedure-designator/{*}named-E/{*}N')).upper()
+                             for call in scope.findall('.//{*}call-stmt')))
                 # We cannot distinguish function from arrays
                 self._funcList[filename][scope.path] = set()
-                for name in [n2name(c.find('./{*}N')).upper()
-                             for c in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
+                for name in [n2name(call.find('./{*}N')).upper()
+                             for call in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
                     # But we can exclude some names if they are declared as arrays
                     var = pft.varList.findVar(name, scope.path)
                     if var is None or var['as'] is None:
@@ -444,8 +469,8 @@ class Tree():
     @debugDecor
     def fromJson(self, filename):
         """read from json"""
-        with open(filename, 'r') as f:
-            descTree = json.load(f)
+        with open(filename, 'r', encoding='utf-8') as file:
+            descTree = json.load(file)
         self._cwd = descTree['cwd']
         self._scopes = descTree['scopes']
         self._useList = descTree['useList']
@@ -462,7 +487,7 @@ class Tree():
                     'includeList': self._includeList,
                     'callList': self._callList,
                     'funcList': self._funcList,
-                   }
+                    }
         # Order dict keys and list values
         descTree['scopes'] = {k: sorted(descTree['scopes'][k]) for k in sorted(descTree['scopes'])}
         for cat in ('useList', 'includeList', 'callList', 'funcList'):
@@ -470,8 +495,8 @@ class Tree():
                                     for scope in sorted(descTree[cat][file])}
                              for file in sorted(descTree[cat])}
         # Write json on disk with indentation
-        with open(filename, 'w') as f:
-            json.dump(descTree, f, indent=2)
+        with open(filename, 'w', encoding='utf-8') as file:
+            json.dump(descTree, file, indent=2)
 
     # No @debugDecor for this low-level method
     def scopeToFiles(self, scopePath):
@@ -500,15 +525,15 @@ class Tree():
         :param down: True to get the nodes lower in the tree, False to get the upper ones
         :return: list of nodes lower or upper tahn initial node (recursively)
         """
-        def recur(n, level, currentList):
+        def recur(nnn, level, currentList):
             if down:
-                result = descTreePart.get(n, [])
+                result = descTreePart.get(nnn, [])
             else:
-                result = [item for (item, l) in descTreePart.items() if n in l]
+                result = [item for (item, l) in descTreePart.items() if nnn in l]
             if level is None or level > 1:
-                for r in list(result):
-                    if r not in currentList:  # for FORTRAN recursive calls
-                        result.extend(recur(r, None if level is None else level - 1, result))
+                for res in list(result):
+                    if res not in currentList:  # for FORTRAN recursive calls
+                        result.extend(recur(res, None if level is None else level - 1, result))
             return result
         return recur(node, level, [])
 
@@ -563,17 +588,18 @@ class Tree():
         """
         scopeSplt = scopePath.split('/')
         if includeInterfaces and len(scopeSplt) >= 2 and scopeSplt[-2].split(':')[0] == 'interface':
-            # This scope declares an interface, we look for the scope corresponding to this interface
+            # This scope declares an interface, we look for the scope corresponding
+            # to this interface
             scopeI = scopeSplt[-1]
             if scopeI in self._execution_tree:
                 # The actual code for the routine exists
-                return self.isUnderStopScopes(scopeI, stopScopes, includeStopScopes=includeStopScopes)
-            else:
-                # No code found for this interface
-                return False
+                return self.isUnderStopScopes(scopeI, stopScopes,
+                                              includeStopScopes=includeStopScopes)
+            # No code found for this interface
+            return False
         upperScopes = self.calledByScope(scopePath, None)
-        return any(scp in upperScopes for scp in stopScopes) or \
-               (includeStopScopes and scopePath in stopScopes)
+        return (any(scp in upperScopes for scp in stopScopes) or
+                (includeStopScopes and scopePath in stopScopes))
 
     @debugDecor
     def plotTree(self, centralNodeList, output, plotMaxUpper, plotMaxLower, kind, frame=False):
@@ -587,40 +613,47 @@ class Tree():
         :param frame: True to plot a frame grouping the central nodes
         """
         assert kind in ('compilation_tree', 'execution_tree')
-        def h(obj):
+
+        def myHash(obj):
             result = str(hash(obj))
             if result[0] == '-':
                 result = 'M' + result[1:]  # to minus sign
             return result
+
         def createNode(node, label=None):
             result = ""
             if label is not None:
-                result += "subgraph cluster_" + h(node) + " {\n"
-                result += 'label="{label}"\n'.format(label=label)
+                result += "subgraph cluster_" + myHash(node) + " {\n"
+                result += f'label="{label}"\n'
             if kind == 'execution_tree':
                 color = 'blue' if node.split('/')[-1].split(':')[0] == 'func' else 'green'
             else:
                 color = 'black'
-            result += h(node) + ' [label="{node}" color="{color}"]\n'.format(node=node, color=color)
+            result += myHash(node) + f' [label="{node}" color="{color}"]\n'
             if label is not None:
                 result += "}\n"
             return result
+
         def createLink(file1, file2):
-            return h(file1) + ' -> ' + h(file2) + '\n'
+            return myHash(file1) + ' -> ' + myHash(file2) + '\n'
+
         def createCluster(nodes, label=None):
             result = "subgraph cluster_R {\n"
-            result += "{rank=same " + (' '.join([h(node) for node in nodes])) + "}\n"
+            result += "{rank=same " + (' '.join([myHash(node) for node in nodes])) + "}\n"
             if label is not None:
-                result += 'label="{label}"\n'.format(label=label)
+                result += f'label="{label}"\n'
             result += "}\n"
             return result
+
         def add(item):
-            if item not in dot: dot.append(item)
+            if item not in dot:
+                dot.append(item)
+
         def filename(scopePath):
             if kind == 'compilation_tree':
                 return None
-            else:
-                return [f for f, l in self._scopes.items() if scopePath in l][0]
+            return [f for f, l in self._scopes.items() if scopePath in l][0]
+
         def recur(node, level, down):
             if level is None or level > 0:
                 var = self._execution_tree if kind == 'execution_tree' \
@@ -628,14 +661,13 @@ class Tree():
                 if down:
                     result = var.get(node, [])
                 else:
-                    result = [f for f, l in var.items()
-                              if node in l]
-                for r in result:
-                    add(createNode(r, filename(r)))
-                    add(createLink(node, r) if down else createLink(r, node))
+                    result = [f for f, l in var.items() if node in l]
+                for res in result:
+                    add(createNode(res, filename(res)))
+                    add(createLink(node, res) if down else createLink(res, node))
                     if level is None or level > 1:
-                        recur(r, None if level is None else level - 1, down)
-    
+                        recur(res, None if level is None else level - 1, down)
+
         # Are all the central scopes in the same file
         printInFrame = False
         if kind == 'execution_tree':
@@ -648,7 +680,7 @@ class Tree():
                 printInFrame = True
             else:
                 printInFrame = False
-    
+
         dot = ["digraph D {\n"]
         if not isinstance(centralNodeList, list):
             centralNodeList = [centralNodeList]
@@ -666,13 +698,13 @@ class Tree():
         dot = ''.join(dot)
         fmt = os.path.splitext(output)[1].lower()[1:]
         if fmt == 'dot':
-            with open(output, 'w') as f:
-                f.write(dot)
+            with open(output, 'w', encoding='utf-8') as file:
+                file.write(dot)
         else:
             dotCommand = ['dot', '-T' + fmt, '-o', output]
             logging.info('Dot command: ' + ' '.join(dotCommand))
             subprocess.run(dotCommand, input=dot.encode('utf8'), check=True)
-    
+
     @debugDecor
     def plotCompilTreeFromFile(self, filename, output, plotMaxUpper, plotMaxLower):
         """
@@ -683,7 +715,7 @@ class Tree():
         :param plotMaxLower: Maximum number of elements to plot, lower than the central element
         """
         return self.plotTree(filename, output, plotMaxUpper, plotMaxLower, 'compilation_tree', True)
-    
+
     @debugDecor
     def plotExecTreeFromScope(self, scopePath, output, plotMaxUpper, plotMaxLower):
         """
@@ -694,7 +726,7 @@ class Tree():
         :param plotMaxLower: Maximum number of elements to plot, lower than the central element
         """
         return self.plotTree(scopePath, output, plotMaxUpper, plotMaxLower, 'execution_tree')
-    
+
     @debugDecor
     def plotCompilTreeFromScope(self, scopePath, output, plotMaxUpper, plotMaxLower):
         """
@@ -706,7 +738,7 @@ class Tree():
         """
         return self.plotTree(self.scopeToFiles(scopePath), output, plotMaxUpper, plotMaxLower,
                              'compilation_tree')
-    
+
     @debugDecor
     def plotExecTreeFromFile(self, filename, output, plotMaxUpper, plotMaxLower):
         """
@@ -718,7 +750,7 @@ class Tree():
         """
         return self.plotTree(self.fileToScopes(filename), output, plotMaxUpper, plotMaxLower,
                              'execution_tree', True)
-    
+
     @debugDecor
     def findScopeInterface(self, scopePath):
         """

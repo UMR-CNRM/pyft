@@ -1,4 +1,4 @@
-!#PYFT transfo: --addACC_routine_seq --stopScopes sub:FOO
+!#PYFT transfo: --addACCRoutineSeq --stopScopes sub:FOO
 
 MODULE MODFOO1
   INTERFACE

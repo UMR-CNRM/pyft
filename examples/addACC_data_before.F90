@@ -1,4 +1,4 @@
-!#PYFT transfo: --addACC_data
+!#PYFT transfo: --addACCData
 
 !MNH_LIC Copyright 2004-2019 CNRS, Meteo-France and Universite Paul Sabatier
 !MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence

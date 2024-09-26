@@ -53,8 +53,8 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         self.__cacheParent = {}
         if enableCache:
             for node in self.iter():
-                for n in node:
-                    self.__cacheParent[id(n)] = node
+                for subNode in node:
+                    self.__cacheParent[id(subNode)] = node
 
     def __copy__(self):
         cls = self.__class__
@@ -66,8 +66,8 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         cls = self.__class__
         result = cls.__new__(cls)
         memo[id(self)] = result
-        for k, v in self.__dict__.items():
-            setattr(result, k, copy.deepcopy(v, memo))
+        for key, val in self.__dict__.items():
+            setattr(result, key, copy.deepcopy(val, memo))
         return result
 
     def __getattr__(self, method):
@@ -76,10 +76,17 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         """
         return getattr(self._xml, method)
 
-    def __getitem__(self, *args, **kwargs): return self._xml.__getitem__(*args, **kwargs)
-    def __setitem__(self, *args, **kwargs): return self._xml.__setitem__(*args, **kwargs)
-    def __delitem__(self, *args, **kwargs): return self._xml.__delitem__(*args, **kwargs)
-    def __len__(self, *args, **kwargs): return self._xml.__len__(*args, **kwargs)
+    def __getitem__(self, *args, **kwargs):
+        return self._xml.__getitem__(*args, **kwargs)
+
+    def __setitem__(self, *args, **kwargs):
+        return self._xml.__setitem__(*args, **kwargs)
+
+    def __delitem__(self, *args, **kwargs):
+        return self._xml.__delitem__(*args, **kwargs)
+
+    def __len__(self, *args, **kwargs):
+        return self._xml.__len__(*args, **kwargs)
 
     @updateVarList
     def remove(self, node):
@@ -118,7 +125,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         """
         return self._parentScope
 
-    #No @debugDecor for this low-level method
+    # No @debugDecor for this low-level method
     def getParent(self, item, level=1):
         """
         :param item: item whose parent is to be searched
@@ -129,7 +136,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
             # We check if the registered parent is still the right one
             # node must be in its parent, and the parent chain must go to the root node
             return node in self.__cacheParent.get(id(node), []) and \
-                   (self.__cacheParent[id(node)] == self.mainScope.node or \
+                   (self.__cacheParent[id(node)] == self.mainScope.node or
                     check(self.__cacheParent[id(node)]))
 
         assert level >= 1
@@ -137,12 +144,12 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         if check(item):
             parent = self.__cacheParent[id(item)]
         else:
-            for p in self.mainScope.node.iter():
-                if item in list(p):
-                    parent = p
+            for node in self.mainScope.node.iter():
+                if item in list(node):
+                    parent = node
                     if self.__cacheParent:
-                        #__cacheParent not empty means that we want to use the caching system
-                        self.__cacheParent[id(item)] = p
+                        # __cacheParent not empty means that we want to use the caching system
+                        self.__cacheParent[id(item)] = node
                     break
         return parent if level == 1 else self.getParent(parent, level - 1)
 
@@ -161,7 +168,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
             siblings = siblings[siblings.index(item) + 1:]
         return [s for s in siblings if s != item]
 
-    #No @debugDecor for this low-level method
+    # No @debugDecor for this low-level method
     @staticmethod
     def _getNodeName(node):
         """
@@ -171,17 +178,17 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         """
         # If there was no interface bloc, code could be n2name(node[0].find('.//{*}N'))
         # But (as of 7 Jul 2023), interface have two nested N
-        N = node.find('.//{*}N')
-        if N is not None and N.find('.//{*}N') is not None:
+        nodeN = node.find('.//{*}N')
+        if nodeN is not None and nodeN.find('.//{*}N') is not None:
             # As of 7 Jul 2023, this is the case for interface statements
-            N = N.find('.//{*}N')
-        if N is not None:
-            name = n2name(N).upper()
+            nodeN = nodeN.find('.//{*}N')
+        if nodeN is not None:
+            name = n2name(nodeN).upper()
         else:
             name = '--UNKNOWN--'
         return name
 
-    #No @debugDecor for this low-level method
+    # No @debugDecor for this low-level method
     def _getNodePath(self, node):
         """
         Internal methode to compute a path part from a node
@@ -192,7 +199,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         name = self._getNodeName(node[0])
         return {v: k for (k, v) in self.SCOPE_STMT.items()}[stmt] + ':' + name
 
-    #No @debugDecor for this low-level method
+    # No @debugDecor for this low-level method
     @staticmethod
     def normalizeScope(scopePath):
         """
@@ -225,38 +232,39 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :return: list of PYFTscope found in the current scope
         """
         assert level == -1 or level > 0, 'level must be -1 or a positive int'
+
         def _getRecur(node, level, basePath=''):
-            #If node is the entire xml
+            # If node is the entire xml
             if tag(node) == 'object':
                 usenode = node.find('./{*}file')
             else:
                 usenode = node
             results = []
-            for child in usenode:
-                if tag(child) in self.SCOPE_CONSTRUCT.values():
-                    nodePath = self._getNodePath(child)
-                    if excludeKinds is None or nodePath.split(':')[0] not in excludeKinds:
-                        scopePath = self._getNodePath(child) if basePath in ('', '/') \
-                                    else basePath + '/' + nodePath
-                        if excludeContains:
-                            childNode = createElem('virtual')
-                            breakOnCOntains = False
-                            for node in child:
-                                if tag(node) == 'contains-stmt':
-                                    breakOnCOntains = True
-                                    break #we are outside of the targeted bloc
-                                childNode.append(node)
-                            if breakOnCOntains:
-                                childNode.append(child[-1])
-                            else:
-                                childNode = child
+            for child in [child for child in usenode
+                          if tag(child) in self.SCOPE_CONSTRUCT.values()]:
+                nodePath = self._getNodePath(child)
+                if excludeKinds is None or nodePath.split(':')[0] not in excludeKinds:
+                    scopePath = self._getNodePath(child) if basePath in ('', '/') \
+                                else basePath + '/' + nodePath
+                    if excludeContains:
+                        childNode = createElem('virtual')
+                        breakOnCOntains = False
+                        for node in child:  # pylint: disable=redefined-argument-from-local
+                            if tag(node) == 'contains-stmt':
+                                breakOnCOntains = True
+                                break  # we are outside of the targeted bloc
+                            childNode.append(node)
+                        if breakOnCOntains:
+                            childNode.append(child[-1])
                         else:
                             childNode = child
-                        results.append(PYFTscope(childNode,
-                                                 scopePath=scopePath, parentScope=self,
-                                                 enableCache=False, tree=self.tree))
-                        if level != 1:
-                            results.extend(_getRecur(child, level - 1, scopePath))
+                    else:
+                        childNode = child
+                    results.append(PYFTscope(childNode,
+                                             scopePath=scopePath, parentScope=self,
+                                             enableCache=False, tree=self.tree))
+                    if level != 1:
+                        results.extend(_getRecur(child, level - 1, scopePath))
             return results
 
         return _getRecur(self.node, level, self.path)

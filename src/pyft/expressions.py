@@ -27,7 +27,7 @@ def createElem(tagName, text=None, tail=None):
 
 
 @lru_cache
-def _cached_createExprPart(value):
+def _cachedCreateExprPart(value):
     """
     :param value: expression part to put in a *-E node
 
@@ -38,45 +38,43 @@ def _cached_createExprPart(value):
         <f:literal-E><f:l>...
       - a FORTRAN variable name (pyhon string with only alphanumerical characters and _), returns
         <named-E/><N><n>...
-      - a FORTRAN operation (other python string), returns the right part of the X affectation statement
-        of the code: "SUBROUTINE T; X=" + value + "; END". The xml is obtained by calling fxtran.
+      - a FORTRAN operation (other python string), returns the right part of
+        the X affectation statement of the code:
+        "SUBROUTINE T; X=" + value + "; END". The xml is obtained by calling fxtran.
     """
 
-    #Allowed characters in a FORTRAN variable name
+    # Allowed characters in a FORTRAN variable name
     allowed = "abcdefghijklmnopqrstuvwxyz"
     allowed += allowed.upper() + '0123456789_'
 
     if isint(value) or isfloat(value) or value.upper() in ('.TRUE.', '.FALSE.'):
-        l = createElem('l', text=str(value))
         node = createElem('literal-E')
-        node.append(l)
+        node.append(createElem('l', text=str(value)))
     elif "'" in value or '"' in value:
-        S = createElem('S', text=value)
         node = createElem('string-E')
-        node.append(S)
-    elif all([c in allowed for c in value]):
-        n = createElem('n', text=value)
-        N = createElem('N')
-        N.append(n)
+        node.append(createElem('S', text=value))
+    elif all(c in allowed for c in value):
+        nodeN = createElem('N')
+        nodeN.append(createElem('n', text=value))
         node = createElem('named-E')
-        node.append(N)
+        node.append(nodeN)
     elif re.match(r'[a-zA-Z_][a-zA-Z0-9_]*%[a-zA-Z_][a-zA-Z0-9_]*$', value):
-        #A%B
-        n = createElem('n', text=value.split('%')[0])
-        N = createElem('N')
-        N.append(n)
+        # A%B
+        nodeN = createElem('N')
+        nodeN.append(createElem('n', text=value.split('%')[0]))
         ct = createElem('ct', text=value.split('%')[1])
         componentR = createElem('component-R', text='%')
         componentR.append(ct)
-        RLT = createElem('R-LT')
-        RLT.append(componentR)
+        nodeRLT = createElem('R-LT')
+        nodeRLT.append(componentR)
         node = createElem('named-E')
-        node.append(N)
-        node.append(RLT)
+        node.append(nodeN)
+        node.append(nodeRLT)
     else:
-        _, xml = fortran2xml("SUBROUTINE T; X={v}; END".format(v=value))
+        _, xml = fortran2xml(f"SUBROUTINE T; X={value}; END")
         node = xml.find('.//{*}E-2')[0]
     return node
+
 
 @debugDecor
 def createExprPart(value):
@@ -90,19 +88,20 @@ def createExprPart(value):
         <f:literal-E><f:l>...
       - a FORTRAN variable name (pyhon string with only alphanumerical characters and _), returns
         <named-E/><N><n>...
-      - a FORTRAN operation (other python string), returns the right part of the X affectation statement
-        of the code: "SUBROUTINE T; X=" + value + "; END". The xml is obtained by calling fxtran.
+      - a FORTRAN operation (other python string), returns the right part of
+        the X affectation statement of the code:
+        "SUBROUTINE T; X=" + value + "; END". The xml is obtained by calling fxtran.
     """
-    return copy.deepcopy(_cached_createExprPart(value))
+    return copy.deepcopy(_cachedCreateExprPart(value))
 
 
 @lru_cache
-def _cached_createExpr(value):
+def _cachedCreateExpr(value):
     """
     :param value: statements to convert into xml
     :return: the xml fragment corresponding to value (list of nodes)
     """
-    return fortran2xml("SUBROUTINE T\n{v}\nEND".format(v=value))[1].find('.//{*}program-unit')[1:-1]
+    return fortran2xml(f"SUBROUTINE T\n{value}\nEND")[1].find('.//{*}program-unit')[1:-1]
 
 
 @debugDecor
@@ -111,7 +110,8 @@ def createExpr(value):
     :param value: statements to convert into xml
     :return: the xml fragment corresponding to value (list of nodes)
     """
-    return copy.deepcopy(_cached_createExpr(value))
+    return copy.deepcopy(_cachedCreateExpr(value))
+
 
 @debugDecor
 def simplifyExpr(expr, add=None, sub=None):
@@ -124,24 +124,26 @@ def simplifyExpr(expr, add=None, sub=None):
     Note: only additions and substractions are considered
           addition and subtraction within parentheses are forbidden
     """
-    #We could have used external module, such as sympy, but this routine (as long as it's sufficient)
-    #avoids introducing dependencies.
-    if re.search('\([^()]*[+-][^()]*\)', expr):
-        raise NotImplementedError("Expression cannot (yet) contain + or - sign inside parenthesis: {expr}".format(expr=expr))
+    # We could have used external module, such as sympy, but this routine
+    # (as long as it's sufficient) avoids introducing dependencies.
+    if re.search(r'\([^()]*[+-][^()]*\)', expr):
+        raise NotImplementedError("Expression cannot (yet) contain + or - sign inside " +
+                                  f"parenthesis: {expr}")
 
     def split(expr):
         """
         :param s: expression
         :return: a list of (sign, abs(value))
         """
-        splt = re.split('([+-])', expr.replace(' ', '').upper()) #['1', '+', '1', '+', 'I', '+', 'JI', '-', 'I']
+        # splt is ['1', '+', '1', '+', 'I', '+', 'JI', '-', 'I']
+        splt = re.split('([+-])', expr.replace(' ', '').upper())
         if splt[0] == '':
-            #'-1' returns [
+            # '-1' returns [
             splt = splt[1:]
         if len(splt) % 2 == 1:
-            #expr doesn't start with a sign
-            splt = ['+'] + splt #['+', '1', '+', '1', '+', 'I', '+', 'JI', '-', 'I']
-        #group sign and operand [('+', '1'), ('+', '1'), ('+', 'I'), ('+', 'JI'), ('-', 'I')]
+            # expr doesn't start with a sign
+            splt = ['+'] + splt  # ['+', '1', '+', '1', '+', 'I', '+', 'JI', '-', 'I']
+        # group sign and operand [('+', '1'), ('+', '1'), ('+', 'I'), ('+', 'JI'), ('-', 'I')]
         splt = [(splt[2 * i], splt[2 * i + 1]) for i in range(len(splt) // 2)]
         return splt
 
@@ -150,32 +152,33 @@ def simplifyExpr(expr, add=None, sub=None):
         splt += split(add)
     if sub is not None:
         splt += [('-' if sign == '+' else '+', elem) for (sign, elem) in split(sub)]
-    #Suppress elements with opposite signs
+    # Suppress elements with opposite signs
     for sign, elem in splt.copy():
         if ('+', elem) in splt and ('-', elem) in splt:
             splt.remove(('+', elem))
             splt.remove(('-', elem))
-    #Pre-compute integer additions/substractions
+    # Pre-compute integer additions/substractions
     found = -1
     for i, (sign, elem) in enumerate(splt.copy()):
         if isint(elem):
             if found == -1:
                 found = i
             else:
-                result = str((1 if splt[found][0] == '+' else -1) * int(splt[found][1]) + \
+                result = str((1 if splt[found][0] == '+' else -1) * int(splt[found][1]) +
                              (1 if sign == '+' else -1) * int(elem))
                 splt[found] = split(str(result))[0]
                 splt.pop(i)
-    #Order (no matter what ordering is done but we need to order to allow comparisons)
+    # Order (no matter what ordering is done but we need to order to allow comparisons)
     splt.sort(key=lambda s: ''.join(s))
-    #Empty e.g. '1-1'
+    # Empty e.g. '1-1'
     if len(splt) == 0:
         splt = [('+', '0')]
-    #Concatenate
-    s = ' '.join(s[0] + ' ' + s[1] for s in splt)
-    if s.startswith('+'):
-        s = s[1:]
-    return s.lstrip(' ')
+    # Concatenate
+    result = ' '.join(s[0] + ' ' + s[1] for s in splt)
+    if result.startswith('+'):
+        result = result[1:]
+    return result.lstrip(' ')
+
 
 @debugDecor
 def createArrayBounds(lowerBoundstr, upperBoundstr, context):
@@ -196,5 +199,5 @@ def createArrayBounds(lowerBoundstr, upperBoundstr, context):
     elif context in ('DOCONCURRENT', 'ARRAY'):
         lowerBound.tail = ':'
     else:
-        raise PYFTError('Context unknown in createArrayBounds: {c}'.format(c=str(context)))
+        raise PYFTError(f'Context unknown in createArrayBounds: {context}')
     return lowerBound, upperBound

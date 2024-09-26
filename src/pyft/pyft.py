@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 """
-This module contains the main classes
+This module contains the main PYFT class
 PYFT is the file level class (read/write...)
-PYFTscope contains the transformations acting on a xml
 """
 
 import os
@@ -12,7 +11,7 @@ import sys
 from pyft.scope import PYFTscope
 from pyft.tree import Tree
 from pyft.util import (debugDecor, tostring, tofortran, fortran2xml,
-                       set_verbosity, print_infos, PYFTError)
+                       setVerbosity, printInfos, PYFTError)
 
 
 @debugDecor
@@ -57,8 +56,8 @@ class PYFT(PYFTscope):
         :param enableCache: True to cache node parents
         """
         if not sys.version_info >= (3, 8):
-            #At least version 3.7 for ordered dictionary
-            #At least verison 3.8 for namsepace wildcard (use of '{*}' in find or findall)
+            # At least version 3.7 for ordered dictionary
+            # At least verison 3.8 for namsepace wildcard (use of '{*}' in find or findall)
             raise PYFTError("pyft needs at least version 3.8 of python")
         self._filename = filename
         self._originalName = filename
@@ -66,10 +65,12 @@ class PYFT(PYFTscope):
         self._output = output
         self._parser = 'fxtran' if parser is None else parser
         tree = Tree() if tree is None else tree
-        self._parserOptions = self.DEFAULT_FXTRAN_OPTIONS if parserOptions is None else parserOptions
-        self._parserOptions = self._parserOptions.copy()
-        for t in tree.getDirs():
-            self._parserOptions.extend(['-I', t])
+        if parserOptions is None:
+            self._parserOptions = self.DEFAULT_FXTRAN_OPTIONS.copy()
+        else:
+            self._parserOptions = parserOptions.copy()
+        for tDir in tree.getDirs():
+            self._parserOptions.extend(['-I', tDir])
         for option in self.MANDATORY_FXTRAN_OPTIONS:
             if option not in self._parserOptions:
                 self._parserOptions.append(option)
@@ -78,10 +79,14 @@ class PYFT(PYFTscope):
         if includesRemoved:
             self.tree.update(self)
         if verbosity is not None:
-            set_verbosity(verbosity)
+            setVerbosity(verbosity)
 
-    def close(self):
-        print_infos()
+    @staticmethod
+    def close():
+        """
+        Closes the FORTRAN file
+        """
+        printInfos()
 
     @property
     def xml(self):
@@ -114,23 +119,24 @@ class PYFT(PYFTscope):
         The output file will have a modified extension.
         :param mod: function to apply to the file extension
         """
-        def _trans_ext(path, mod):
-            p, e = os.path.splitext(path)
-            return p + mod(e)
+        def _transExt(path, mod):
+            filename, ext = os.path.splitext(path)
+            return filename + mod(ext)
         if self._output is None:
-            self._filename = _trans_ext(self._filename, mod)
+            self._filename = _transExt(self._filename, mod)
         else:
-            self._output = _trans_ext(self._output, mod)
+            self._output = _transExt(self._output, mod)
 
     def write(self):
         """
         Writes the output FORTRAN file
         """
-        with open(self._filename if self._output is None else self._output, 'w') as f:
-            f.write(self.fortran)
+        with open(self._filename if self._output is None else self._output, 'w',
+                  encoding='utf-8') as fo:
+            fo.write(self.fortran)
         if self._output is None and self._filename != self._originalName:
-            #We must perform an in-place update of the file, but the output file
-            #name has been updated. Then, we must remove the original file.
+            # We must perform an in-place update of the file, but the output file
+            # name has been updated. Then, we must remove the original file.
             os.unlink(self._originalName)
 
     def writeXML(self, filename):
@@ -138,5 +144,5 @@ class PYFT(PYFTscope):
         Writes the output XML file
         :param filename: XML output file name
         """
-        with open(filename, 'w') as f:
-           f.write(self.xml)
+        with open(filename, 'w', encoding='utf-8') as fo:
+            fo.write(self.xml)
