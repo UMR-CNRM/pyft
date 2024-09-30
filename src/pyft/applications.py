@@ -83,6 +83,8 @@ class Applications():
         e.g.
         ZA = 1 + CST%XG ==> ZA = 1 + XCST_G
         ZA = 1 + PARAM_ICE%XRTMIN(3)  ==> ZA = 1 + XPARAM_ICE_XRTMIN3
+        ZRSMIN(1:KRR) = ICED%XRTMIN(1:KRR) => ZRSMIN(1:KRR) = ICEDXRTMIN1KRR(1:KRR)
+
         RESTRICTION : works only if the r-component variable is contained in 1 parent structure.
         Allowed for conversion : CST%XG
         Not converted : TOTO%CST%XG (for now, recursion must be coded)
@@ -133,10 +135,13 @@ class Applications():
                                         arrayIndices = arrayIndices + alltext(elem)
                                 newName = variable[0] + structure + variable[1:] + arrayIndices
 
-                                # 2) Replace the namedE>N>n by the newName and delete R-LT
+                                # 2) Replace the namedE>N>n by the newName and delete R-LT 
+                                #except for array with index selection (R-LT is moved)
                                 namedENn.text = newName
                                 objType.remove(objType.find('.//{*}R-LT'))
-
+                                if len(arrayRall) > 0:
+                                    objType.insert(1,arrayR)
+                                    
                                 # 3) Add to the list of not already present for declaration
                                 if newName not in newVarList:
                                     if len(arrayRall) == 0:
