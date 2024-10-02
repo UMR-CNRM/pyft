@@ -157,7 +157,7 @@ class Openacc():
                 if len(arraysIntent) == 0:
                     break
 
-                # 1) !$acc data present()
+                # 1) First !$acc data present()
                 listVar = "!$acc data present ( "
                 count = 0
                 for var in arraysIntent:
@@ -167,11 +167,14 @@ class Openacc():
                     listVar = listVar + var + ", &"
                     count += 1
                 listVarEnd = listVar[:-3]  # remove last comma and &
+                accAddMultipleLines = createExpr(listVarEnd + ')')
+                idx = self.insertStatement(scope.path, self.indent(accAddMultipleLines[0]), first=True)
 
-                for com in createExpr(listVarEnd + ')'):
-                    self.insertStatement(scope.path, self.indent(com), first=True)
-
-                # 2) !$acc end data
+                # 2) multi-lines !$acc &
+                for l,line in enumerate(accAddMultipleLines[1:]):
+                    scope.insert(idx+1+l,line)
+                
+                # 3) !$acc end data
                 comment = createElem('C', text='!$acc end data', tail='\n')
                 self.insertStatement(scope.path, self.indent(comment), first=False)
 
