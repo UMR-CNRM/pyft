@@ -809,14 +809,14 @@ class Statements():
         for sNode in node.findall('./{*}T-decl-stmt') + localUseToAdd + \
                 node.findall('./{*}implicit-none-stmt'):
             node.remove(sNode)
-        while tag(node[1]) == 'C':
+        while tag(node[1]) == 'C' and not node[1].text.startswith('!$acc'):
             node.remove(node[1])
 
         # Variable correspondance
         # For each dummy argument, we look for the calling arg name and shape
         # CALL FOO(Z(:))
         # SUBROUTINE FOO(P)
-        # vartable = {'P':{'name': 'Z', dim=[':']}}
+        # variable = {'P':{'name': 'Z', dim=[':']}}
         vartable = {}  # ordered dict
         for argN in subContained.findall('.//{*}subroutine-stmt/{*}dummy-arg-LT/{*}arg-N'):
             vartable[alltext(argN).upper()] = None  # Not present by default

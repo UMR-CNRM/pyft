@@ -523,7 +523,8 @@ DO II=1,JITER
     ENDIF
   ENDDO
   DO JIJ_1=IIJB_1, IIJE_1
-  SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
+  !$acc Meso-NH-champignon
+SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
   CASE ('T') !using Temperature
     PFRAC_ICE_UP(JIJ_1, IKB) = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - ZBUF(JIJ_1, IT_1) ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
   CASE ('O') !using Temperature with old formulae
@@ -868,7 +869,8 @@ DO II_2=1,JITER_2
     ENDIF
   ENDDO
   DO JIJ_2=IIJB_2, IIJE_2
-  SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
+  !$acc Meso-NH-champignon
+SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
   CASE ('T') !using Temperature
     ZFRAC_ICE(JIJ_2) = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - ZBUF(JIJ_2, IT_2) ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
   CASE ('O') !using Temperature with old formulae
@@ -1054,7 +1056,8 @@ DO II_3=1,JITER_3
     ENDIF
   ENDDO
   DO JIJ_2=IIJB_2, IIJE_2
-  SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
+  !$acc Meso-NH-champignon
+SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
   CASE ('T') !using Temperature
     ZFRAC_ICE(JIJ_2) = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - ZBUF(JIJ_2, IT_2) ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
   CASE ('O') !using Temperature with old formulae
@@ -1178,7 +1181,8 @@ DO II_3=1,JITER_3
     ENDIF
   ENDDO
   DO JIJ_2=IIJB_2, IIJE_2
-  SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
+  !$acc Meso-NH-champignon
+SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
   CASE ('T') !using Temperature
     ZFRAC_ICE(JIJ_2) = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - ZBUF(JIJ_2, IT_2) ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
   CASE ('O') !using Temperature with old formulae
@@ -1461,7 +1465,8 @@ DO II_4=1,JITER_4
     ENDIF
   ENDDO
   DO JIJ_5=IIJB_5, IIJE_5
-  SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
+  !$acc Meso-NH-champignon
+SELECT CASE(NEBN%CFRAC_ICE_SHALLOW_MF)
   CASE ('T') !using Temperature
     PFRAC_ICE_UP(JIJ_5, JK+IKL) = MAX( 0., MIN(1., (( NEBN%XTMAXMIX - ZBUF(JIJ_5, IT_5) ) / ( NEBN%XTMAXMIX - NEBN%XTMINMIX )) ) ) ! freezing interval
   CASE ('O') !using Temperature with old formulae

@@ -1352,6 +1352,7 @@ INTEGER, OPTIONAL,        INTENT(OUT)   :: KERR            ! Error code in retur
 
 !                1. Compute FRAC_ICE
 !
+!$acc Meso-NH-champignon
 IF (PRESENT(KERR)) KERR=0
 SELECT CASE(HFRAC_ICE)
   CASE ('T') !using Temperature
