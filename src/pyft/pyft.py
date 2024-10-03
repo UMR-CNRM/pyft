@@ -10,7 +10,7 @@ import sys
 from multiprocessing import Lock, RLock
 
 from pyft.scope import PYFTscope
-from pyft.tree import Tree
+from pyft.tree import Tree, updateTree
 from pyft.util import (debugDecor, tostring, tofortran, fortran2xml,
                        setVerbosity, printInfos, PYFTError)
 
@@ -22,6 +22,7 @@ def conservativePYFT(filename, parser, parserOptions, wrapH,
     Return a conservative PYFT object usable for tree manipulation
     :param filename: name of the file to open
     :param parser, parserOptions, wrapH: see the pyft class
+    :param tree: Tree instance or None
     :param verbosity: if not None, sets the verbosity level
     :param clsPYFT: PYFT class to use
     :return: PYFT object
@@ -48,6 +49,7 @@ class PYFT(PYFTscope):
     NO_PARALLEL_LOCK = None  # Can be updated by setParallel
     PARALLEL_FILE_LOCKS = None  # Can be updated by setParallel
 
+    @updateTree('signal')
     def __init__(self, filename, output=None, parser=None, parserOptions=None, verbosity=None,
                  wrapH=False, tree=None, enableCache=False):
         """
@@ -88,7 +90,7 @@ class PYFT(PYFTscope):
         includesRemoved, xml = fortran2xml(self._filename, self._parser, self._parserOptions, wrapH)
         super().__init__(xml, enableCache=enableCache, tree=tree)
         if includesRemoved:
-            self.tree.update(self)
+            self.tree.signal(self)
         if verbosity is not None:
             setVerbosity(verbosity)
 

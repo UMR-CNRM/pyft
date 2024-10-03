@@ -177,9 +177,8 @@ class Tree():
         """
         result = []
         if self.tree is not None:
-            for tdir in self.tree:
-                # FIXME tdir not used!!!!
-                result += glob.glob("**/")
+            for tDir in self.tree:
+                result += glob.glob(tDir + '/**/', recursive=True)
         return result
 
     @debugDecor
@@ -458,7 +457,7 @@ class Tree():
                 mustClose = False
             else:
                 pft = pyft.pyft.conservativePYFT(file, self._parser, self._parserOptions,
-                                                 self._wrapH, tree=self, verbosity=self._verbosity)
+                                                 self._wrapH, verbosity=self._verbosity)
                 filename = file
                 mustClose = True
             filename = filename[2:] if filename.startswith('./') else filename

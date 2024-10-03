@@ -133,8 +133,8 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
     :param wrapH: if True, content of .h file is put in a .F90 file (to force
                   fxtran to recognize it as free form) inside a module (to
                   enable the reading of files containing only a code part)
-    :returns: (ns, xml) where ns is a namespace dictionnary and xml
-              is an ET xml document
+    :returns: (includesRemoved, xml) where includesRemoved indicates if an include
+              was replaced by fxtran and xml is an ET xml document
     """
     # Namespace registration
     ET.register_namespace('f', NAMESPACE)
