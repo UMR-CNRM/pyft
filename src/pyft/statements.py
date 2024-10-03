@@ -1204,6 +1204,7 @@ class Statements():
         :param scope: scope (path or node) in which the statement must be inserted
         :param stmt: statement to insert
         :param first: True to insert it in first position, False to insert it in last position
+        :return: the index of the stmt inserted in scope
         """
         if isinstance(scope, str):
             scope = self.getScopeNode(scope)
@@ -1223,7 +1224,10 @@ class Statements():
             # If an include statements follows, it certainly contains an interface
             while (tag(scope[index]) in ('C', 'include', 'include-stmt') or
                    (tag(scope[index]) == 'cpp' and scope[index].text.startswith('#include'))):
-                index += 1
+                if not scope[index].text.startswith('!$acc'): 
+                    index += 1
+                else:
+                    break
         else:
             # Statement must be inserted before the contains statement
             contains = scope.find('./{*}contains-stmt')
@@ -1238,6 +1242,7 @@ class Statements():
         elif '\n' not in scope[index - 1].tail:
             scope[index - 1].tail += '\n'
         scope.insert(index, stmt)
+        return index
 
     @debugDecor
     def removeStmtNode(self, nodes, simplifyVar, simplifyStruct):
