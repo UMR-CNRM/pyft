@@ -5,7 +5,7 @@ This module includes the Statements class containing methods to act on statement
 import re
 import logging
 import copy
-from pyft.util import n2name, nonCode, debugDecor, alltext, PYFTError, tag
+from pyft.util import n2name, nonCode, debugDecor, alltext, PYFTError, tag, noParallel
 from pyft.expressions import createExprPart, createArrayBounds, createElem
 from pyft.tree import updateTree
 from pyft.variables import updateVarList
@@ -605,6 +605,7 @@ class Statements():
                      for v in newVarList])
 
     @debugDecor
+    @noParallel
     @updateTree('signal')
     @updateVarList
     def inlineContainedSubroutines(self, simplify=False, loopVar=None):
@@ -668,6 +669,7 @@ class Statements():
             self.removeEmptyCONTAINS()
 
     @debugDecor
+    @noParallel
     @updateTree()
     @updateVarList
     def inline(self, subContained, callStmt, mainScopePath, subScopePath,

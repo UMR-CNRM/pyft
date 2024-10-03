@@ -7,6 +7,7 @@ PYFT is the file level class (read/write...)
 
 import os
 import sys
+from multiprocessing import Lock, RLock
 
 from pyft.scope import PYFTscope
 from pyft.tree import Tree
@@ -16,12 +17,13 @@ from pyft.util import (debugDecor, tostring, tofortran, fortran2xml,
 
 @debugDecor
 def conservativePYFT(filename, parser, parserOptions, wrapH,
-                     tree=None, verbosity=None):
+                     tree=None, verbosity=None, clsPYFT=None):
     """
     Return a conservative PYFT object usable for tree manipulation
     :param filename: name of the file to open
     :param parser, parserOptions, wrapH: see the pyft class
     :param verbosity: if not None, sets the verbosity level
+    :param clsPYFT: PYFT class to use
     :return: PYFT object
     """
     options = PYFT.DEFAULT_FXTRAN_OPTIONS if parserOptions is None else parserOptions
@@ -29,8 +31,10 @@ def conservativePYFT(filename, parser, parserOptions, wrapH,
     if len(set(options).intersection(('-no-include', '-noinclude'))) == 0:
         # We add the option to not include 'include files' when analysing the tree
         options.append('-no-include')
-    pft = PYFT(filename, parser=parser, parserOptions=options, wrapH=wrapH,
-               tree=tree, verbosity=verbosity)
+    if clsPYFT is None:
+        clsPYFT = PYFT
+    pft = clsPYFT(filename, parser=parser, parserOptions=options, wrapH=wrapH,
+                  tree=tree, verbosity=verbosity)
     return pft
 
 
@@ -40,6 +44,9 @@ class PYFT(PYFTscope):
     """
     DEFAULT_FXTRAN_OPTIONS = ['-construct-tag', '-no-include', '-no-cpp', '-line-length', '9999']
     MANDATORY_FXTRAN_OPTIONS = ['-construct-tag']
+    SHARED_TREE = None  # Can be updated by setParallel
+    NO_PARALLEL_LOCK = None  # Can be updated by setParallel
+    PARALLEL_FILE_LOCKS = None  # Can be updated by setParallel
 
     def __init__(self, filename, output=None, parser=None, parserOptions=None, verbosity=None,
                  wrapH=False, tree=None, enableCache=False):
@@ -55,6 +62,7 @@ class PYFT(PYFTscope):
         :param tree: an optional Tree instance
         :param enableCache: True to cache node parents
         """
+        self.__class__.lockFile(filename)
         if not sys.version_info >= (3, 8):
             # At least version 3.7 for ordered dictionary
             # At least verison 3.8 for namsepace wildcard (use of '{*}' in find or findall)
@@ -65,6 +73,9 @@ class PYFT(PYFTscope):
         self._output = output
         self._parser = 'fxtran' if parser is None else parser
         tree = Tree() if tree is None else tree
+        if self.SHARED_TREE is not None:
+            assert tree is not None, 'tree must be None if setParallel has been called'
+            tree.copyFromOtherTree(self.SHARED_TREE)
         if parserOptions is None:
             self._parserOptions = self.DEFAULT_FXTRAN_OPTIONS.copy()
         else:
@@ -81,12 +92,58 @@ class PYFT(PYFTscope):
         if verbosity is not None:
             setVerbosity(verbosity)
 
-    @staticmethod
-    def close():
+    @classmethod
+    def setParallel(cls, tree, clsLock=None, clsRLock=None):
+        """
+        Prepare the class to be used to instanciate parallel objects
+        :param tree: Tree object shared among processes
+        :param clsLock: class to use for Lock (defaults to multiprocessing.Lock)
+        :param clsRLock: class to use for RLock (defaults to multiprocessing.RLock)
+        """
+        if clsLock is None:
+            clsLock = Lock
+        if clsRLock is None:
+            clsRLock = RLock
+        cls.NO_PARALLEL_LOCK = clsRLock()
+        cls.SHARED_TREE = tree
+        cls.PARALLEL_FILE_LOCKS = {os.path.normpath(file): clsLock()
+                                   for file in tree.getFiles()}
+
+    @classmethod
+    def lockFile(cls, filename):
+        """
+        Acquire lock for filename
+        :param filename: name of the file whose lock must be acquired
+        """
+        filename = os.path.normpath(filename)
+        # pylint: disable-next=unsupported-membership-test
+        if cls.PARALLEL_FILE_LOCKS is not None and filename in cls.PARALLEL_FILE_LOCKS:
+            # pylint: disable-next=unsubscriptable-object
+            cls.PARALLEL_FILE_LOCKS[filename].acquire()
+
+    @classmethod
+    def unlockFile(cls, filename, silence=False):
+        """
+        Release lock for filename
+        :param filename: name of the file whose lock must be acquired
+        :param silence: do not raise exception if file is already unlocked
+        """
+        filename = os.path.normpath(filename)
+        # pylint: disable-next=unsupported-membership-test
+        if cls.PARALLEL_FILE_LOCKS is not None and filename in cls.PARALLEL_FILE_LOCKS:
+            try:
+                # pylint: disable-next=unsubscriptable-object
+                cls.PARALLEL_FILE_LOCKS[filename].release()
+            except ValueError:
+                if not silence:
+                    raise
+
+    def close(self):
         """
         Closes the FORTRAN file
         """
         printInfos()
+        self.__class__.unlockFile(self.getFileName())
 
     @property
     def xml(self):
@@ -134,6 +191,9 @@ class PYFT(PYFTscope):
         with open(self._filename if self._output is None else self._output, 'w',
                   encoding='utf-8') as fo:
             fo.write(self.fortran)
+            fo.flush()  # ensuring all the existing buffers are written
+            os.fsync(fo.fileno())  # forcefully writing to the file
+
         if self._output is None and self._filename != self._originalName:
             # We must perform an in-place update of the file, but the output file
             # name has been updated. Then, we must remove the original file.

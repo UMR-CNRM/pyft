@@ -6,7 +6,7 @@ for high-to-moderate level transformation
 import copy
 import os
 
-from pyft.util import debugDecor, alltext, n2name, isStmt, PYFTError, tag
+from pyft.util import debugDecor, alltext, n2name, isStmt, PYFTError, tag, noParallel
 from pyft.expressions import createExpr, createExprPart, createElem, simplifyExpr
 from pyft.tree import updateTree
 from pyft.variables import updateVarList
@@ -433,7 +433,7 @@ class Applications():
             for scope in self.getScopes():
                 # We apply the transformation only if the routine is called
                 # from a scope within stopScopes
-                if (not self.tree.isValid) or scope.path in stopScopes or \
+                if (not self.tree.isValid) or stopScopes is None or scope.path in stopScopes or \
                    self.tree.isUnderStopScopes(scope.path, stopScopes):
                     nb = self.modifyAutomaticArrays(
                                 declTemplate="{type}, DIMENSION({doubledotshape}), " +
@@ -1255,6 +1255,7 @@ class Applications():
                     self.addArrayParenthesesInNode(stmt, scope.path)
 
     @debugDecor
+    @noParallel
     @updateTree('signal')
     def buildACCTypeHelpers(self):
         """

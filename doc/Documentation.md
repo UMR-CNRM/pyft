@@ -2,9 +2,11 @@
 
 ## Introduction
 
-This package contains a python script, pyft\_tool.py, that reads a FORTRAN code,
-parse it in xml, performs some manipulation, reverts it in FORTRAN and
-writes it back on disk.
+This package contains two python script, pyft\_tool.py and pyft\_parallel\tool.py,
+that read FORTRAN codes, parse them in xml, perform some manipulation, revert them
+in FORTRAN and write them back on disk.
+pyft\_tool.py performs these tasks on a per file basis whereas pyft\_parallel\tool.py
+perform the transformations in parallel on all files found in a tree.
 In addition, the package can be used for scripting applicative transformations.
 
 This package supposes that the original source code is written using UTF-8
@@ -85,6 +87,19 @@ for each called functions. In addition, with the debug level, input
 and output of all the called functions are printed.
 
 **\--enableCache** activates a cache to obtain the node's parent faster.
+
+**\--nbPar** sets the number of parallel processes for the pyft\_parallel\tool.py
+tool. 0 (default) to use as many processes as the number of cores.
+
+**\--optsByEnv** Name of the environment variable containing additional arguments
+to use. These arguments are processed after all other arguments.  The variable can
+contain a multi-lines string. The variable is read line by line and the last
+applicable line is used. A line can take one of these two forms:
+
+  * "FILE\_DESCRIPTOR:=:OPTIONS": where FILE\_DESCRIPTOR is a regular expression to
+    test against the filename. If there is a match, the OPTIONS can be used for the file.
+  * "OPTIONS": if the line doesn\'t contain the FILE\_DESCRIPTOR part, it applies to
+    all source code.
 
 ### Dealing with variables
 
@@ -335,6 +350,7 @@ pyft.expressions.
 New methods must be added in one of the abstract classes defined in variables.py,
 statements.py... according to its main topic.
 The application.py file deals with methods specific to PHYEX that are not universal.
+The scripting.py modules contains functions used to build the two main tools.
 
 Several decorators are available:
  - debugDecor (defined in tool): ease the debugging/profiling when logLevel is set
@@ -352,6 +368,10 @@ Several decorators are available:
     can modify the variables (existence, name, characteristics). It suppresses the
     cached version of the variable list (VarList instance) attached to the PYFT
     instance.
+  - noParallel (defined in util): methods decorated with it cannot be executed in
+    parallel with other methods decorated the same way. This is used to decorate
+    methods that introduce modifications into the tree. For this reason, the
+    noParallel decorator *must appear* before the updateTree one.
 
 ## Examples and tests
 

@@ -6,8 +6,9 @@ import logging
 import copy
 import re
 from functools import wraps
+import os
 
-from pyft.util import PYFTError, debugDecor, alltext, isExecutable, n2name, tag
+from pyft.util import PYFTError, debugDecor, alltext, isExecutable, n2name, tag, noParallel
 from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr, createElem
 from pyft.tree import updateTree
 import pyft.pyft
@@ -351,6 +352,7 @@ class Variables():
                             "file '{}'".format(self.getFileName()))
 
     @debugDecor
+    @noParallel
     @updateVarList
     @updateTree('signal')
     def removeVar(self, varList, simplify=False):
@@ -570,6 +572,7 @@ class Variables():
                     locNode.insert(index, ds)
 
     @debugDecor
+    @noParallel
     @updateVarList
     @updateTree('signal')
     def addModuleVar(self, moduleVarList):
@@ -732,6 +735,7 @@ class Variables():
                                         sub.extend([lowerXml, upperXml])
 
     @debugDecor
+    @noParallel
     def addArrayParentheses(self, scopePath=None):
         """
         Look for arrays and add parenthesis. A => A(:)
@@ -1449,13 +1453,14 @@ class Variables():
                 if len(scopePath.split('/')) == 1:
                     filename, scopeInterface = self.tree.findScopeInterface(scopePath)
                     if filename is not None:
-                        if self.getFileName() == filename:
+                        if self.getFileName() == os.path.normpath(filename):
                             # interface declared in same file
                             xml = self
                             pft = None
                         else:
                             pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
-                                                             wrapH, tree=self.tree)
+                                                             wrapH, tree=self.tree,
+                                                             clsPYFT=self._mainScope.__class__)
                             xml = pft
                         varInterface = xml.varList.findVar(varName, scopeInterface, exactScope=True)
                         if varInterface is None:
@@ -1467,6 +1472,7 @@ class Variables():
                                                        moduleVarNames) in moduleVarList])
                         if pft is not None:
                             pft.write()
+                            pft.close()
 
             if var is None and scopePath not in stopScopes:
                 # We must propagates upward
@@ -1477,13 +1483,14 @@ class Variables():
                         # of the stopScopes
                         # can be defined several times?
                         for filename in self.tree.scopeToFiles(scopeUp):
-                            if self.getFileName() == filename:
+                            if self.getFileName() == os.path.normpath(filename):
                                 # Upper scope is in the same file
                                 xml = self
                                 pft = None
                             else:
                                 pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
-                                                                 wrapH, tree=self.tree)
+                                                                 wrapH, tree=self.tree,
+                                                                 clsPYFT=self._mainScope.__class__)
                                 xml = pft
                             # Add the argument and propagate upward
                             xml.addArgInTree(scopeUp, varName, declStmt, pos,
@@ -1521,6 +1528,7 @@ class Variables():
                                         isCalled = True
                             if pft is not None:
                                 pft.write()
+                                pft.close()
 
                             if isCalled:
                                 # We must check in the scope (or upper scopes) if an interface

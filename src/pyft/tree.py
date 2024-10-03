@@ -31,14 +31,15 @@ def updateTree(method='file'):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             result = func(self, *args, **kwargs)
-            if method == 'file':
-                self.tree.update(self)
-            elif method == 'scan':
-                current = set(self.tree.getFiles())
-                old = set(self.tree.knownFiles())
-                self.tree.update(current.symmetric_difference(old))
-            elif method == 'signal':
-                self.tree.update(self.tree.popSignaled())
+            if self.tree.isValid:
+                if method == 'file':
+                    self.tree.update(self)
+                elif method == 'scan':
+                    current = set(self.tree.getFiles())
+                    old = set(self.tree.knownFiles())
+                    self.tree.update(current.symmetric_difference(old))
+                elif method == 'signal':
+                    self.tree.update(self.tree.popSignaled())
             return result
         return wrapper
     return decorator
@@ -65,6 +66,9 @@ class Tree():
         self._wrapH = wrapH
         self._verbosity = verbosity
 
+        # Files signaled for update
+        self._signaled = set()
+
         # File analysis
         self._cwd = os.getcwd()
         self._emptyCache()
@@ -80,8 +84,59 @@ class Tree():
             if descTreeFile is not None:
                 self.toJson(descTreeFile)
 
-        # Files signaled for update
-        self._signaled = set()
+    def getFullContent(self):
+        """
+        :return: a dict containing the full content of the instance
+        """
+        return {'tree': self._tree,
+                'descTreeFile': self._descTreeFile,
+                'parser': self._parser,
+                'parserOptions': self._parserOptions,
+                'wrapH': self._wrapH,
+                'verbosity': self._verbosity,
+                'cwd': self._cwd,
+                'scopes': self._scopes,
+                'useList': self._useList,
+                'includeList': self._includeList,
+                'callList': self._callList,
+                'funcList': self._funcList,
+                'signaled': self._signaled,
+                'cache_compilation_tree': self._cache_compilation_tree,
+                'cache_execution_tree': self._cache_execution_tree,
+                'cache_incInScope': self._cache_incInScope}
+
+    def setFullContent(self, content):
+        """
+        :param content: Fill the current instance with this dict
+        """
+        self._tree = content['tree']
+        self._descTreeFile = content['descTreeFile']
+        self._parser = content['parser']
+        self._parserOptions = content['parserOptions']
+        self._wrapH = content['wrapH']
+        self._verbosity = content['verbosity']
+        self._cwd = content['cwd']
+        self._scopes = content['scopes']
+        self._useList = content['useList']
+        self._includeList = content['includeList']
+        self._callList = content['callList']
+        self._funcList = content['funcList']
+        self._signaled = content['signaled']
+        self._cache_compilation_tree = content['cache_compilation_tree']
+        self._cache_execution_tree = content['cache_execution_tree']
+        self._cache_incInScope = content['cache_incInScope']
+
+    def copyFromOtherTree(self, other):
+        """
+        Sets self to be a copy of other
+        """
+        self.setFullContent(other.getFullContent())
+
+    def copyToOtherTree(self, other):
+        """
+        Sets other to be a copy of self
+        """
+        other.setFullContent(self.getFullContent())
 
     def signal(self, file):
         """
@@ -400,10 +455,12 @@ class Tree():
             if isinstance(file, pyft.scope.PYFTscope):
                 pft = file
                 filename = pft.getFileName()
+                mustClose = False
             else:
                 pft = pyft.pyft.conservativePYFT(file, self._parser, self._parserOptions,
                                                  self._wrapH, tree=self, verbosity=self._verbosity)
                 filename = file
+                mustClose = True
             filename = filename[2:] if filename.startswith('./') else filename
 
             # Loop on scopes
@@ -460,6 +517,8 @@ class Tree():
                     if var is None or var['as'] is None:
                         self._funcList[filename][scope.path].add(name)
                 self._funcList[filename][scope.path] = list(self._funcList[filename][scope.path])
+            if mustClose:
+                pft.close()
         else:
             if filename in self._scopes:
                 del self._scopes[filename], self._includeList[filename], \

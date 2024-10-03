@@ -62,6 +62,31 @@ def debugDecor(func):
     return wrapper
 
 
+def noParallel(func):
+    """
+    Defines a decorator that prevent this method to be executed in parallel on several files
+    """
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        if self.NO_PARALLEL_LOCK is not None:
+            # Acquire lock, if any
+            with self.NO_PARALLEL_LOCK:
+                # We cannot use directly the shared version because the update
+                # tries to send a whole pyft object to the Manager and there are
+                # issues with that (at least about the locks attached to the instance)
+                # The code here allows to synchronize when there is a lock mechanism.
+                # All the routines updating the tree must be decorated by noParallel
+                if self.SHARED_TREE is not None:
+                    self.tree.copyFromOtherTree(self.SHARED_TREE)
+                result = func(self, *args, **kwargs)
+                if self.SHARED_TREE is not None:
+                    self.tree.copyToOtherTree(self.SHARED_TREE)
+                return result
+        else:
+            return func(self, *args, **kwargs)
+    return wrapper
+
+
 def setVerbosity(level):
     """
     Set the verbosity level

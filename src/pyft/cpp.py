@@ -2,7 +2,7 @@
 This module implements the Cpp class containing the methods for dealing with cpp directives
 """
 
-from pyft.util import debugDecor, alltext, PYFTError, tag
+from pyft.util import debugDecor, alltext, PYFTError, tag, noParallel
 from pyft.tree import updateTree
 from pyft.variables import updateVarList
 
@@ -12,6 +12,7 @@ class Cpp:
     Methods to deal with cpp directives
     """
     @debugDecor
+    @noParallel
     @updateVarList
     @updateTree('signal')
     def applyCPPifdef(self, keys):

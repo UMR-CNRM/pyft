@@ -5,6 +5,7 @@ This module implements the scope stuff
 """
 
 import copy
+import os
 
 from pyft.variables import Variables, updateVarList
 from pyft.cosmetics import Cosmetics
@@ -70,11 +71,14 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
             setattr(result, key, copy.deepcopy(val, memo))
         return result
 
-    def __getattr__(self, method):
+    def __getattr__(self, attr):
         """
         Apply find, findall, iter... on the xml
         """
-        return getattr(self._xml, method)
+        assert attr != '_xml', 'self._xml must exist'
+        if attr in ('SHARED_TREE', 'NO_PARALLEL_LOCK', 'PARALLEL_FILE_LOCKS '):
+            return getattr(self._parentScope, attr)
+        return getattr(self._xml, attr)
 
     def __getitem__(self, *args, **kwargs):
         return self._xml.__getitem__(*args, **kwargs)
@@ -346,7 +350,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :return: the name of the input file name or 'unknown' if not available
                  in the xml fragment provided
         """
-        return self.mainScope.node.find('.//{*}file').attrib['name']
+        return os.path.normpath(self.mainScope.node.find('.//{*}file').attrib['name'])
 
     @updateVarList
     def empty(self, addStmt=None, simplify=False):
