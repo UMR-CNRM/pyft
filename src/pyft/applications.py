@@ -79,23 +79,72 @@ class Applications():
     @debugDecor
     def convertTypesInCompute(self):
         """
-        Convert STR%VAR into single local variable contained in compute statements
+        Convert STR%VAR into single local variable contained in compute (a-stmt)
+        and in if-then-stmt, else-if-stmt, where-stmt
         e.g.
         ZA = 1 + CST%XG ==> ZA = 1 + XCST_G
         ZA = 1 + PARAM_ICE%XRTMIN(3)  ==> ZA = 1 + XPARAM_ICE_XRTMIN3
         ZRSMIN(1:KRR) = ICED%XRTMIN(1:KRR) => ZRSMIN(1:KRR) = ICEDXRTMIN1KRR(1:KRR)
+        IF(TURBN%CSUBG_MF_PDF=='NONE')THEN => IF(CTURBNSUBG_MF_PDF=='NONE')THEN
 
         RESTRICTION : works only if the r-component variable is contained in 1 parent structure.
         Allowed for conversion : CST%XG
         Not converted : TOTO%CST%XG (for now, recursion must be coded)
         Not converted : TOTO%ARRAY(:) (shape of the array must be determined from E1)
         """
-        scopes = self.getScopes()
+        def convertOneType(component, newVarList):
+            # 1) Build the name of the new variable
+            objType = self.getParent(component, 2)  # The object STR%VAR
+            objTypeStr = alltext(objType)
+            namedENn = objType.find('.//{*}N/{*}n')
+            structure = namedENn.text
+            variable = component.find('.//{*}ct').text
+            # If the variable is an array with index selection
+            # such as ICED%XRTMIN(1:KRR)
+            arrayIndices = ''
+            arrayRall = objType.findall('.//{*}array-R')
+            if len(arrayRall) > 0:
+                arrayR = copy.deepcopy(arrayRall[0])  # Save for the declaration
+                txt = alltext(arrayR).replace(',', '')
+                txt = txt.replace(':', '')
+                txt = txt.replace('(', '')
+                txt = txt.replace(')', '')
+                arrayIndices = arrayIndices + txt
+            elif len(objType.findall('.//{*}element-LT')) > 0:
+                # Case with single element such as ICED%XRTMIN(1)
+                for elem in objType.findall('.//{*}element'):
+                    arrayIndices = arrayIndices + alltext(elem)
+            newName = variable[0] + structure + variable[1:] + arrayIndices
+            
+            # 2) Replace the namedE>N>n by the newName and delete R-LT 
+            #except for array with index selection (R-LT is moved)
+            namedENn.text = newName
+            objType.remove(objType.find('.//{*}R-LT'))
+            if len(arrayRall) > 0:
+                objType.insert(1,arrayR)
+            
+                
+            # 3) Add to the list of not already present for declaration
+            if newName not in newVarList:
+                if len(arrayRall) == 0:
+                    newVarList[newName] = (None, objTypeStr)
+                else:
+                    newVarList[newName] = (arrayR, objTypeStr)
+                    
+        scopes = self.getScopes(excludeContains=True)
         if scopes[0].path.split('/')[-1].split(':')[1][:4] == 'MODD':
             return
         for scope in [scope for scope in scopes
                       if 'sub:' in scope.path and 'interface' not in scope.path]:
+            print(scope.path)
             newVarList = {}
+            for ifStmt in scope.findall('.//{*}if-then-stmt') + scope.findall('.//{*}else-if-stmt') \
+                + scope.findall('.//{*}where-stmt'): 
+                compo = ifStmt.findall('.//{*}component-R')
+                if len(compo) > 0:
+                    for elcompo in compo:
+                        convertOneType(elcompo, newVarList)
+                
             for aStmt in scope.findall('.//{*}a-stmt'):
                 # Exclude statements in which the component-R is in E1
                 # (e.g. PARAMI%XRTMIN(4) = 2)
@@ -112,52 +161,17 @@ class Applications():
                         if nbNamedEinE2 > 1 or nbNamedEinE2 == 1 and \
                            len(aStmt[0].findall('.//{*}R-LT')) == 1:
                             for elcompoE2 in compoE2:
-                                # 1) Build the name of the new variable
-                                objType = self.getParent(elcompoE2, 2)  # The object STR%VAR
-                                objTypeStr = alltext(objType)
-                                namedENn = objType.find('.//{*}N/{*}n')
-                                structure = namedENn.text
-                                variable = elcompoE2.find('.//{*}ct').text
-                                # If the variable is an array with index selection
-                                # such as ICED%XRTMIN(1:KRR)
-                                arrayIndices = ''
-                                arrayRall = objType.findall('.//{*}array-R')
-                                if len(arrayRall) > 0:
-                                    arrayR = copy.deepcopy(arrayRall[0])  # Save for the declaration
-                                    txt = alltext(arrayR).replace(',', '')
-                                    txt = txt.replace(':', '')
-                                    txt = txt.replace('(', '')
-                                    txt = txt.replace(')', '')
-                                    arrayIndices = arrayIndices + txt
-                                elif len(objType.findall('.//{*}element-LT')) > 0:
-                                    # Case with single element such as ICED%XRTMIN(1)
-                                    for elem in objType.findall('.//{*}element'):
-                                        arrayIndices = arrayIndices + alltext(elem)
-                                newName = variable[0] + structure + variable[1:] + arrayIndices
-
-                                # 2) Replace the namedE>N>n by the newName and delete R-LT 
-                                #except for array with index selection (R-LT is moved)
-                                namedENn.text = newName
-                                objType.remove(objType.find('.//{*}R-LT'))
-                                if len(arrayRall) > 0:
-                                    objType.insert(1,arrayR)
-                                    
-                                # 3) Add to the list of not already present for declaration
-                                if newName not in newVarList:
-                                    if len(arrayRall) == 0:
-                                        newVarList[newName] = (None, objTypeStr)
-                                    else:
-                                        newVarList[newName] = (arrayR, objTypeStr)
+                                convertOneType(elcompoE2, newVarList)
 
             # Add the declaration of the new variables and their affectation
             for el, var in newVarList.items():
-                if el[0] == 'X' or el[0] == 'P' or el[0] == 'Z':
+                if el[0].upper() == 'X' or el[0].upper() == 'P' or el[0].upper() == 'Z':
                     varType = 'REAL'
-                elif el[0] == 'L' or el[0] == 'O':
+                elif el[0].upper() == 'L' or el[0].upper() == 'O':
                     varType = 'LOGICAL'
-                elif el[0] == 'N' or el[0] == 'I' or el[0] == 'K':
+                elif el[0].upper() == 'N' or el[0].upper() == 'I' or el[0].upper() == 'K':
                     varType = 'INTEGER'
-                elif el[0] == 'C':
+                elif el[0].upper() == 'C':
                     varType = 'CHARACTER(LEN=LEN(' + var[1] + '))'
                 else:
                     raise PYFTError('Case not implemented for the first letter of the newVarName' +
