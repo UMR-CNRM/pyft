@@ -155,7 +155,7 @@ class Cosmetics():
         Remove empty lines
         """
         elem = self.find('{*}file')
-        if elem.text is not None:
+        if elem is not None and elem.text is not None:
             elem.text = elem.text.replace('\n', '')
         for elem in self.iter():
             if elem.tail is not None and '\n' in elem.tail:

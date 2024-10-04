@@ -15,7 +15,7 @@ from pyft.cpp import Cpp
 from pyft.openacc import Openacc
 from pyft.util import PYFTError, debugDecor, n2name, tag
 from pyft.tree import Tree
-from pyft.expressions import createElem
+from pyft.expressions import createElem, createExpr
 
 
 class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
@@ -214,25 +214,28 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                          for component in scopePath.split('/')]])
 
     @debugDecor
-    def showScopesList(self):
+    def showScopesList(self, includeItself=False):
         """
         Shows the list of scopes found in the source code
+        :param includeItself: include itself if self represent a "valid" scope (not a file)
         """
         print("These scopes have been found in the source code:")
-        print("\n".join(['  - ' + scope.path for scope in self.getScopes()]))
+        print("\n".join(['  - ' + scope.path
+                         for scope in self.getScopes(includeItself=includeItself)]))
 
     @debugDecor
-    def getScopes(self, level=-1, excludeContains=False, excludeKinds=None):
+    def getScopes(self, level=-1, excludeContains=False, excludeKinds=None, includeItself=True):
         """
         :param level: -1 to get all child scopes
                       1 to get only direct child scopes
-                      2 to get direct of direct ...
+                      2 to get direct and direct of direct ...
         :param excludeContains: if True, each PYFTscope which is a module, function or subroutine
                                 that contain (after a 'CONTAINS' statement) other subroutines or
                                 functions, those contained subroutines or functions are excluded
                                 from the result; but the PYFTscope contains the 'END' statement
                                 of the module/subroutine or function.
         :param excludeKinds: if not None, is a list of scope kinds to exclude
+        :param includeItself: include itself if self represent a "valid" scope (not a file)
         :return: list of PYFTscope found in the current scope
         """
         assert level == -1 or level > 0, 'level must be -1 or a positive int'
@@ -271,32 +274,44 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                         results.extend(_getRecur(child, level - 1, scopePath))
             return results
 
-        return _getRecur(self.node, level, self.path)
+        if includeItself and tag(self) in self.SCOPE_CONSTRUCT.values():
+            itself = [self]
+        else:
+            itself = []
+
+        return _getRecur(self.node, level, self.path) + itself
 
     @debugDecor
-    def getScopeNode(self, scopePath, excludeContains=False):
+    def getScopeNode(self, scopePath, excludeContains=False, includeItself=True):
         """
         :param scopePath: scope path to search for
         :param excludeContains: see getScopes
+        :param includeItself: include itself if self represent a "valid" scope (not a file)
         :return: PYFTscope whose path is the path asked for
         """
-        scope = [scope for scope in self.getScopes(excludeContains=excludeContains)
+        scope = [scope for scope in self.getScopes(excludeContains=excludeContains,
+                                                   includeItself=includeItself)
                  if scope.path == scopePath]
-        if len(scope) != 1:
-            raise PYFTError(f'{scopePath} not found (or found several times')
+        if len(scope) == 0:
+            raise PYFTError(f'{scopePath} not found')
+        if len(scope) > 1:
+            raise PYFTError(f'{scopePath} found several times')
         return scope[0]
 
     @debugDecor
-    def getScopeNodes(self, scopePath, excludeContains=False, excludeKinds=None):
+    def getScopeNodes(self, scopePath, excludeContains=False, excludeKinds=None,
+                      includeItself=True):
         """
         :param scopePath: scope path, or list of scope paths, to search for
                           None to return all scopes
         :param excludeContains: see getScopes
         :param excludeKinds: see getScopes
+        :param includeItself: include itself if self represent a "valid" scope (not a file)
         :return: PYFTscope whose path is the path asked for
         """
         scopes = self.getScopes(excludeContains=excludeContains,
-                                excludeKinds=excludeKinds)
+                                excludeKinds=excludeKinds,
+                                includeItself=includeItself)
         if scopePath is not None:
             if not isinstance(scopePath, list):
                 scopePath = [scopePath]
@@ -363,7 +378,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         scopes = []  # list of scopes to empty
         for scope in self.getScopes(level=1):
             if scope.path.split('/')[-1].split(':')[0] == 'module':
-                scopes.extend(scope.getScopes(level=1))
+                scopes.extend(scope.getScopes(level=1, includeItself=False))
             else:
                 scopes.append(scope)
         tagExcluded = (list(self.SCOPE_STMT.values()) +
@@ -373,14 +388,16 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
             for node in list(scope):
                 if tag(node) not in tagExcluded:
                     self.remove(node)
-        self.removeUnusedLocalVar(simplify=simplify)
+            scope.removeUnusedLocalVar(simplify=simplify)
+            if addStmt is not None:
+                if isinstance(addStmt, str):
+                    addStmt = createExpr(addStmt)
+                elif not isinstance(addStmt, list):
+                    addStmt = [addStmt]
+                for stmt in addStmt:
+                    scope.insertStatement(scope.path, stmt, False)
         if simplify:
+            # Apllied on self (and not scope) to remove lines before the first scope
+            # in case self represents an entire file
             self.removeComments()
             self.removeEmptyLines()
-        if addStmt is not None:
-            if isinstance(addStmt, str):
-                addStmt = self.createExpr(addStmt)
-            elif not isinstance(addStmt, list):
-                addStmt = [addStmt]
-            for stmt in addStmt:
-                scope.insertStatement(scope.path, stmt, False)

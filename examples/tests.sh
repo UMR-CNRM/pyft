@@ -30,7 +30,7 @@ done
 
 #Cleaning
 if [ "$clean" == 'y' ]; then
-  rm -f *_trans.F90 desctree.json
+  rm -f *_trans.* desctree.json
 fi
 
 #Temporary directory
@@ -60,7 +60,7 @@ for file in $tests; do
   elif [[ $file == *_checkOK.F90 || $file == *_checkKO.F90 ]]; then
     name=$file
   fi
-  ref=$DIR/${name}_after.* # Allow for an extansion change
+  ref=$(echo $DIR/${name}_after.*) # Allow for an extansion change
   trans=${name}_trans."${ref##*.}"
   transfo=$(grep "!#PYFT transfo: " $file | cut -c 17-)
   if [ "$transfo" == "" ]; then

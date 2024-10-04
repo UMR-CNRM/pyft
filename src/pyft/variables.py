@@ -358,7 +358,7 @@ class Variables():
     def removeVar(self, varList, simplify=False):
         """
         :param varList: list of variables to remove. Each item is a list or tuple of two elements.
-                        The first one describes where the variable is declared, the second one is
+                        The first one describes where the variable is used, the second one is
                         the name of the variable. The first element is a '/'-separated path with
                         each element having the form 'module:<name of the module>',
                         'sub:<name of the subroutine>', 'func:<name of the function>' or
@@ -393,7 +393,8 @@ class Variables():
                 # after a "contains" statement
                 previous = None
                 # list() to allow removing during the iteration
-                for node in list(self.getScopeNode(scopePath, excludeContains=True)):
+                # use of mainScope because variable can be declared upper than self
+                for node in list(self.mainScope.getScopeNode(scopePath, excludeContains=True)):
                     deleted = False
 
                     # Checks if variable is a dummy argument
@@ -1234,7 +1235,7 @@ class Variables():
         """
         :param varList: list of variables to remove if unused. Each item is a list or tuple of two
                         elements.
-                        The first one describes where the variable is declared, the second one is
+                        The first one describes where the variable is used, the second one is
                         the name of the variable. The first element is a '/'-separated path with
                         each element having the form 'module:<name of the module>',
                         'sub:<name of the subroutine>' or 'func:<name of the function>'
@@ -1288,7 +1289,8 @@ class Variables():
         To know if a variable can be removed, you must use exactScope=False
         """
         varList = self._normalizeUniqVar(varList)
-        allScopes = {scope.path: scope for scope in self.getScopes(excludeContains=True)}
+        # We must not limit to self.getScopes because var can be used upper than self
+        allScopes = {scope.path: scope for scope in self.mainScope.getScopes(excludeContains=True)}
 
         # Computes in which scopes variable must be searched
         if exactScope:
