@@ -655,8 +655,7 @@ class Applications():
 
                 if scope.path in stopScopes:
                     # List of dummy arguments whose shape cannot be modified
-                    preserveShape = [v['n'] for v in self.varList
-                                     if (v['scopePath'] == scope.path and v['arg'])]
+                    preserveShape = [v['n'] for v in scope.varList if v['arg']]
                 else:
                     preserveShape = []
 
@@ -667,8 +666,7 @@ class Applications():
                     # be declared in one scope and used in another sub-scope
                     for namedE in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..'):
                         if n2name(namedE.find('./{*}N')).upper() not in preserveShape:
-                            var = self.varList.findVar(n2name(namedE.find('./{*}N')).upper(),
-                                                       scope.path)
+                            var = scope.varList.findVar(n2name(namedE.find('./{*}N')).upper())
                             if var is not None and var['as'] is not None and len(var['as']) > 0:
                                 subs = namedE.findall('./{*}R-LT/{*}parens-R/' +
                                                       '{*}element-LT/{*}element')
@@ -682,8 +680,7 @@ class Applications():
                     for call in scope.findall('.//{*}call-stmt'):
                         for namedE in call.findall('./{*}arg-spec//{*}named-E'):
                             subs = namedE.findall('.//{*}section-subscript')
-                            var = self.varList.findVar(n2name(namedE.find('./{*}N')).upper(),
-                                                       scope.path)
+                            var = scope.varList.findVar(n2name(namedE.find('./{*}N')).upper())
                             if len(subs) > 0 and (var is None or var['as'] is None or
                                                   len(var['as']) < len(subs)):
                                 # Before adding a warning, functions (especially unpack) must
@@ -749,8 +746,7 @@ class Applications():
             # Check loop index presence at declaration of the scope
             self.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]
                          for loopIndex in indexRemoved
-                         if self.varList.findVar(loopIndex, scope.path,
-                                                 exactScope=True) is None])
+                         if scope.varList.findVar(loopIndex, exactScope=True) is None])
 
     @debugDecor
     def removePHYEXUnusedLocalVar(self, scopePath=None, excludeList=None, simplify=False):
@@ -1009,13 +1005,13 @@ class Applications():
                 nbzshugradwk += 1
                 computingVarName = 'ZSHUGRADWK'+str(nbzshugradwk)+'_'+str(zshugradwkDim)+'D'
                 # Add the declaration of the new computing var and workingVar if not already present
-                if not self.varList.findVar(computingVarName, scope.path):
+                if not scope.varList.findVar(computingVarName):
                     self.addVar([[scope.path, computingVarName,
                                   dimWorkingVar + computingVarName, None]])
                 else:
                     # Case of nested shuman/gradients with a working variable already declared.
                     # dimWorkingVar is only set again for mnhExpandArrayIndexes
-                    computeVar = self.varList.findVar(computingVarName, scope.path)
+                    computeVar = scope.varList.findVar(computingVarName)
                     dimWorkingVar = 'REAL, DIMENSION('
                     for dims in computeVar['as'][:arrayDim]:
                         dimWorkingVar += dims[1] + ','
@@ -1063,7 +1059,7 @@ class Applications():
             parOfgrandparItemFuncN.insert(indexWorkingVar, xmlWorkingvar)
 
             # Add the declaration of the shuman-gradient workingVar if not already present
-            if not self.varList.findVar(workingVar, scope.path):
+            if not scope.varList.findVar(workingVar):
                 self.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, None]])
 
             return callStmt, computeStmt, nbzshugradwk
@@ -1122,8 +1118,7 @@ class Applications():
                                     nodeE1var = foundStmtandCalls[stmt][0].findall(
                                                 './/{*}E-1/{*}named-E/{*}N')
                                     if len(nodeE1var) > 0:
-                                        var = self.varList.findVar(alltext(nodeE1var[0]),
-                                                                   scope.path)
+                                        var = scope.varList.findVar(alltext(nodeE1var[0]))
                                         allSubscripts = foundStmtandCalls[stmt][0].findall(
                                                             './/{*}E-1//{*}named-E/{*}R-LT/' +
                                                             '{*}array-R/{*}section-subscript-LT')
@@ -1137,8 +1132,7 @@ class Applications():
                                             # is applied is the last argument
 
                                             # callVar[-1] is array on which the gradient is applied
-                                            var = self.varList.findVar(alltext(callVar[-1]),
-                                                                       scope.path)
+                                            var = scope.varList.findVar(alltext(callVar[-1]))
                                             shumanIsCalledOn = scope.getParent(callVar[-1])
                                         else:
                                             # Shumans
@@ -1148,8 +1142,8 @@ class Applications():
                                                 # While the var is not an array already declared
                                                 # callVar[0] is the first array on which the
                                                 # function is applied
-                                                var = self.varList.findVar(
-                                                          alltext(callVar[inested]), scope.path)
+                                                var = scope.varList.findVar(
+                                                           alltext(callVar[inested]))
                                                 inested += 1
                                             shumanIsCalledOn = scope.getParent(callVar[inested-1])
                                         allSubscripts = shumanIsCalledOn.findall(

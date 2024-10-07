@@ -512,7 +512,7 @@ class Tree():
                 for name in [n2name(call.find('./{*}N')).upper()
                              for call in scope.findall('.//{*}named-E/{*}R-LT/{*}parens-R/../..')]:
                     # But we can exclude some names if they are declared as arrays
-                    var = pft.varList.findVar(name, scope.path)
+                    var = scope.varList.findVar(name)
                     if var is None or var['as'] is None:
                         self._funcList[filename][scope.path].add(name)
                 self._funcList[filename][scope.path] = list(self._funcList[filename][scope.path])

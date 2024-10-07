@@ -44,22 +44,28 @@ class VarList():
     """
     The VarList class stores the characterisitcs of all variables contained in a source code
     """
-    def __init__(self, mainScope=None, _varList=None):
+    def __init__(self, mainScope, _preCompute=None):
         """
         :param mainScope: a PYFT object
+        :param _preCompute: pre-computed values (_varList, _fullVarList, _scopePath)
 
         Notes: - variables are found in modules only if the 'ONLY' attribute is used
                - array specification and type is unknown for module variables
                - 'ASSOCIATE' statements are not followed
         """
-        assert mainScope is not None or _varList is not None, \
-            "One of mainScope or _varList must be provided"
-        assert mainScope is None or _varList is None, \
-            "Only one of mainScope and _varList must be provided"
-        if mainScope is not None:
+        # _varList is the effective list of variables for the current scope
+        # _fullVarList is the list of variables of the whole file
+        #     We need it because findVar must be able to return a variable declaration
+        #     that exists in an upper scope
+        # _scopePath is the path of the current scope
+
+        if _preCompute is None:
             self._varList = self._fromScope(mainScope)
+            self._scopePath = mainScope.path
+            self._fullVarList = self._varList
         else:
-            self._varList = _varList
+            assert mainScope is None
+            self._varList, self._fullVarList, self._scopePath = _preCompute
 
     def __getitem__(self, *args, **kwargs):
         return self._varList.__getitem__(*args, **kwargs)
@@ -172,14 +178,13 @@ class VarList():
                    if item['scopePath'] == scopePath or
                    (item['scopePath'].startswith(root) and
                     not excludeContains)]
-        return VarList(_varList=varList)
+        return VarList(None, _preCompute=(varList, self._fullVarList, scopePath))
 
     @debugDecor
-    def findVar(self, varName, scopePath, array=None, exactScope=False):
+    def findVar(self, varName, array=None, exactScope=False):
         """
         Search for a variable in a list of declared variables
         :param varName: variable name
-        :param scopePath: scope path in which variable is defined
         :param array: True to limit search to arrays,
                       False to limit search to non array,
                       None to return anything
@@ -194,10 +199,10 @@ class VarList():
         """
         # Select all the variables declared in the current scope or upper,
         # then select the last declared
-        candidates = {v['scopePath']: v for v in self._varList
+        candidates = {v['scopePath']: v for v in self._fullVarList
                       if v['n'].upper() == varName.upper() and
-                      (scopePath == v['scopePath'] or
-                       (scopePath.startswith(v['scopePath'] + '/') and
+                      (self._scopePath == v['scopePath'] or
+                       (self._scopePath.startswith(v['scopePath'] + '/') and
                         not exactScope))}
         if len(candidates) > 0:
             last = candidates[max(candidates, key=len)]
@@ -675,23 +680,28 @@ class Variables():
         self.removeVarIfUnused(allVar, excludeDummy=True, excludeModule=True, simplify=simplify)
 
     @debugDecor
-    def addExplicitArrayBounds(self, node=None, scopePath=None):
+    def addExplicitArrayBounds(self, node=None, scope=None):
         """
         Replace ':' by explicit arrays bounds.
         :param node: xml node in which ':' must be replaced (None to replace everywhere)
-        :param scopePath: scope path.
-                          If node is not None, scopePath can be None (and the scope path
-                                               will be guessed) or must correspond to the node.
-                          If node is None, scopePath can be None to search everywhere or be defined
-                                           to restrain search to this scope or list of scopes.
+        :param scope: scope
+                      If node is not None, scopePath can be None (and the scope path
+                                           will be guessed) or must correspond to the node.
+                      If node is None, scopePath can be None to search everywhere or be defined
+                                       to restrain search to this scope or list of scopes.
         """
         if node is None:
-            nodes = [(scope.path, scope)
-                     for scope in self.getScopeNodes(scopePath, excludeContains=True)]
+            if scope is None:
+                nodes = [(sc, sc) for sc in self.getScopes(excludeContains=True)]
+            else:
+                nodes = [(sc, sc) for sc in scope.getScopes(excludeContains=True)]
         else:
-            nodes = [(scopePath, node) if scopePath is not None else self.getScopePath(node)]
+            if scope is None:
+                nodes = [(self.getParentScopeNode(node), node)]
+            else:
+                nodes = [(scope, node)]
 
-        for (sc, childNode) in nodes:
+        for (scope, childNode) in nodes:
             for parent4 in [parent4 for parent4
                             in childNode.findall('.//{*}section-subscript/../../../..')
                             if parent4.find('./{*}R-LT/{*}component-R') is None]:
@@ -708,7 +718,7 @@ class Variables():
                            (lowerUsed.tail is not None and ':' in lowerUsed.tail):
                             if lowerUsed is None or upperUsed is None:
                                 # At least one array bound is implicit
-                                varDesc = self.varList.findVar(n2name(parent4.find('.//{*}N')), sc)
+                                varDesc = scope.varList.findVar(n2name(parent4.find('.//{*}N')))
                                 if varDesc is not None and varDesc['t'] is not None and \
                                    'CHAR' not in varDesc['t']:  # module array or character
                                     lowerDecl, upperDecl = varDesc['as'][list(parent).index(sub)]
@@ -791,7 +801,9 @@ class Variables():
         """
         # Scope (as a string path)
         if scopePath is None:
-            scopePath = self.getScopePath(node)
+            scope = self
+        else:
+            scope = self.getScopeNode(scopePath, excludeContains=True)
 
         # Loop on variables
         for namedE in node.findall('.//{*}named-E'):
@@ -800,7 +812,7 @@ class Variables():
                     # Pointer/allocatable used in ALLOCATED/ASSOCIATED must not be modified
                     # Array in present must not be modified
                     nodeN = namedE.find('./{*}N')
-                    var = self.varList.findVar(n2name(nodeN), scopePath)
+                    var = scope.varList.findVar(n2name(nodeN))
                     if var is not None and var['as'] is not None and len(var['as']) > 0 and \
                        not ((var['pointer'] or var['allocatable']) and self.isNodeInCall(namedE)):
                         # This is a known array variable, with no parentheses
@@ -852,8 +864,9 @@ class Variables():
             # For all subroutine and function scopes
             # Determine the list of variables to transform
             varListToTransform = []
-            for var in [var for var in self.varList
-                        if var['scopePath'] == scope.path and var['as'] is not None and
+            for var in [var for var in scope.varList
+                        if var['scopePath'] == scope.path  # filter is needed to exclude contains
+                        and var['as'] is not None and
                         len(var['as']) > 0 and
                         not (var['arg'] or var['allocatable'] or
                              var['pointer'] or var['result'])]:
@@ -1020,7 +1033,8 @@ class Variables():
             # Look for lower and upper bounds for iteration and declaration
             lowerUsed = ss.find('./{*}lower-bound')
             upperUsed = ss.find('./{*}upper-bound')
-            varDesc = self.varList.findVar(name, scopePath, array=True)
+            varDesc = self.getScopeNode(scopePath,
+                                        excludeContains=True).varList.findVar(name, array=True)
             if varDesc is not None:
                 lowerDecl, upperDecl = varDesc['as'][index]
                 if lowerDecl is None:
@@ -1074,6 +1088,7 @@ class Variables():
         #                </f:R-LT>
         #              </f:named-E>
 
+        scope = self.getScopeNode(scopePath, excludeContains=True)
         nodeRLT = namedE.find('./{*}R-LT')
         arrayR = nodeRLT.find('./{*}array-R')  # Not always in first position, eg: ICED%XRTMIN(:)
         if arrayR is not None:
@@ -1109,14 +1124,14 @@ class Variables():
                         # A(2:15) or A(:15) or A(2:)
                         if lower is None:
                             # lower bound not defined, getting lower declared bound for this array
-                            lower = self.varList.findVar(n2name(namedE.find('{*}N')),
-                                                         scopePath, array=True)['as'][ivar][0]
+                            lower = scope.varList.findVar(n2name(namedE.find('{*}N')),
+                                                          array=True)['as'][ivar][0]
                             if lower is None:
                                 lower = '1'  # default fortran lower bound
                         elif upper is None:
                             # upper bound not defined, getting upper declared bound for this array
-                            upper = self.varList.findVar(n2name(namedE.find('{*}N')),
-                                                         scopePath, array=True)['as'][ivar][1]
+                            upper = scope.varList.findVar(n2name(namedE.find('{*}N')),
+                                                          array=True)['as'][ivar][1]
                         # If the DO loop starts from JI=I1 and goes to JI=I2; and array
                         # bounds are J1:J2
                         # We compute J1-I1+JI and J2-I2+JI and they should be the same
@@ -1167,6 +1182,7 @@ class Variables():
         name = n2name(arr.find('./{*}N'))
         varNew = []
         extraVarList = extraVarList if extraVarList is not None else []
+        scope = self.getScopeNode(scopePath, excludeContains=True)
 
         # Iteration on the different subscript
         for iss, ss in enumerate(arr.findall('./{*}R-LT/{*}array-R/{*}section-subscript-LT/' +
@@ -1202,8 +1218,7 @@ class Variables():
                         varNew.append(varDesc)
 
                 elif (varName is not False and
-                      self.varList.findVar(varName, scopePath,
-                                           array=False, exactScope=True) is None):
+                      scope.varList.findVar(varName, array=False, exactScope=True) is None):
                     # We must declare the variable
                     varDesc = {'as': [], 'asx': [], 'n': varName, 'i': None,
                                't': 'INTEGER', 'arg': False, 'use': False, 'opt': False,
@@ -1301,19 +1316,19 @@ class Variables():
             for scopePath, varName in varList:
                 # We search everywhere if var declaration is not found
                 # Otherwise, we search from the scope where the variable is declared
-                var = self.varList.findVar(varName, scopePath)
+                var = self.getScopeNode(scopePath, excludeContains=True).varList.findVar(varName)
                 path = scopePath.split('/')[0] if var is None else var['scopePath']
 
                 # We start search from here but we must include all routines in contains
                 # that do not declare again the same variable name
                 testScopes = [path]  # we must search in the current scope
-                for sc in allScopes:
-                    if sc.startswith(path + '/') and \
-                       sc.split('/')[-1].split(':')[0] != 'type':
+                for scPath, sc in allScopes.items():
+                    if scPath.startswith(path + '/') and \
+                       scPath.split('/')[-1].split(':')[0] != 'type':
                         # sc is a scope path contained inside path and is not a type declaration
-                        if self.varList.findVar(varName, sc, exactScope=True) is None:
+                        if sc.varList.findVar(varName, exactScope=True) is None:
                             # There is not another variable with same name declared inside
-                            testScopes.append(sc)  # if variable is used here, it is used
+                            testScopes.append(scPath)  # if variable is used here, it is used
                 locsVar[(scopePath, varName)] = testScopes
 
         # For each scope to search, list all the variables used
@@ -1435,11 +1450,12 @@ class Variables():
                 raise PYFTError('Unable to guess the scope path to deal with')
 
         if scopePath in stopScopes or self.tree.isUnderStopScopes(scopePath, stopScopes):
+            scope = self.getScopeNode(scopePath, excludeContains=True)
             # We are on the path to a scope in the stopScopes list, or scopeUp is one of the
             # stopScopes
-            var = self.varList.findVar(varName, scopePath, exactScope=True)
+            var = scope.varList.findVar(varName, exactScope=True)
             if otherNames is not None:
-                vOther = [self.varList.findVar(v, scopePath, exactScope=True) for v in otherNames]
+                vOther = [scope.varList.findVar(v, exactScope=True) for v in otherNames]
                 vOther = [v for v in vOther if v is not None]
                 if len(vOther) > 0:
                     var = vOther[-1]
@@ -1464,7 +1480,8 @@ class Variables():
                                                              wrapH, tree=self.tree,
                                                              clsPYFT=self._mainScope.__class__)
                             xml = pft
-                        varInterface = xml.varList.findVar(varName, scopeInterface, exactScope=True)
+                        varInterface = xml.getScopeNode(scopeInterface).varList.findVar(
+                            varName, exactScope=True)
                         if varInterface is None:
                             xml.addVar([[scopeInterface, varName, declStmt, pos]])
                             if moduleVarList is not None:
@@ -1506,7 +1523,7 @@ class Variables():
                             isCalled = False
                             varNameToUse = varName
                             if otherNames is not None:
-                                vOther = [xml.varList.findVar(v, scopeUp, exactScope=True)
+                                vOther = [scopeUpNode.varList.findVar(v, exactScope=True)
                                           for v in otherNames]
                                 vOther = [v for v in vOther if v is not None]
                                 if len(vOther) > 0:

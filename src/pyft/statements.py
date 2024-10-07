@@ -649,7 +649,7 @@ class Statements():
                     # name of the routine called = a contained subroutine => inline
                     self.inline(containedRoutines[containedRoutine],
                                 self.getParent(callStmtNn, level=4),
-                                scope.path, containedRoutines[containedRoutine].path,  # Scope paths
+                                scope,
                                 simplify=simplify, loopVar=loopVar)
 
         for scope in scopes:  # loop on all subroutines
@@ -672,7 +672,7 @@ class Statements():
     @noParallel
     @updateTree()
     @updateVarList
-    def inline(self, subContained, callStmt, mainScopePath, subScopePath,
+    def inline(self, subContained, callStmt, mainScope,
                simplify=False, loopVar=None):
         """
         Inline a subContainted subroutine
@@ -686,8 +686,7 @@ class Statements():
             - add local variables and use statements to the main code
         :param subContained: xml fragment corresponding to the sub: to inline
         :param callStmt: the call-stmt to replace
-        :param mainScopePath: scope path of the main (calling) subroutine
-        :param subScopePath: scope path of the contained subroutine to include
+        :param mainScope: scope of the main (calling) subroutine
         :param simplify: try to simplify code (construct or variables becoming useless)
         :param loopVar: None to create new variable for each added DO loop (around ELEMENTAL
                             subroutine calls)
@@ -731,26 +730,26 @@ class Statements():
         prefix = subContained.findall('.//{*}prefix')
         if len(prefix) > 0 and 'ELEMENTAL' in [p.text.upper() for p in prefix]:
             # Add missing parentheses
-            self.addArrayParenthesesInNode(callStmt, scopePath=mainScopePath)
+            self.addArrayParenthesesInNode(callStmt, scopePath=mainScope.path)
 
             # Add explcit bounds
-            self.addExplicitArrayBounds(node=callStmt, scopePath=mainScopePath)
+            self.addExplicitArrayBounds(node=callStmt, scope=mainScope)
 
             # Detect if subroutine is called on arrays
             arrayRincallStmt = callStmt.findall('.//{*}array-R')
             if len(arrayRincallStmt) > 0:  # Called on arrays
                 # Look for an array affectation to guess the DO loops to put around the call
                 table, _ = self.findArrayBounds(self.getParent(arrayRincallStmt[0], 2),
-                                                mainScopePath, loopVar)
+                                                mainScope.path, loopVar)
 
                 # Add declaration of loop index if missing
                 for varName in table.keys():
-                    if not self.varList.findVar(varName, mainScopePath):
+                    if not mainScope.varList.findVar(varName):
                         var = {'as': [], 'asx': [],
                                'n': varName, 'i': None, 't': 'INTEGER', 'arg': False,
                                'use': False, 'opt': False, 'allocatable': False,
-                               'parameter': False, 'init': None, 'scopePath': mainScopePath}
-                        self.addVar([[mainScopePath, var['n'], self.varSpec2stmt(var), None]])
+                               'parameter': False, 'init': None, 'scopePath': mainScope.path}
+                        self.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]])
 
                 # Create the DO loops
                 inner, outer, _ = self.createDoConstruct(table)
@@ -764,7 +763,7 @@ class Statements():
                 for namedE in callStmt.findall('./{*}arg-spec/{*}arg/{*}named-E'):
                     # Replace slices by indexes if any
                     if namedE.find('./{*}R-LT'):
-                        self.arrayR2parensR(namedE, table, mainScopePath)
+                        self.arrayR2parensR(namedE, table, mainScope.path)
 
         # Deep copy the object to possibly modify the original one multiple times
         node = copy.deepcopy(subContained)
@@ -773,22 +772,22 @@ class Statements():
         localVarToAdd = []
         subst = []
         varList = copy.deepcopy(self.varList)  # Copy to be able to update it with pending changes
-        for var in [var for var in varList
-                    if not var['arg'] and not var['use'] and
-                    var['scopePath'] == subScopePath]:  # for local variables only
-            if varList.findVar(var['n'], mainScopePath):
+        for var in [var for var in varList.restrict(subContained.path, True)
+                    if not var['arg'] and not var['use']]:
+
+            if varList.restrict(mainScope.path, True).findVar(var['n']):
                 # Variable is already defined in main or upper, there is a name conflict,
                 # the local variable must be renamed before being declared in the main routine
                 newName = re.sub(r'_\d+$', '', var['n'])
                 i = 1
-                while varList.findVar(newName + '_' + str(i), subScopePath):
+                while varList.restrict(subContained.path, True).findVar(newName + '_' + str(i)):
                     i += 1
                 newName += '_' + str(i)
                 node.renameVar(var['n'], newName)
                 subst.append((var['n'], newName))
                 var['n'] = newName
-            # important for varList.findVar(.., mainScopePath) to find it
-            var['scopePath'] = mainScopePath
+            # important for varList.findVar(.., mainScope.path) to find it
+            var['scopePath'] = mainScope.path
             localVarToAdd.append(var)
 
         # In case a substituted variable is used in the declaration of another variable
@@ -928,8 +927,8 @@ class Statements():
 
                 # 1 We get info about variables (such as declared in the main or in
                 # the contained routines)
-                descMain = varList.findVar(dummy['name'], mainScopePath)
-                descSub = varList.findVar(name, subScopePath)
+                descMain = varList.restrict(mainScope.path, True).findVar(dummy['name'])
+                descSub = varList.restrict(subContained.path, True).findVar(name)
                 # In case variable is used for the declaration of another variable,
                 # we must update descSub
                 for var in varList:
@@ -1097,9 +1096,9 @@ class Statements():
         node.remove(node.find('./{*}end-subroutine-stmt'))
 
         # Add local var and use to main routine
-        self.addVar([[mainScopePath, var['n'], self.varSpec2stmt(var), None]
+        self.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]
                      for var in localVarToAdd])
-        self.addModuleVar([[mainScopePath, n2name(useStmt.find('.//{*}module-N//{*}N')),
+        self.addModuleVar([[mainScope.path, n2name(useStmt.find('.//{*}module-N//{*}N')),
                             [n2name(v.find('.//{*}N')) for v in useStmt.findall('.//{*}use-N')]]
                            for useStmt in localUseToAdd])
 
