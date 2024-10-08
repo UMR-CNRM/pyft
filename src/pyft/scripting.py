@@ -347,6 +347,9 @@ def updateParserApplications(parser):
                                help='Add DR HOOK')
     gApplications.add_argument('--deleteBudgetDDH', default=False, action='store_true',
                                help='Delete Budget/DDH use')
+    gApplications.add_argument('--deleteRoutineCallsMesoNHGPU', default=False, action='store_true',
+                               help='Delete parts of the code not compatible with MesoNH-OpenACC' +
+                               'such as OCND2 blocks')
     gApplications.add_argument('--deleteNonColumnCallsPHYEX', default=False, action='store_true',
                                help='Delete call to PHYEX routines that needs information on ' +
                                     'horizontal points (multiple column dependency')
@@ -650,6 +653,8 @@ def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes
         pft.addDrHook()
     elif arg == '--deleteBudgetDDH':
         pft.deleteBudgetDDH(**simplify)
+    elif arg == '--deleteRoutineCallsMesoNHGPU':
+        pft.deleteRoutineCallsMesoNHGPU(**simplify)
     elif arg == '--deleteNonColumnCallsPHYEX':
         pft.deleteNonColumnCallsPHYEX(**simplify)
     elif arg == '--addMPPDB_CHECKS':

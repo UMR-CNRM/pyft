@@ -1154,6 +1154,8 @@ class Statements():
                         else:
                             # Solo condition
                             # <if-block><if-then-stmt>
+                            if tag(self.getParent(cond, level=1)).startswith('if-stmt'):
+                                self.changeIfStatementsInIfConstructs(self.getParent(cond, level=1))
                             singleFalseBlock.append(self.getParent(cond, level=2))
         if simplify:
             self.removeStmtNode(singleFalseBlock, simplify, simplify)

@@ -250,6 +250,18 @@ class Applications():
         self.setFalseIfStmt(flagTorm, None, simplify=simplify)
 
     @debugDecor
+    def deleteRoutineCallsMesoNHGPU(self, simplify=True):
+        """
+        Remove Calls to routines not compatible with Méso-NH on GPU 
+        e.g. CALL within a DO loop
+        e.g. OCND2 in condensation uses a CALL ICECLOUD and fonctions within computations
+        If Simplify is True, also remove all variables only needed for these calls
+        :param simplify : if True, remove variables that are now unused
+        """
+        self.setFalseIfStmt('OCND2', None, simplify=True)
+
+
+    @debugDecor
     def addMPPDB_CHECKS(self):
 
         """
