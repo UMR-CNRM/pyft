@@ -224,7 +224,8 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         self.tree = Tree() if tree is None else tree
         self.__cacheParent = {}
 
-        if enableCache:
+        if enableCache and parentScope is None:
+            # parent cache associated to the main scope
             for node in self.iter():
                 for subNode in node:
                     self.__cacheParent[id(subNode)] = node
@@ -250,13 +251,6 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         if attr in ('SHARED_TREE', 'NO_PARALLEL_LOCK', 'PARALLEL_FILE_LOCKS '):
             return getattr(self._parentScope, attr)
         raise AttributeError(f"{attr} doesn't exist")
-
-    @property
-    def node(self):
-        """
-        Return the xml node
-        """
-        return self._virtual
 
     @property
     def path(self):
@@ -286,24 +280,25 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         :param level: number of degrees (1 to get the parent, 2 to get
                       the parent of the parent...)
         """
+        # pylint: disable=protected-access
         def check(node):
             # We check if the registered parent is still the right one
             # node must be in its parent, and the parent chain must go to the root node
-            return node in self.__cacheParent.get(id(node), []) and \
-                   (self.__cacheParent[id(node)] == self.mainScope.node or
-                    check(self.__cacheParent[id(node)]))
+            return node in self.mainScope.__cacheParent.get(id(node), []) and \
+                   (self.mainScope.__cacheParent[id(node)] == self.mainScope._xml or
+                    check(self.mainScope.__cacheParent[id(node)]))
 
         assert level >= 1
         parent = None
         if check(item):
-            parent = self.__cacheParent[id(item)]
+            parent = self.mainScope.__cacheParent[id(item)]
         else:
             for node in self.mainScope.iter():
                 if item in list(node):
                     parent = node
-                    if self.__cacheParent:
+                    if self.mainScope.__cacheParent:
                         # __cacheParent not empty means that we want to use the caching system
-                        self.__cacheParent[id(item)] = node
+                        self.mainScope.__cacheParent[id(item)] = node
                     break
         return parent if level == 1 else self.getParent(parent, level - 1)
 
