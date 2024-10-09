@@ -249,7 +249,10 @@ class Variables():
     """
     Methos to deal with variables
     """
-    def __init__(self):
+    def __init__(self, **kwargs):  # pylint: disable=unused-argument
+        """
+        **kwargs is used to enable the use of super().__init__
+        """
         self._varList = None
 
     @property
@@ -262,7 +265,7 @@ class Variables():
             self.mainScope._varList = VarList(self.mainScope)
 
         # Restrict the object to the current node
-        return self.mainScope._varList.restrict(self.path, tag(self.node) == 'virtual')
+        return self.mainScope._varList.restrict(self.path, self._excludeContains)
 
     # No @debugDecor for this low-level method
     def _normalizeUniqVar(self, scopeVarList):

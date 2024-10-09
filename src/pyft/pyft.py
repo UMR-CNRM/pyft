@@ -152,14 +152,14 @@ class PYFT(PYFTscope):
         """
         Returns the xml as a string
         """
-        return tostring(self.node)
+        return tostring(self)
 
     @property
     def fortran(self):
         """
         Returns the FORTRAN as a string
         """
-        return tofortran(self.node)
+        return tofortran(self)
 
     def renameUpper(self):
         """

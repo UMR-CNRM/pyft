@@ -136,7 +136,6 @@ class Applications():
             return
         for scope in [scope for scope in scopes
                       if 'sub:' in scope.path and 'interface' not in scope.path]:
-            print(scope.path)
             newVarList = {}
             for ifStmt in scope.findall('.//{*}if-then-stmt') + scope.findall('.//{*}else-if-stmt') \
                 + scope.findall('.//{*}where-stmt'): 

@@ -18,7 +18,179 @@ from pyft.tree import Tree
 from pyft.expressions import createElem, createExpr
 
 
-class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
+class ElementView():
+    """
+    This class acts as a view of an ElementTree exposing only a part of the subelements
+    """
+
+    def __init__(self, xml, excludeContains=False):
+        """
+        :param xml: xml corresponding to a scope
+        :param excludeContains: do not take into account the CONTAINS part
+        """
+        super().__init__()
+        self._excludeContains = excludeContains
+        self._xml = xml
+
+    @property
+    def _virtual(self):
+        """
+        :param xml: xml corresponding to a scope
+        :return: a node (possibly the xml node) containing only the relevant subelements
+        """
+        if self._excludeContains:
+            childNode = createElem('virtual')
+            breakOnCOntains = False
+            for node in self._xml:
+                if tag(node) == 'contains-stmt':
+                    breakOnCOntains = True
+                    break  # we are outside of the targeted bloc
+                childNode.append(node)
+            if breakOnCOntains:
+                childNode.append(self._xml[-1])
+                return childNode
+        return self._xml
+
+    # PROPERTIES
+
+    @property
+    def tag(self):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.tag
+        """
+        return self._xml.tag
+
+    @property
+    def tail(self):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.tail
+        """
+        return self._xml.tail
+
+    @property
+    def text(self):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.text
+        """
+        return self._xml.text
+
+    # READ-ONLY METHODS, they can always use the virtual approach
+
+    def findtext(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.findtext
+        """
+        return self._virtual.findtext(*args, **kwargs)
+
+    def iterfind(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.iterfind
+        """
+        return self._virtual.iterfind(*args, **kwargs)
+
+    def itertext(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.itertext
+        """
+        return self._virtual.itertext(*args, **kwargs)
+
+    def __getitem__(self, *args, **kwargs):
+        return self._virtual.__getitem__(*args, **kwargs)
+
+    def __len__(self, *args, **kwargs):
+        return self._virtual.__len__(*args, **kwargs)
+
+    def find(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.find
+        """
+        return self._virtual.find(*args, **kwargs)
+
+    def findall(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.findall
+        """
+        return self._virtual.findall(*args, **kwargs)
+
+    def iter(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.iter
+        """
+        return self._virtual.iter(*args, **kwargs)
+
+    def items(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.items
+        """
+        return self._virtual.items(*args, **kwargs)
+
+    # WRITE METHODS
+
+    @updateVarList
+    def clear(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.clear
+        """
+        raise NotImplementedError('This method can be implemented if needed')
+
+    def append(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.append
+        """
+        # Append after the 'END SUBROUTINE' statement
+        raise self._xml.append(*args, **kwargs)
+
+    def extend(self, *args, **kwargs):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.extend
+        """
+        # Extend after the 'END SUBROUTINE' statement
+        raise self._xml.extend(*args, **kwargs)
+
+    def _getIndex(self, index):
+        """
+        :param index: index in the virtual node
+        :return: index in the _xml node
+        """
+        if not self._excludeContains:
+            return index
+        contains = self._xml.find('./{*}contains-stmt')
+        if contains is None:
+            return index
+        indexContains = list(self._xml).index(contains)
+        # Checks
+        if index > indexContains or index < -indexContains - 1:
+            raise IndexError('list index out of range')
+        # Converts negative index into positive index
+        if index < 0:
+            index = indexContains + index
+
+        return len(self._xml) if index == indexContains else index
+
+    def __setitem__(self, index, item):
+        return self._xml.__setitem__(self._getIndex(index), item)
+
+    @updateVarList
+    def __delitem__(self, index):
+        return self._xml.__delitem__(self._getIndex(index))
+
+    def insert(self, index, item):
+        """
+        https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.insert
+        """
+        return self._xml.insert(0 if index == 0 else (self._getIndex(index - 1) + 1), item)
+
+    @updateVarList
+    def remove(self, node):
+        """
+        Remove node from the xml
+        """
+        if isinstance(node, ElementView):
+            node = node._xml  # pylint: disable=protected-access
+        self.getParent(node).remove(node)
+
+
+class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
     """
     This class wrapps the xml node representing a FORTRAN scope
     """
@@ -36,22 +208,22 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                        'interface': 'interface-construct'}
 
     def __init__(self, xml, scopePath='/', parentScope=None,
-                 enableCache=False, tree=None):
+                 enableCache=False, tree=None, excludeContains=False):
         """
         :param xml: xml corresponding to this PYFTscope
-        :param ns: name space
         :param scopePath: scope path ('/' separated string) of this node
         :param parentScope: parent PYFTscope instance
         :param enableCache: True to cache node parents
         :param tree: an optional Tree instance
+        :param excludeContains: do not take into account the CONTAINS part
         """
-        super().__init__()
-        self._xml = xml
+        super().__init__(xml=xml, excludeContains=excludeContains)
         self._mainScope = self if parentScope is None else parentScope._mainScope
         self._path = scopePath
         self._parentScope = parentScope
         self.tree = Tree() if tree is None else tree
         self.__cacheParent = {}
+
         if enableCache:
             for node in self.iter():
                 for subNode in node:
@@ -73,40 +245,18 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
 
     def __getattr__(self, attr):
         """
-        Apply find, findall, iter... on the xml
+        Get some attributes defined in the PYFT class
         """
-        assert attr != '_xml', 'self._xml must exist'
         if attr in ('SHARED_TREE', 'NO_PARALLEL_LOCK', 'PARALLEL_FILE_LOCKS '):
             return getattr(self._parentScope, attr)
-        return getattr(self._xml, attr)
-
-    def __getitem__(self, *args, **kwargs):
-        return self._xml.__getitem__(*args, **kwargs)
-
-    def __setitem__(self, *args, **kwargs):
-        return self._xml.__setitem__(*args, **kwargs)
-
-    def __delitem__(self, *args, **kwargs):
-        return self._xml.__delitem__(*args, **kwargs)
-
-    def __len__(self, *args, **kwargs):
-        return self._xml.__len__(*args, **kwargs)
-
-    @updateVarList
-    def remove(self, node):
-        """
-        Remove node from the xml
-        """
-        if isinstance(node, PYFTscope):
-            node = node._xml
-        self.getParent(node).remove(node)
+        raise AttributeError(f"{attr} doesn't exist")
 
     @property
     def node(self):
         """
         Return the xml node
         """
-        return self._xml
+        return self._virtual
 
     @property
     def path(self):
@@ -148,7 +298,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         if check(item):
             parent = self.__cacheParent[id(item)]
         else:
-            for node in self.mainScope.node.iter():
+            for node in self.mainScope.iter():
                 if item in list(node):
                     parent = node
                     if self.__cacheParent:
@@ -253,23 +403,10 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
                 if excludeKinds is None or nodePath.split(':')[0] not in excludeKinds:
                     scopePath = self._getNodePath(child) if basePath in ('', '/') \
                                 else basePath + '/' + nodePath
-                    if excludeContains:
-                        childNode = createElem('virtual')
-                        breakOnCOntains = False
-                        for node in child:  # pylint: disable=redefined-argument-from-local
-                            if tag(node) == 'contains-stmt':
-                                breakOnCOntains = True
-                                break  # we are outside of the targeted bloc
-                            childNode.append(node)
-                        if breakOnCOntains:
-                            childNode.append(child[-1])
-                        else:
-                            childNode = child
-                    else:
-                        childNode = child
-                    results.append(PYFTscope(childNode,
+                    results.append(PYFTscope(child,
                                              scopePath=scopePath, parentScope=self,
-                                             enableCache=False, tree=self.tree))
+                                             enableCache=False, tree=self.tree,
+                                             excludeContains=excludeContains))
                     if level != 1:
                         results.extend(_getRecur(child, level - 1, scopePath))
             return results
@@ -279,7 +416,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         else:
             itself = []
 
-        return _getRecur(self.node, level, self.path) + itself
+        return _getRecur(self, level, self.path) + itself
 
     @debugDecor
     def getScopeNode(self, scopePath, excludeContains=False, includeItself=True):
@@ -365,7 +502,7 @@ class PYFTscope(Variables, Cosmetics, Applications, Statements, Cpp, Openacc):
         :return: the name of the input file name or 'unknown' if not available
                  in the xml fragment provided
         """
-        return os.path.normpath(self.mainScope.node.find('.//{*}file').attrib['name'])
+        return os.path.normpath(self.mainScope.find('.//{*}file').attrib['name'])
 
     @updateVarList
     def empty(self, addStmt=None, simplify=False):

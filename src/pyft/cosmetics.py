@@ -49,7 +49,7 @@ class Cosmetics():
         """
 
         if nodeToUpdate is None:
-            nodeToUpdate = self.node
+            nodeToUpdate = self
 
         if exclDirectives is None:
             exclDirectives = ['!$OMP']
@@ -233,7 +233,7 @@ class Cosmetics():
                "We cannot remove and add, at the same time, continuation characters"
 
         if nodeToUpdate is None:
-            nodeToUpdate = self.node
+            nodeToUpdate = self
 
         parents = {}  # cache to be used in recurDirect
 

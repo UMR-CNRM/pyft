@@ -593,7 +593,7 @@ class Statements():
                         recur(sElem, scopePath)
             inEverywhere = closeLoop(inEverywhere)
 
-        recur(self.node, self.getScopePath(self.node))
+        recur(self, self.getScopePath(self))
         # First, element insertion by reverse order (in order to keep the insertion index correct)
         for elem, outer, ie in toinsert[::-1]:
             elem.insert(ie, outer)
