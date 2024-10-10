@@ -1,4 +1,4 @@
-!#PYFT transfo: --removeUnusedLocalVariables JK
+!#PYFT transfo: --removePHYEXUnusedLocalVariables NONE
 
 SUBROUTINE FOO(P, Q)
   REAL, INTENT(IN) :: P, Q

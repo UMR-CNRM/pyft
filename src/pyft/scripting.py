@@ -250,19 +250,14 @@ def updateParserVariables(parser):
                                  'name; the third is the variable name.')
     gVariables.add_argument('--showUnusedVariables', default=False, action='store_true',
                             help='Show a list of unused variables.')
-    gVariables.add_argument('--removeUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope path ' +
-                                 '(use the special scope path name ALL to apply on the entire ' +
-                                 'code), excluding some variables (comma-separated list or NONE ' +
-                                 'to exclude nothing).')
-    gVariables.add_argument('--removePHYEXUnusedLocalVariables', nargs=2, action='append',
-                            metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
-                            help='Remove unused local variables in the specified scope path ' +
-                                 '(use the special scope path name ALL to apply on the entire ' +
-                                 'code), excluding some variables (comma-separated list or NONE ' +
-                                 'to exclude nothing). This option takes into account the ' +
-                                 'mnh_expand directives to prevent from removing useful variables.')
+    gVariables.add_argument('--removeUnusedLocalVariables',
+                            help='Remove unused local variables, excluding some variables (comma-' +
+                                 'separated list or NONE to exclude nothing).')
+    gVariables.add_argument('--removePHYEXUnusedLocalVariables',
+                            help='Remove unused local variables, excluding some variables (comma-' +
+                                 'separated list or NONE to exclude nothing). This option takes ' +
+                                 'into account the mnh_expand directives to prevent from ' +
+                                 'removing useful variables.')
     gVariables.add_argument('--addExplicitArrayBounds', action='store_true',
                             help='Adds explicit bounds to arrays that already have parentheses.')
     gVariables.add_argument('--addArrayParentheses', action='store_true',
@@ -585,19 +580,13 @@ def applyTransfoVariables(pft, arg, args, simplify, parserOptions, stopScopes):
     elif arg == '--showUnusedVariables':
         pft.showUnusedVar()
     elif arg == '--removeUnusedLocalVariables':
-        for scopePath, exclude in args.removeUnusedLocalVariables:
-            pft.removeUnusedLocalVar(
-                scopePath if scopePath != 'ALL' else None,
-                [item.strip()
-                 for item in exclude.split(',')] if exclude != 'NONE' else None,
-                **simplify)
+        pft.removeUnusedLocalVar(
+            [item.strip() for item in args.removeUnusedLocalVariables.split(',')]
+            if args.removeUnusedLocalVariables != 'NONE' else None, **simplify)
     elif arg == '--removePHYEXUnusedLocalVariables':
-        for scopePath, exclude in args.removePHYEXUnusedLocalVariables:
-            pft.removePHYEXUnusedLocalVar(
-                scopePath if scopePath != 'ALL' else None,
-                [item.strip()
-                 for item in exclude.split(',')] if exclude != 'NONE' else None,
-                **simplify)
+        pft.removePHYEXUnusedLocalVar(
+            [item.strip() for item in args.removePHYEXUnusedLocalVariables.split(',')]
+            if args.removePHYEXUnusedLocalVariables != 'NONE' else None, **simplify)
     elif arg == '--addExplicitArrayBounds':
         pft.addExplicitArrayBounds()
     elif arg == '--addArrayParentheses':

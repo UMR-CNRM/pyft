@@ -661,10 +661,9 @@ class Variables():
                 print('  - ' + ('\n  - '.join(varList)))
 
     @debugDecor
-    def removeUnusedLocalVar(self, scopePath=None, excludeList=None, simplify=False):
+    def removeUnusedLocalVar(self, excludeList=None, simplify=False):
         """
         Remove unused local variables (dummy and module variables are not suppressed)
-        :param scopePath: scope path (or list of) to explore (None for all)
         :param excludeList: list of variable names to exclude from removal (even if unused)
         :param simplify: try to simplify code (if we delete a declaration statement that used a
                          variable as kind selector, and if this variable is not used else where,
@@ -676,7 +675,7 @@ class Variables():
             excludeList = [item.upper() for item in excludeList]
 
         allVar = [(scope.path, v['n'])
-                  for scope in self.getScopeNodes(scopePath, excludeKinds=['type'])
+                  for scope in self.getScopes(excludeKinds=['type'])
                   for v in scope.varList
                   if v['n'].upper() not in excludeList and v['scopePath'] == scope.path]
         self.removeVarIfUnused(allVar, excludeDummy=True, excludeModule=True, simplify=simplify)

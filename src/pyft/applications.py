@@ -751,12 +751,11 @@ class Applications():
                          if scope.varList.findVar(loopIndex, exactScope=True) is None])
 
     @debugDecor
-    def removePHYEXUnusedLocalVar(self, scopePath=None, excludeList=None, simplify=False):
+    def removePHYEXUnusedLocalVar(self, excludeList=None, simplify=False):
         """
         Remove unused local variables (dummy and module variables are not suppressed)
         This function is identical to variables.removeUnusedLocalVar except that this one
         is specific to the PHYEX code and take into account the mnh_expand directives.
-        :param scopePath: scope paths to explore (None for all)
         :param excludeList: list of variable names to exclude from removal (even if unused)
         :param simplify: try to simplify code (if we delete a declaration statement that used a
                          variable as kind selector, and if this variable is not used else where,
@@ -771,8 +770,7 @@ class Applications():
                     excludeList = []
                 elems = node.text.split('(')[1].split(')')[0].split(',')
                 excludeList.extend([v.strip().upper() for v in [e.split('=')[0] for e in elems]])
-        return self.removeUnusedLocalVar(scopePath=scopePath, excludeList=excludeList,
-                                         simplify=simplify)
+        return self.removeUnusedLocalVar(excludeList=excludeList, simplify=simplify)
 
     @debugDecor
     def expandAllArraysPHYEX(self, concurrent=False):
