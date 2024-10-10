@@ -96,7 +96,7 @@ class VarList():
             return asList, asxList
 
         result = []
-        for scope in mainScope.getScopeNodes(None, excludeContains=True):
+        for scope in mainScope.getScopes(excludeContains=True):
             # In case scope is a function, we determine the name of the result
             if tag(scope[0]) == 'function-stmt':
                 rSpec = scope[0].find('./{*}result-spec/{*}N')

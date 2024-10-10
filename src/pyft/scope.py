@@ -434,26 +434,6 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         return scope[0]
 
     @debugDecor
-    def getScopeNodes(self, scopePath, excludeContains=False, excludeKinds=None,
-                      includeItself=True):
-        """
-        :param scopePath: scope path, or list of scope paths, to search for
-                          None to return all scopes
-        :param excludeContains: see getScopes
-        :param excludeKinds: see getScopes
-        :param includeItself: include itself if self represent a "valid" scope (not a file)
-        :return: PYFTscope whose path is the path asked for
-        """
-        scopes = self.getScopes(excludeContains=excludeContains,
-                                excludeKinds=excludeKinds,
-                                includeItself=includeItself)
-        if scopePath is not None:
-            if not isinstance(scopePath, list):
-                scopePath = [scopePath]
-            scopes = [scope for scope in scopes if scope.path in scopePath]
-        return scopes
-
-    @debugDecor
     def isScopeNode(self, node):
         """
         :param node: node to test
