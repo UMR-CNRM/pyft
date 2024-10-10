@@ -215,13 +215,11 @@ class VarList():
         return None
 
     @debugDecor
-    def showVarList(self, scopePath=None):
+    def showVarList(self):
         """
         Display on stdout a nice view of all the variables
-        :param scopePath: restrict list to this scope path (None to loop over all scopes)
         """
-        for sc in set(v['scopePath'] for v in self._varList
-                      if (scopePath is None or v['scopePath'] == scopePath)):
+        for sc in set(v['scopePath'] for v in self._varList):
             print(f'List of variables declared in {sc}:')
             for var in [var for var in self._varList if var['scopePath'] == sc]:
                 print(f"  Variable {var['n']}:")
