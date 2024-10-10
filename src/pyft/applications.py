@@ -115,35 +115,35 @@ class Applications():
                 for elem in objType.findall('.//{*}element'):
                     arrayIndices = arrayIndices + alltext(elem)
             newName = variable[0] + structure + variable[1:] + arrayIndices
-            
-            # 2) Replace the namedE>N>n by the newName and delete R-LT 
-            #except for array with index selection (R-LT is moved)
+
+            # 2) Replace the namedE>N>n by the newName and delete R-LT
+            # except for array with index selection (R-LT is moved)
             namedENn.text = newName
             objType.remove(objType.find('.//{*}R-LT'))
             if len(arrayRall) > 0:
-                objType.insert(1,arrayR)
-            
-                
+                objType.insert(1, arrayR)
+
             # 3) Add to the list of not already present for declaration
             if newName not in newVarList:
                 if len(arrayRall) == 0:
                     newVarList[newName] = (None, objTypeStr)
                 else:
                     newVarList[newName] = (arrayR, objTypeStr)
-                    
+
         scopes = self.getScopes(excludeContains=True)
         if scopes[0].path.split('/')[-1].split(':')[1][:4] == 'MODD':
             return
         for scope in [scope for scope in scopes
                       if 'sub:' in scope.path and 'interface' not in scope.path]:
             newVarList = {}
-            for ifStmt in scope.findall('.//{*}if-then-stmt') + scope.findall('.//{*}else-if-stmt') \
-                + scope.findall('.//{*}where-stmt'): 
+            for ifStmt in (scope.findall('.//{*}if-then-stmt') +
+                           scope.findall('.//{*}else-if-stmt') +
+                           scope.findall('.//{*}where-stmt')):
                 compo = ifStmt.findall('.//{*}component-R')
                 if len(compo) > 0:
                     for elcompo in compo:
                         convertOneType(elcompo, newVarList)
-                
+
             for aStmt in scope.findall('.//{*}a-stmt'):
                 # Exclude statements in which the component-R is in E1
                 # (e.g. PARAMI%XRTMIN(4) = 2)
@@ -409,22 +409,21 @@ class Applications():
             # The AROME transformation needs an additional parameter
             # We apply the transformation only if the routine is called
             # from a scope within stopScopes
-            for scope in [scope for scope in self.getScopes()
+            for scope in [scope for scope in self.getScopes(excludeContains=True)
                           if scope.path in stopScopes or
                           self.tree.isUnderStopScopes(scope.path, stopScopes)]:
                 # Intermediate transformation, needs cpp to be completed
                 # This version would be OK if we didn't need to read again the files with fxtran
                 # after transformation
-                # nb = self.modifyAutomaticArrays(
+                # nb = scope.modifyAutomaticArrays(
                 #                            declTemplate="temp({type}, {name}, ({shape}))",
-                #                            startTemplate="alloc({name})",
-                #                            scopePath=scope.path)
+                #                            startTemplate="alloc({name})")
 
                 # Full transformation, using CRAY pointers
                 # In comparison with the original transformation of Philippe,
                 # we do not call SOF with __FILE__ and __LINE__ because it breaks
                 # future reading with fxtran
-                nb = self.modifyAutomaticArrays(
+                nb = scope.modifyAutomaticArrays(
                          declTemplate="{type}, DIMENSION({shape}) :: {name}; " +
                                       "POINTER(IP_{name}_, {name})",
                          startTemplate="IP_{name}_=YLSTACK%L(KIND({name})/4);" +
@@ -434,8 +433,7 @@ class Applications():
                                        "IF(YLSTACK%L(KIND({name})/4)>" +
                                        "YLSTACK%U(KIND({name})/4))" +
                                        "CALL SOF('" + self.getFileName() + ":{name}', " +
-                                       "KIND({name}))",
-                         scopePath=scope.path)
+                                       "KIND({name}))")
 
                 if nb > 0:
                     # Some automatic arrays have been modified,
@@ -455,16 +453,15 @@ class Applications():
                             argN[0].text = 'YLSTACK'
 
         elif model == 'MESONH':
-            for scope in self.getScopes():
+            for scope in self.getScopes(excludeContains=True):
                 # We apply the transformation only if the routine is called
                 # from a scope within stopScopes
                 if (not self.tree.isValid) or stopScopes is None or scope.path in stopScopes or \
                    self.tree.isUnderStopScopes(scope.path, stopScopes):
-                    nb = self.modifyAutomaticArrays(
+                    nb = scope.modifyAutomaticArrays(
                                 declTemplate="{type}, DIMENSION({doubledotshape}), " +
                                              "POINTER, CONTIGUOUS :: {name}",
-                                startTemplate="CALL MNH_MEM_GET({name}, {lowUpList})",
-                                scopePath=scope.path)
+                                startTemplate="CALL MNH_MEM_GET({name}, {lowUpList})")
                     if nb > 0:
                         # Some automatic arrays have been modified
                         # we need to add the stack module,

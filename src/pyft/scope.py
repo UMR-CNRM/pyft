@@ -39,16 +39,13 @@ class ElementView():
         :return: a node (possibly the xml node) containing only the relevant subelements
         """
         if self._excludeContains:
+            contains = self._xml.find('./{*}contains-stmt')
+            if contains is None:
+                return self._xml
+            indexContains = list(self._xml).index(contains)
             childNode = createElem('virtual')
-            breakOnCOntains = False
-            for node in self._xml:
-                if tag(node) == 'contains-stmt':
-                    breakOnCOntains = True
-                    break  # we are outside of the targeted bloc
-                childNode.append(node)
-            if breakOnCOntains:
-                childNode.append(self._xml[-1])
-                return childNode
+            childNode.extend(self._xml[:indexContains] + [self._xml[-1]])
+            return childNode
         return self._xml
 
     # PROPERTIES
@@ -99,6 +96,9 @@ class ElementView():
 
     def __len__(self, *args, **kwargs):
         return self._virtual.__len__(*args, **kwargs)
+
+    def __iter__(self):
+        return list(self._virtual).__iter__()
 
     def find(self, *args, **kwargs):
         """

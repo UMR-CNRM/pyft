@@ -836,14 +836,11 @@ class Variables():
 
     @debugDecor
     @updateVarList
-    def modifyAutomaticArrays(self, declTemplate=None, startTemplate=None, endTemplate=None,
-                              scopePath=None):
+    def modifyAutomaticArrays(self, declTemplate=None, startTemplate=None, endTemplate=None):
         """
         :param declTemplate: declaration template
         :param startTemplate: template for the first executable statement
         :param: endTemplate: template for the last executable statement
-        :param scopePath: scope path or list of scope paths in which to apply the transformation
-                          (None to apply everywhere)
         :return: number of arrays modified
         Modifies all automatic arrays declaration in subroutine and functions. The declaration is
         replaced by the declaration template, the start template is inserted as first executable
@@ -861,15 +858,13 @@ class Variables():
                      'end': endTemplate if endTemplate is not None else ''}  # ordered dict
 
         number = 0
-        scopes = self.getScopeNodes(scopePath)
-        for scope in [scope for scope in scopes
+        for scope in [scope for scope in self.getScopes(excludeContains=True, includeItself=True)
                       if scope.path.split('/')[-1].split(':')[0] in ('sub', 'func')]:
             # For all subroutine and function scopes
             # Determine the list of variables to transform
             varListToTransform = []
             for var in [var for var in scope.varList
-                        if var['scopePath'] == scope.path  # filter is needed to exclude contains
-                        and var['as'] is not None and
+                        if var['as'] is not None and
                         len(var['as']) > 0 and
                         not (var['arg'] or var['allocatable'] or
                              var['pointer'] or var['result'])]:
