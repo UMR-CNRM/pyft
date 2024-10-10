@@ -146,22 +146,15 @@ class Statements():
         return len(callNodes)
 
     @debugDecor
-    def removePrints(self, scopePath, simplify=False):
+    def removePrints(self, simplify=False):
         """
         Removes all print statements
-        :param scopePath: scope path, or list of, to explore (None for all). A path is a
-                          '/'-separated string with each element having the form
-                          'module:<name of the module>', 'sub:<name of the subroutine>' or
-                          'func:<name of the function>'
         :param simplify: try to simplify code (if we delete "print*, X" and if X is not
                          used else where, we also delete it; or if the print was alone inside
                          a if-then-endif construct, the construct is also removed, and
                          variables used in the if condition are also checked...)
         """
-        printNodes = []
-        for scope in self.getScopeNodes(scopePath, excludeContains=True):
-            printNodes += scope.findall('.//{*}print-stmt')
-        self.removeStmtNode(printNodes, simplify, simplify)
+        self.removeStmtNode(self.findall('.//{*}print-stmt'), simplify, simplify)
 
     @debugDecor
     def removeArraySyntax(self, concurrent=False, useMnhExpand=True, everywhere=True,
