@@ -162,8 +162,11 @@ class ElementView():
         if index > indexContains or index < -indexContains - 1:
             raise IndexError('list index out of range')
         # Converts negative index into positive index
-        if index < 0:
-            index = indexContains + index
+        if index == -1:
+            # END SUBROUTINE
+            return index
+        if index < -1:
+            index = indexContains + index + 1
 
         return len(self._xml) if index == indexContains else index
 
@@ -527,7 +530,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
                 elif not isinstance(addStmt, list):
                     addStmt = [addStmt]
                 for stmt in addStmt:
-                    scope.insertStatement(scope.path, stmt, False)
+                    scope.insertStatement(stmt, False)
         if simplify:
             # Apllied on self (and not scope) to remove lines before the first scope
             # in case self represents an entire file

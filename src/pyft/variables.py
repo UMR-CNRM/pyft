@@ -954,9 +954,9 @@ class Variables():
 
                 # Insert statements
                 for nnn in templ['start'][::-1]:
-                    self.insertStatement(scope, nnn, True)
+                    scope.insertStatement(nnn, True)
                 for nnn in templ['end'][::-1]:
-                    self.insertStatement(scope, nnn, False)
+                    scope.insertStatement(nnn, False)
         return number
 
     @staticmethod

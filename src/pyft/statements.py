@@ -1187,50 +1187,48 @@ class Statements():
                              ).format(self.getFileName()))
 
     @debugDecor
-    def insertStatement(self, scope, stmt, first):
+    def insertStatement(self, stmt, first):
         """
         Insert a statement to be executed first (or last)
-        :param scope: scope (path or node) in which the statement must be inserted
         :param stmt: statement to insert
         :param first: True to insert it in first position, False to insert it in last position
         :return: the index of the stmt inserted in scope
         """
-        if isinstance(scope, str):
-            scope = self.getScopeNode(scope)
+        # pylint: disable=unsubscriptable-object
         if first:
             # Statement must be inserted after all use, T-decl, implicit-non-stmt,
             # interface and cray pointers
-            nodes = scope.findall('./{*}T-decl-stmt') + scope.findall('./{*}use-stmt') + \
-                    scope.findall('./{*}implicit-none-stmt') + \
-                    scope.findall('./{*}interface-construct') + \
-                    scope.findall('./{*}pointer-stmt')
+            nodes = self.findall('./{*}T-decl-stmt') + self.findall('./{*}use-stmt') + \
+                    self.findall('./{*}implicit-none-stmt') + \
+                    self.findall('./{*}interface-construct') + \
+                    self.findall('./{*}pointer-stmt')
             if len(nodes) > 0:
                 # Insertion after the last node
-                index = max([list(scope).index(n) for n in nodes]) + 1
+                index = max([list(self).index(n) for n in nodes]) + 1
             else:
                 # Insertion after the subroutine or function node
                 index = 2
             # If an include statements follows, it certainly contains an interface
-            while (tag(scope[index]) in ('C', 'include', 'include-stmt') or
-                   (tag(scope[index]) == 'cpp' and scope[index].text.startswith('#include'))):
-                if not scope[index].text.startswith('!$acc'): 
+            while (tag(self[index]) in ('C', 'include', 'include-stmt') or
+                   (tag(self[index]) == 'cpp' and self[index].text.startswith('#include'))):
+                if not self[index].text.startswith('!$acc'):
                     index += 1
                 else:
                     break
         else:
             # Statement must be inserted before the contains statement
-            contains = scope.find('./{*}contains-stmt')
+            contains = self.find('./{*}contains-stmt')
             if contains is not None:
                 # Insertion before the contains statement
-                index = list(scope).index(contains)
+                index = list(self).index(contains)
             else:
                 # Insertion before the end subroutine or function statement
                 index = -1
-        if scope[index - 1].tail is None:
-            scope[index - 1].tail = '\n'
-        elif '\n' not in scope[index - 1].tail:
-            scope[index - 1].tail += '\n'
-        scope.insert(index, stmt)
+        if self[index - 1].tail is None:
+            self[index - 1].tail = '\n'
+        elif '\n' not in self[index - 1].tail:
+            self[index - 1].tail += '\n'
+        self.insert(index, stmt)
         return index
 
     @debugDecor

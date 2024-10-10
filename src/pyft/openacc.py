@@ -168,15 +168,15 @@ class Openacc():
                     count += 1
                 listVarEnd = listVar[:-3]  # remove last comma and &
                 accAddMultipleLines = createExpr(listVarEnd + ')')
-                idx = self.insertStatement(scope.path, self.indent(accAddMultipleLines[0]), first=True)
+                idx = scope.insertStatement(self.indent(accAddMultipleLines[0]), first=True)
 
                 # 2) multi-lines !$acc &
-                for l,line in enumerate(accAddMultipleLines[1:]):
-                    scope.insert(idx+1+l,line)
-                
+                for iLine, line in enumerate(accAddMultipleLines[1:]):
+                    scope.insert(idx + 1 + iLine, line)
+
                 # 3) !$acc end data
                 comment = createElem('C', text='!$acc end data', tail='\n')
-                self.insertStatement(scope.path, self.indent(comment), first=False)
+                scope.insertStatement(self.indent(comment), first=False)
 
     @debugDecor
     def addACCRoutineSeq(self, stopScopes):

@@ -195,7 +195,7 @@ class Applications():
 
                 # Affectation
                 stmtAffect = createExpr(el + "=" + var[1])[0]
-                self.insertStatement(scope.path, self.indent(stmtAffect), first=True)
+                scope.insertStatement(self.indent(stmtAffect), first=True)
 
     @debugDecor
     def deleteDrHook(self, simplify=False):
@@ -223,13 +223,11 @@ class Applications():
             self.addVar([[scope.path, 'ZHOOK_HANDLE', 'REAL(KIND=JPHOOK) :: ZHOOK_HANDLE',
                           None]])
             # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 0, ZHOOK_HANDLE)
-            self.insertStatement(scope.path,
-                                 createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
-                                            "0, ZHOOK_HANDLE)")[0], True)
+            scope.insertStatement(createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
+                                             "0, ZHOOK_HANDLE)")[0], True)
             # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 1, ZHOOK_HANDLE)
-            self.insertStatement(scope.path,
-                                 createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
-                                            "1, ZHOOK_HANDLE)")[0], False)
+            scope.insertStatement(createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
+                                             "1, ZHOOK_HANDLE)")[0], False)
 
     @debugDecor
     def deleteBudgetDDH(self, simplify=False):
@@ -369,7 +367,7 @@ class Applications():
                                                                     strMSG='beg:'))
 
                     # Add the new IN and INOUT block
-                    self.insertStatement(scope.path, self.indent(ifMPPDBinit), first=True)
+                    scope.insertStatement(self.indent(ifMPPDBinit), first=True)
 
                 # 2) variables INOUT and OUT block (end of the routine)
                 if len(arraysInOut) + len(arraysOut) > 0:
@@ -393,7 +391,7 @@ class Applications():
                                                                     strMSG='end:'))
 
                     # Add the new INOUT and OUT block
-                    self.insertStatement(scope.path, self.indent(ifMPPDBend), first=False)
+                    scope.insertStatement(self.indent(ifMPPDBend), first=False)
 
     @debugDecor
     def addStack(self, model, stopScopes, parser=None, parserOptions=None, wrapH=False):
@@ -446,7 +444,7 @@ class Applications():
                     # Copy the stack to a local variable and use it for call statements
                     # this operation must be done after the call to addArgInTree
                     self.addVar([[scope.path, 'YLSTACK', 'TYPE (STACK) :: YLSTACK', None]])
-                    self.insertStatement(scope, createExpr('YLSTACK=YDSTACK')[0], True)
+                    scope.insertStatement(createExpr('YLSTACK=YDSTACK')[0], True)
                     for argN in scope.findall('.//{*}call-stmt/{*}arg-spec/' +
                                               '{*}arg/{*}arg-N/../{*}named-E/{*}N'):
                         if n2name(argN) == 'YDSTACK':
@@ -469,12 +467,10 @@ class Applications():
                                           ['MNH_MEM_GET', 'MNH_MEM_POSITION_PIN',
                                            'MNH_MEM_RELEASE'])])
                         # to pin the memory position,
-                        self.insertStatement(
-                            scope.path,
+                        scope.insertStatement(
                             createExpr(f"CALL MNH_MEM_POSITION_PIN('{scope.path}')")[0], True)
                         # and to realease the memory
-                        self.insertStatement(
-                            scope.path,
+                        scope.insertStatement(
                             createExpr(f"CALL MNH_MEM_RELEASE('{scope.path}')")[0], False)
         else:
             raise PYFTError('Stack is implemented only for AROME and MESONH models')
@@ -745,8 +741,7 @@ class Applications():
             for loopIndex in indexRemoved:
                 # Initialize former indexes JI,JJ,JIJ to first array element:
                 # JI=D%NIB, JJ=D%NJB, JIJ=D%NIJB
-                self.insertStatement(
-                    scope.path,
+                scope.insertStatement(
                     createExpr(loopIndex + " = " + indexToCheck[loopIndex][0])[0], True)
                 self.addArgInTree(scope.path, 'D', 'TYPE(DIMPHYEX_t) :: D',
                                   0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
