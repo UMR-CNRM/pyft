@@ -451,7 +451,7 @@ def updateParserStatements(parser):
     gStatement.add_argument('--inlineContainedSubroutines', default=False, action='store_true',
                             help='Inline containted subroutines in main routine')
     gStatement.add_argument('--setFalseIfStmt', default=None,
-                            help='Replace thi value by .FALSE. in if statements')
+                            help='Replace this value by .FALSE. in if statements')
 
 
 def updateParserMisc(parser):

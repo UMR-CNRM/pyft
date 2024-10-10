@@ -244,19 +244,18 @@ class Applications():
                     'BUCONF%LBUDGET_RS', 'BUCONF%LBUDGET_RH', 'BUCONF%LBUDGET_RR',
                     'BUCONF%LBUDGET_RC', 'BUCONF%LBUDGET_U', 'BUCONF%LBUDGET_V',
                     'BUCONF%LBUDGET_W']
-        self.setFalseIfStmt(flagTorm, None, simplify=simplify)
+        self.setFalseIfStmt(flagTorm, simplify=simplify)
 
     @debugDecor
     def deleteRoutineCallsMesoNHGPU(self, simplify=True):
         """
-        Remove Calls to routines not compatible with Méso-NH on GPU 
+        Remove Calls to routines not compatible with Méso-NH on GPU
         e.g. CALL within a DO loop
         e.g. OCND2 in condensation uses a CALL ICECLOUD and fonctions within computations
         If Simplify is True, also remove all variables only needed for these calls
         :param simplify : if True, remove variables that are now unused
         """
-        self.setFalseIfStmt('OCND2', None, simplify=True)
-
+        self.setFalseIfStmt('OCND2', simplify=simplify)
 
     @debugDecor
     def addMPPDB_CHECKS(self):

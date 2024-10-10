@@ -1101,14 +1101,10 @@ class Statements():
             parent.insert(index, node)
 
     @debugDecor
-    def setFalseIfStmt(self, flags, scopePath=None, simplify=False):
+    def setFalseIfStmt(self, flags, simplify=False):
         """
         Set to .FALSE. a given boolean fortran flag before removing the node if simplify is True
         :param flags: list of strings of flags to set to .FALSE.
-        :param scopePath: scope path, or list of, to explore (None for all). A path is a
-                          '/'-separated string with each element having the form
-                          'module:<name of the module>', 'sub:<name of the subroutine>' or
-                          'func:<name of the function>'
         :param simplify: try to simplify code (if the .FALSE. was alone inside a if-then-endif
                          construct, the construct is removed, and variables used in the if
                          condition are also checked)
@@ -1117,7 +1113,7 @@ class Statements():
             flags = [flags]
         flags = [flag.upper() for flag in flags]
         singleFalseBlock, multipleFalseBlock = [], []
-        for scope in self.getScopeNodes(scopePath, excludeContains=True, excludeKinds=['type']):
+        for scope in self.getScopes(excludeContains=True, excludeKinds=['type']):
             # Loop on nodes composing the scope
             for node in scope:
                 # Loop on condition nodes
