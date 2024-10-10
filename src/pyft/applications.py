@@ -70,7 +70,7 @@ class Applications():
         for subroutine in ('ROTATE_WIND', 'UPDATE_ROTATE_WIND', 'BL_DEPTH_DIAG_3D',
                            'TM06_H', 'TURB_HOR_SPLT'):
             # Remove call statements
-            nb = self.removeCall(subroutine, None, simplify=simplify)
+            nb = self.removeCall(subroutine, simplify=simplify)
             # Remove use statement
             if nb > 0:
                 self.removeVar([(v['scopePath'], v['n']) for v in self.varList
@@ -205,7 +205,7 @@ class Applications():
         DR_HOOK, LHOOK, YOMHOOK, JPRB, PARKIND1)
         :param simplify : if True, remove variables that are now unused
         """
-        self.removeCall('DR_HOOK', None, simplify=simplify)
+        self.removeCall('DR_HOOK', simplify=simplify)
 
     @debugDecor
     def addDrHook(self):
@@ -238,9 +238,9 @@ class Applications():
         If Simplify is True, also remove all variables only needed for these calls
         :param simplify : if True, remove variables that are now unused
         """
-        self.removeCall('BUDGET_STORE_INIT_PHY', None, simplify=simplify)
-        self.removeCall('BUDGET_STORE_END_PHY', None, simplify=simplify)
-        self.removeCall('BUDGET_STORE_ADD_PHY', None, simplify=simplify)
+        self.removeCall('BUDGET_STORE_INIT_PHY', simplify=simplify)
+        self.removeCall('BUDGET_STORE_END_PHY', simplify=simplify)
+        self.removeCall('BUDGET_STORE_ADD_PHY', simplify=simplify)
         flagTorm = ['BUCONF%LBUDGET_SV', 'BUCONF%LBUDGET_TKE', 'BUCONF%LBUDGET_TH',
                     'BUCONF%LBUDGET_RI', 'BUCONF%LBUDGET_RV', 'BUCONF%LBUDGET_RG',
                     'BUCONF%LBUDGET_RS', 'BUCONF%LBUDGET_RH', 'BUCONF%LBUDGET_RR',

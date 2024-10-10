@@ -123,25 +123,18 @@ class Statements():
         return inside
 
     @debugDecor
-    def removeCall(self, callName, scopePath, simplify=False):
+    def removeCall(self, callName, simplify=False):
         """
         :param callName: name of the subprogram calls to remove.
-        :param scopePath: scope path, or list of, to explore (None for all). A path is a
-                          '/'-separated string with each element having the form
-                          'module:<name of the module>', 'sub:<name of the subroutine>' or
-                          'func:<name of the function>'
         :param simplify: try to simplify code (if we delete "CALL FOO(X)" and if X not
                          used else where, we also delete it; or if the call was alone inside
                          a if-then-endif construct, the construct is also removed, and
                          variables used in the if condition are also checked...)
         :return: number of calls suppressed
         """
-        callName = callName.upper()
-        callNodes = []
-        for scope in self.getScopeNodes(scopePath, excludeContains=True):
-            callNodes += scope.findall('.//{*}call-stmt')
-        callNodes = [cn for cn in callNodes
-                     if n2name(cn.find('.//{*}named-E/{*}N')).upper() == callName]  # filter by name
+        # Select all call-stmt and filter by name
+        callNodes = [cn for cn in self.findall('.//{*}call-stmt')
+                     if n2name(cn.find('.//{*}named-E/{*}N')).upper() == callName.upper()]
         self.removeStmtNode(callNodes, simplify, simplify)
         return len(callNodes)
 

@@ -443,15 +443,9 @@ def updateParserStatements(parser):
     """
 
     gStatement = parser.add_argument_group('Statements options')
-    gStatement.add_argument('--removeCall', nargs=2, action='append',
-                            metavar=('SCOPEPATH', 'CALLNAME'),
-                            help="Call to remove from the source code. The first argument " +
-                                 "is the SUBROUTINE/FUNCTION/MODULE where the call statements " +
-                                 "have to be removed. It is '/'-separated path with each element " +
-                                 "having the form 'module:<name of the module>', 'sub:<name of " +
-                                 "the subroutine>' or 'func:<name of the function>'. Use 'ALL' " +
-                                 "to suppress all the call statements regardless where there are." +
-                                 " The second argument is the subprogram name")
+    gStatement.add_argument('--removeCall', action='append',
+                            help="Call to remove from the source code. The argument " +
+                                 "is the subprogram name")
     gStatement.add_argument('--removePrints', default=False, action='store_true',
                             help="Remove print statements from the source code.")
     gStatement.add_argument('--inlineContainedSubroutines', default=False, action='store_true',
@@ -777,7 +771,7 @@ def applyTransfoStatements(pft, arg, args, simplify):
     """
     if arg == '--removeCall':
         for rc in args.removeCall:
-            pft.removeCall(rc[1], None if rc[0] == 'ALL' else rc[0], **simplify)
+            pft.removeCall(rc, **simplify)
     elif arg == '--removePrints':
         pft.removePrints(**simplify)
     elif arg == '--setFalseIfStmt':
