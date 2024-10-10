@@ -645,12 +645,11 @@ class Variables():
                 self.tree.signal(self)  # Tree must be updated
 
     @debugDecor
-    def showUnusedVar(self, scopePath=None):
+    def showUnusedVar(self):
         """
         Displays on stdout a list of unued variables
-        :param scopePath: scope path (or list of) to explore (None for all)
         """
-        scopes = self.getScopeNodes(scopePath, excludeKinds=['type'])
+        scopes = self.getScopes(excludeKinds=['type'])
         varUsed = self.isVarUsed([(scope.path, v['n'])
                                   for scope in scopes
                                   for v in self.varList

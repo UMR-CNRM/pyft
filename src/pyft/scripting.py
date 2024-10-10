@@ -248,10 +248,8 @@ def updateParserVariables(parser):
                             help='Add a USE statement. The first argument is the scope path ' +
                                  '(as for the --removeVariable option). The second is the module ' +
                                  'name; the third is the variable name.')
-    gVariables.add_argument('--showUnusedVariables', nargs='?', action='append',
-                            metavar='SCOPEPATH', default=None,
-                            help='Show a list of unused variables in the entire code ' +
-                                 'or in the scope path (if specified).')
+    gVariables.add_argument('--showUnusedVariables', default=False, action='store_true',
+                            help='Show a list of unused variables.')
     gVariables.add_argument('--removeUnusedLocalVariables', nargs=2, action='append',
                             metavar=('SCOPEPATH', 'EXCLUDE'), default=None,
                             help='Remove unused local variables in the specified scope path ' +
@@ -585,10 +583,7 @@ def applyTransfoVariables(pft, arg, args, simplify, parserOptions, stopScopes):
     elif arg == '--addModuleVariable':
         pft.addModuleVar([[v[0], v[1], v[2]] for v in args.addModuleVariable])
     elif arg == '--showUnusedVariables':
-        if len(args.showUnusedVariables) == 1 and args.showUnusedVariables[0] is None:
-            pft.showUnusedVar()
-        else:
-            pft.showUnusedVar(args.showUnusedVariables)
+        pft.showUnusedVar()
     elif arg == '--removeUnusedLocalVariables':
         for scopePath, exclude in args.removeUnusedLocalVariables:
             pft.removeUnusedLocalVar(
