@@ -999,7 +999,7 @@ class Applications():
             # Detect if the workingItem contains expressions, if so:
             # create a compute statement embedded by mnh_expand directives
             opE = workingItem.findall('.//{*}op-E')
-            self.addArrayParenthesesInNode(workingItem, scope.path)
+            scope.addArrayParenthesesInNode(workingItem)
             computeStmt = []
             dimSuffVar = str(zshugradwkDim) + 'D'
             dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = \
@@ -1236,7 +1236,7 @@ class Applications():
                             maxnbZshugradwk = nbzshugradwk
 
                     # Add parenthesis around all variables
-                    self.addArrayParenthesesInNode(foundStmtandCalls[stmt][0], scope.path)
+                    scope.addArrayParenthesesInNode(foundStmtandCalls[stmt][0])
 
                     # For the last compute statement, add mnh_expand and acc
                     # kernels if not call statement
@@ -1263,7 +1263,7 @@ class Applications():
 
                 # For all saved intermediate newComputeStmt, add parenthesis around all variables
                 for stmt in computeStmtforParenthesis:
-                    self.addArrayParenthesesInNode(stmt, scope.path)
+                    scope.addArrayParenthesesInNode(stmt)
 
     @debugDecor
     @noParallel

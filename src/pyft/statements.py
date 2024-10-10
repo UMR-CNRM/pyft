@@ -716,7 +716,7 @@ class Statements():
         prefix = subContained.findall('.//{*}prefix')
         if len(prefix) > 0 and 'ELEMENTAL' in [p.text.upper() for p in prefix]:
             # Add missing parentheses
-            self.addArrayParenthesesInNode(callStmt, scopePath=mainScope.path)
+            mainScope.addArrayParenthesesInNode(callStmt)
 
             # Add explcit bounds
             self.addExplicitArrayBounds(node=callStmt, scope=mainScope)

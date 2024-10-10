@@ -750,14 +750,12 @@ class Variables():
 
     @debugDecor
     @noParallel
-    def addArrayParentheses(self, scopePath=None):
+    def addArrayParentheses(self):
         """
         Look for arrays and add parenthesis. A => A(:)
-        :param scopePath: scope path (or list of scope paths) to deal with,
-                          None to transform all found scopes
         """
         # Loop on scopes
-        for scope in self.getScopeNodes(scopePath, excludeContains=True):
+        for scope in self.getScopes(excludeContains=True, includeItself=True):
             for node in scope.iter():
                 # Arrays are used in statements
                 # * We must exclude allocate-stmt, deallocate-stmt, pointer-a-stmt, T-decl-stmt and
@@ -793,21 +791,14 @@ class Variables():
                 elif tag(node).endswith('-stmt'):
                     nodeToTransform = node
                 if nodeToTransform is not None:
-                    self.addArrayParenthesesInNode(nodeToTransform, scope.path)
+                    scope.addArrayParenthesesInNode(nodeToTransform)
 
     @debugDecor
-    def addArrayParenthesesInNode(self, node, scopePath=None):
+    def addArrayParenthesesInNode(self, node):
         """
         Look for arrays and add parenthesis. A => A(:)
         :param node: xml node in which ':' must be added
-        :param scopePath: scope path corresponding to the node (None to compute it)
         """
-        # Scope (as a string path)
-        if scopePath is None:
-            scope = self
-        else:
-            scope = self.getScopeNode(scopePath, excludeContains=True)
-
         # Loop on variables
         for namedE in node.findall('.//{*}named-E'):
             if not namedE.find('./{*}R-LT'):  # no parentheses
@@ -815,7 +806,7 @@ class Variables():
                     # Pointer/allocatable used in ALLOCATED/ASSOCIATED must not be modified
                     # Array in present must not be modified
                     nodeN = namedE.find('./{*}N')
-                    var = scope.varList.findVar(n2name(nodeN))
+                    var = self.varList.findVar(n2name(nodeN))
                     if var is not None and var['as'] is not None and len(var['as']) > 0 and \
                        not ((var['pointer'] or var['allocatable']) and self.isNodeInCall(namedE)):
                         # This is a known array variable, with no parentheses
