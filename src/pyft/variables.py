@@ -181,7 +181,7 @@ class VarList():
         return VarList(None, _preCompute=(varList, self._fullVarList, scopePath))
 
     @debugDecor
-    def findVar(self, varName, array=None, exactScope=False):
+    def findVar(self, varName, array=None, exactScope=False, extraVarList=None):
         """
         Search for a variable in a list of declared variables
         :param varName: variable name
@@ -189,6 +189,8 @@ class VarList():
                       False to limit search to non array,
                       None to return anything
         :param exactScope: True to limit search to variables declared in the scopePath
+        :param extraVarList: None or list of variables (such as those contained in a VarList object)
+                             defined but not yet available in the self.varList object.
         :return: None if not found or the description of the variable
 
         The function is designed to return the declaration of a given variable.
@@ -197,9 +199,10 @@ class VarList():
         correspond to what is expected, we don't return it.
         In case array is None, we return the last declaration statement without checking its kind.
         """
+        extraVarList = extraVarList if extraVarList is not None else []
         # Select all the variables declared in the current scope or upper,
         # then select the last declared
-        candidates = {v['scopePath']: v for v in self._fullVarList
+        candidates = {v['scopePath']: v for v in self._fullVarList + extraVarList
                       if v['n'].upper() == varName.upper() and
                       (self._scopePath == v['scopePath'] or
                        (self._scopePath.startswith(v['scopePath'] + '/') and
@@ -986,12 +989,11 @@ class Variables():
         return stmt
 
     @debugDecor
-    def findIndexArrayBounds(self, arr, index, scopePath, loopVar):
+    def findIndexArrayBounds(self, arr, index, loopVar):
         """
         Find bounds and loop variable for a given array index
         :param arr: array node (named-E node with a array-R child)
         :param index: index of the rank of the array
-        :param scopePath: scope path where the array is used
         :param loopVar: None to create new variable for each added DO loop
                         or a function that return the name of the variable to use for the
                             loop control.
@@ -1018,8 +1020,7 @@ class Variables():
             # Look for lower and upper bounds for iteration and declaration
             lowerUsed = ss.find('./{*}lower-bound')
             upperUsed = ss.find('./{*}upper-bound')
-            varDesc = self.getScopeNode(scopePath,
-                                        excludeContains=True).varList.findVar(name, array=True)
+            varDesc = self.varList.findVar(name, array=True)
             if varDesc is not None:
                 lowerDecl, upperDecl = varDesc['as'][index]
                 if lowerDecl is None:
@@ -1138,11 +1139,10 @@ class Variables():
             nodeRLT.insert(index, parensR)
 
     @debugDecor
-    def findArrayBounds(self, arr, scopePath, loopVar, extraVarList=None):
+    def findArrayBounds(self, arr, loopVar, extraVarList=None):
         """
         Find bounds and loop variable given an array
         :param arr: array node (named-E node with a array-R child)
-        :param scopePath: scope path where the array is used
         :param loopVar: None to create new variable for each added DO loop
                         or a function that return the name of the variable to use for the loop
                             control.
@@ -1167,7 +1167,6 @@ class Variables():
         name = n2name(arr.find('./{*}N'))
         varNew = []
         extraVarList = extraVarList if extraVarList is not None else []
-        scope = self.getScopeNode(scopePath, excludeContains=True)
 
         # Iteration on the different subscript
         for iss, ss in enumerate(arr.findall('./{*}R-LT/{*}array-R/{*}section-subscript-LT/' +
@@ -1176,7 +1175,7 @@ class Variables():
             # we must not iterate over the others, eg: X(:,1)
             if ':' in alltext(ss):
                 # Look for loop variable name and lower/upper bounds for iteration
-                varName, lower, upper = self.findIndexArrayBounds(arr, iss, scopePath, loopVar)
+                varName, lower, upper = self.findIndexArrayBounds(arr, iss, loopVar)
                 # varName can be a string (name to use), True (to create a variable),
                 # False (to discard the array
                 if varName is not False and varName in table:
@@ -1187,27 +1186,29 @@ class Variables():
                                               name=name))
                 if varName is True:
                     # A new variable must be created
-                    j = 1
                     # We look for a variable name that don't already exist
                     # We can reuse a newly created varaible only if it is not used for the previous
                     # indexes of the same statement
-                    while any(v['n'] for v in (self.varList[:] + extraVarList + varNew)
-                              if ((v['n'].upper() == 'J' + str(j) and not v.get('new', False)) or
-                                  'J' + str(j) in table)):
+                    j = 0
+                    found = False
+                    while not found:
                         j += 1
-                    varName = 'J' + str(j)
+                        varName = 'J' + str(j)
+                        var = self.varList.findVar(varName, extraVarList=extraVarList + varNew)
+                        if (var is None or var.get('new', False)) and varName not in table:
+                            found = True
                     varDesc = {'as': [], 'asx': [], 'n': varName, 'i': None,
                                't': 'INTEGER', 'arg': False, 'use': False, 'opt': False,
-                               'scopePath': scopePath}
+                               'scopePath': self.path}
                     if varDesc not in varNew:
                         varNew.append(varDesc)
 
                 elif (varName is not False and
-                      scope.varList.findVar(varName, array=False, exactScope=True) is None):
+                      self.varList.findVar(varName, array=False, exactScope=True) is None):
                     # We must declare the variable
                     varDesc = {'as': [], 'asx': [], 'n': varName, 'i': None,
                                't': 'INTEGER', 'arg': False, 'use': False, 'opt': False,
-                               'scopePath': scopePath}
+                               'scopePath': self.path}
                     varNew.append(varDesc)
 
                 # fill table

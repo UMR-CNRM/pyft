@@ -530,8 +530,8 @@ class Statements():
                     else:
                         # Guess a variable name
                         if arr is not None:
-                            newtable, varNew = self.findArrayBounds(arr, scopePath, loopVar,
-                                                                    newVarList)
+                            newtable, varNew = self.getScopeNode(scopePath).findArrayBounds(
+                                arr, loopVar, newVarList)
                             for var in varNew:
                                 var['new'] = True
                                 if var not in newVarList:
@@ -725,8 +725,8 @@ class Statements():
             arrayRincallStmt = callStmt.findall('.//{*}array-R')
             if len(arrayRincallStmt) > 0:  # Called on arrays
                 # Look for an array affectation to guess the DO loops to put around the call
-                table, _ = self.findArrayBounds(self.getParent(arrayRincallStmt[0], 2),
-                                                mainScope.path, loopVar)
+                table, _ = mainScope.findArrayBounds(self.getParent(arrayRincallStmt[0], 2),
+                                                     loopVar)
 
                 # Add declaration of loop index if missing
                 for varName in table.keys():

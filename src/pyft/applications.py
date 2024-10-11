@@ -519,7 +519,7 @@ class Applications():
                         'JJ': ('D%NJB', 'D%NJT'),
                         'JIJ': ('D%NIJB', 'D%NIJT')}
 
-        def slice2index(namedE, scopePath):
+        def slice2index(namedE, scope):
             """
             Transform a slice on the horizontal dimension into an index
             Eg.: X(1:D%NIJT, 1:D%NKT) => X(JIJ, 1:D%NKT) Be careful, this array is not contiguous.
@@ -532,8 +532,7 @@ class Applications():
                                                       '{*}section-subscript-LT/' +
                                                       '{*}section-subscript')):
                 if ':' in alltext(sub):
-                    loopIndex, _, _ = self.findIndexArrayBounds(namedE, isub,
-                                                                scopePath, _loopVarPHYEX)
+                    loopIndex, _, _ = scope.findIndexArrayBounds(namedE, isub, _loopVarPHYEX)
                     if loopIndex in indexToCheck:  # To be transformed
                         if sub.text == ':':
                             sub.text = None
@@ -618,7 +617,7 @@ class Applications():
                     # 2.1 Loop on all arrays in the expression using this intrinsic function
                     #     to replace horizontal dimensions by indexes
                     for namedE in parToUse.findall('.//{*}R-LT/{*}array-R/../..'):
-                        slice2index(namedE, scope.path)
+                        slice2index(namedE, scope)
 
                     # 2.2 Replace intrinsic function when argument becomes a scalar
                     if intr.find('.//{*}R-LT/{*}array-R') is None:
@@ -711,12 +710,12 @@ class Applications():
                                 index = False
                             if remove:
                                 if n2name(namedE.find('./{*}N')).upper() in preserveShape:
-                                    slice2index(namedE, scope.path)
+                                    slice2index(namedE, scope)
                                 else:
                                     nodeRLT = namedE.find('.//{*}R-LT')
                                     self.getParent(nodeRLT).remove(nodeRLT)
                             if index:
-                                slice2index(namedE, scope.path)
+                                slice2index(namedE, scope)
 
                     # Remove dimensions in variable declaration statements
                     # This modification must be done after other modifications so that
