@@ -452,7 +452,7 @@ class Tree():
         # Loop on directory and files
         if isinstance(file, pyft.scope.PYFTscope) or os.path.isfile(file):
             if isinstance(file, pyft.scope.PYFTscope):
-                pft = file
+                pft = file.mainScope
                 filename = pft.getFileName()
                 mustClose = False
             else:

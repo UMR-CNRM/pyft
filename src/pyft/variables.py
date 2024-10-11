@@ -1359,14 +1359,12 @@ class Variables():
 
     @debugDecor
     @updateVarList
-    def addArgInTree(self, scopePath, varName, declStmt, pos, stopScopes, moduleVarList=None,
+    def addArgInTree(self, varName, declStmt, pos, stopScopes, moduleVarList=None,
                      otherNames=None,
                      parser=None, parserOptions=None, wrapH=False):
         """
         Adds an argument to the routine and propagates it upward until we encounter a scope
         where the variable exists or a scope in stopScopes
-        :param scopePath: scope to start with (if None, try to guess it from the scopes defined in
-                                               the object)
         :param varName: variable name
         :param declStmt: declarative statment (will be used by addVar)
         :param pos: position of the variable in the list of dummy argument
@@ -1426,39 +1424,31 @@ class Variables():
             container.append(item)
             self.insertInList(pos, container, argList)
 
-        if scopePath is None:
-            allScopes = [scope.path for scope in self.getScopes()
-                         if scope.path.split('/')[-1].split(':')[0] in ('sub', 'func')]
-            if len(allScopes) == 1:
-                scopePath = allScopes[0]
-            else:
-                raise PYFTError('Unable to guess the scope path to deal with')
-
-        if scopePath in stopScopes or self.tree.isUnderStopScopes(scopePath, stopScopes):
-            scope = self.getScopeNode(scopePath, excludeContains=True)
+        if self.path in stopScopes or self.tree.isUnderStopScopes(self.path, stopScopes):
             # We are on the path to a scope in the stopScopes list, or scopeUp is one of the
             # stopScopes
-            var = scope.varList.findVar(varName, exactScope=True)
+            var = self.varList.findVar(varName, exactScope=True)
             if otherNames is not None:
-                vOther = [scope.varList.findVar(v, exactScope=True) for v in otherNames]
+                vOther = [self.varList.findVar(v, exactScope=True) for v in otherNames]
                 vOther = [v for v in vOther if v is not None]
                 if len(vOther) > 0:
                     var = vOther[-1]
 
             if var is None:
                 # The variable doesn't exist in this scope, we add it
-                self.addVar([[scopePath, varName, declStmt, pos]])
+                self.addVar([[self.path, varName, declStmt, pos]])
                 if moduleVarList is not None:
                     # Module variables must be added when var is added
-                    self.addModuleVar([(scopePath, moduleName, moduleVarNames)
+                    self.addModuleVar([(self.path, moduleName, moduleVarNames)
                                        for (moduleName, moduleVarNames) in moduleVarList])
+
                 # We look for interface declaration if subroutine is directly accessible
-                if len(scopePath.split('/')) == 1:
-                    filename, scopeInterface = self.tree.findScopeInterface(scopePath)
+                if len(self.path.split('/')) == 1:
+                    filename, scopeInterface = self.tree.findScopeInterface(self.path)
                     if filename is not None:
                         if self.getFileName() == os.path.normpath(filename):
                             # interface declared in same file
-                            xml = self
+                            xml = self.mainScope
                             pft = None
                         else:
                             pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
@@ -1478,10 +1468,10 @@ class Variables():
                             pft.write()
                             pft.close()
 
-            if var is None and scopePath not in stopScopes:
+            if var is None and self.path not in stopScopes:
                 # We must propagates upward
                 # scopes calling the current scope
-                for scopeUp in self.tree.calledByScope(scopePath):
+                for scopeUp in self.tree.calledByScope(self.path):
                     if scopeUp in stopScopes or self.tree.isUnderStopScopes(scopeUp, stopScopes):
                         # We are on the path to a scope in the stopScopes list, or scopeUp is one
                         # of the stopScopes
@@ -1489,7 +1479,7 @@ class Variables():
                         for filename in self.tree.scopeToFiles(scopeUp):
                             if self.getFileName() == os.path.normpath(filename):
                                 # Upper scope is in the same file
-                                xml = self
+                                xml = self.mainScope
                                 pft = None
                             else:
                                 pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
@@ -1497,14 +1487,15 @@ class Variables():
                                                                  clsPYFT=self._mainScope.__class__)
                                 xml = pft
                             # Add the argument and propagate upward
-                            xml.addArgInTree(scopeUp, varName, declStmt, pos,
-                                             stopScopes, moduleVarList, otherNames,
-                                             parser=parser, parserOptions=parserOptions,
-                                             wrapH=wrapH)
+                            xml.getScopeNode(scopeUp, excludeContains=True).addArgInTree(
+                                varName, declStmt, pos,
+                                stopScopes, moduleVarList, otherNames,
+                                parser=parser, parserOptions=parserOptions,
+                                wrapH=wrapH)
                             # Add the argument to calls (subroutine or function)
                             scopeUpNode = xml.getScopeNode(scopeUp, excludeContains=True)
 
-                            name = scopePath.split('/')[-1].split(':')[1].upper()
+                            name = self.path.split('/')[-1].split(':')[1].upper()
                             isCalled = False
                             varNameToUse = varName
                             if otherNames is not None:
@@ -1513,7 +1504,7 @@ class Variables():
                                 vOther = [v for v in vOther if v is not None]
                                 if len(vOther) > 0:
                                     varNameToUse = vOther[-1]['n']
-                            if scopePath.split('/')[-1].split(':')[0] == 'sub':
+                            if self.path.split('/')[-1].split(':')[0] == 'sub':
                                 # We look for call statements
                                 for callStmt in scopeUpNode.findall('.//{*}call-stmt'):
                                     callName = n2name(callStmt.find('./{*}procedure-designator/' +

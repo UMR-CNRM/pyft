@@ -599,10 +599,10 @@ def applyTransfoVariables(pft, arg, args, simplify, parserOptions, stopScopes):
             "ALLOCATE({name}({shape}))", "DEALLOCATE({name})")
     elif arg == '--addArgInTree':
         for scopePath, varName, declStmt, pos in args.addArgInTree:
-            pft.addArgInTree(scopePath, varName, declStmt,
-                             int(pos), stopScopes,
-                             parser=args.parser, parserOptions=parserOptions,
-                             wrapH=args.wrapH)
+            pft.getScopeNode(scopePath).addArgInTree(varName, declStmt, int(pos), stopScopes,
+                                                     parser=args.parser,
+                                                     parserOptions=parserOptions,
+                                                     wrapH=args.wrapH)
 
 
 def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes):

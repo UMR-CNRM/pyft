@@ -435,10 +435,10 @@ class Applications():
                 if nb > 0:
                     # Some automatic arrays have been modified,
                     # we need to add an argument to the routine
-                    self.addArgInTree(scope.path, 'YDSTACK', 'TYPE (STACK) :: YDSTACK', -1,
-                                      stopScopes, moduleVarList=[('STACK_MOD', ['STACK', 'SOF'])],
-                                      otherNames=['YLSTACK'],
-                                      parser=parser, parserOptions=parserOptions, wrapH=wrapH)
+                    scope.addArgInTree('YDSTACK', 'TYPE (STACK) :: YDSTACK', -1,
+                                       stopScopes, moduleVarList=[('STACK_MOD', ['STACK', 'SOF'])],
+                                       otherNames=['YLSTACK'],
+                                       parser=parser, parserOptions=parserOptions, wrapH=wrapH)
 
                     # Copy the stack to a local variable and use it for call statements
                     # this operation must be done after the call to addArgInTree
@@ -742,9 +742,10 @@ class Applications():
                 # JI=D%NIB, JJ=D%NJB, JIJ=D%NIJB
                 scope.insertStatement(
                     createExpr(loopIndex + " = " + indexToCheck[loopIndex][0])[0], True)
-                self.addArgInTree(scope.path, 'D', 'TYPE(DIMPHYEX_t) :: D',
-                                  0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
-                                  parser=parser, parserOptions=parserOptions, wrapH=wrapH)
+            if len(indexRemoved) > 0:
+                scope.addArgInTree('D', 'TYPE(DIMPHYEX_t) :: D',
+                                   0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
+                                   parser=parser, parserOptions=parserOptions, wrapH=wrapH)
             # Check loop index presence at declaration of the scope
             self.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]
                          for loopIndex in indexRemoved
