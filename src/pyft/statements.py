@@ -719,7 +719,7 @@ class Statements():
             mainScope.addArrayParenthesesInNode(callStmt)
 
             # Add explcit bounds
-            self.addExplicitArrayBounds(node=callStmt, scope=mainScope)
+            mainScope.addExplicitArrayBounds(node=callStmt)
 
             # Detect if subroutine is called on arrays
             arrayRincallStmt = callStmt.findall('.//{*}array-R')

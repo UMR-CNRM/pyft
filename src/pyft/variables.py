@@ -682,26 +682,15 @@ class Variables():
         self.removeVarIfUnused(allVar, excludeDummy=True, excludeModule=True, simplify=simplify)
 
     @debugDecor
-    def addExplicitArrayBounds(self, node=None, scope=None):
+    def addExplicitArrayBounds(self, node=None):
         """
         Replace ':' by explicit arrays bounds.
         :param node: xml node in which ':' must be replaced (None to replace everywhere)
-        :param scope: scope
-                      If node is not None, scopePath can be None (and the scope path
-                                           will be guessed) or must correspond to the node.
-                      If node is None, scopePath can be None to search everywhere or be defined
-                                       to restrain search to this scope or list of scopes.
         """
         if node is None:
-            if scope is None:
-                nodes = [(sc, sc) for sc in self.getScopes(excludeContains=True)]
-            else:
-                nodes = [(sc, sc) for sc in scope.getScopes(excludeContains=True)]
+            nodes = [(scope, scope) for scope in self.getScopes(excludeContains=True)]
         else:
-            if scope is None:
-                nodes = [(self.getParentScopeNode(node), node)]
-            else:
-                nodes = [(scope, node)]
+            nodes = [(self, node)]
 
         for (scope, childNode) in nodes:
             for parent4 in [parent4 for parent4
