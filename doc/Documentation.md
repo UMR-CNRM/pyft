@@ -2,10 +2,10 @@
 
 ## Introduction
 
-This package contains two python script, pyft\_tool.py and pyft\_parallel\tool.py,
+This package contains two python script, pyft\_tool.py and pyft\_parallel\_tool.py,
 that read FORTRAN codes, parse them in xml, perform some manipulation, revert them
 in FORTRAN and write them back on disk.
-pyft\_tool.py performs these tasks on a per file basis whereas pyft\_parallel\tool.py
+pyft\_tool.py performs these tasks on a per file basis whereas pyft\_parallel\_tool.py
 perform the transformations in parallel on all files found in a tree.
 In addition, the package can be used for scripting applicative transformations.
 
