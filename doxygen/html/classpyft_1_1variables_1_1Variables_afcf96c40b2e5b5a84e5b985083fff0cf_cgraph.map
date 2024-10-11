@@ -1,0 +1,12 @@
+<map id="pyft.variables.Variables.renameVar" name="pyft.variables.Variables.renameVar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,256,55"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1ElementView.html#af1c6a616b3d918363e7cc8401975783e" title=" " alt="" coords="304,29,527,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,39,290,39,290,45,256,45"/>
+<area shape="poly" id="edge6_Node000002_Node000002" title=" " alt="" coords="375,31,366,21,370,11,387,5,415,3,451,7,461,11,465,17,460,20,457,15,449,12,415,8,388,10,374,15,371,20,379,27"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="575,22,757,62"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="527,39,561,39,561,45,527,45"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="805,29,1012,55"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="757,48,792,48,792,54,757,53"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="805,36,771,36,771,30,805,30"/>
+<area shape="poly" id="edge5_Node000004_Node000004" title=" " alt="" coords="869,31,861,21,865,11,882,5,909,3,943,7,953,11,956,17,952,20,949,15,942,12,909,8,883,10,869,15,866,20,873,27"/>
+</map>

@@ -1,0 +1,26 @@
+<map id="pyft.statements.Statements.removeConstructNode" name="pyft.statements.Statements.removeConstructNode">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1256,95,1515,135"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="1438,83,1419,76,1385,73,1356,75,1338,80,1331,86,1334,93,1329,95,1326,85,1335,76,1355,70,1385,68,1420,71,1439,78"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1statements_1_1Statements.html#aa09dcedde715e089790330750e1c35ab" title=" " alt="" coords="949,95,1208,135"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="1243,126,1208,126,1208,121,1243,121"/>
+<area shape="poly" id="edge11_Node000002_Node000001" title=" " alt="" coords="1222,103,1256,103,1256,108,1222,108"/>
+<area shape="poly" id="edge13_Node000002_Node000002" title=" " alt="" coords="1131,83,1113,76,1079,73,1049,75,1031,80,1024,86,1028,93,1023,95,1019,85,1028,76,1048,70,1079,68,1114,71,1133,78"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1statements_1_1Statements.html#af54826c5bb22b3664071d07f0cc7875d" title=" " alt="" coords="642,12,878,52"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="987,94,838,55,839,50,988,89"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1statements_1_1Statements.html#a466da8615f1d5519684e44d039f9fb16" title=" " alt="" coords="327,12,555,52"/>
+<area shape="poly" id="edge14_Node000002_Node000004" title=" " alt="" coords="935,104,782,88,618,67,546,55,547,49,619,61,783,83,936,99"/>
+<area shape="rect" id="Node000007" href="$classpyft_1_1statements_1_1Statements.html#a9a6afa91f9dbb888cec8be92c507b20f" title=" " alt="" coords="619,127,901,153"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="936,129,902,131,901,126,936,123"/>
+<area shape="rect" id="Node000010" href="$classpyft_1_1statements_1_1Statements.html#ad898d6b3f1e276671a8a926ee737aec8" title=" " alt="" coords="631,177,889,217"/>
+<area shape="poly" id="edge12_Node000002_Node000010" title=" " alt="" coords="996,141,902,167,848,180,847,175,901,161,995,136"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="628,35,556,35,556,29,628,29"/>
+<area shape="rect" id="Node000005" href="$classpyft_1_1applications_1_1Applications.html#ac9506b5cba0b7f353e417025c3212e0e" title=" " alt="" coords="5,69,264,109"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="321,57,243,72,242,67,320,52"/>
+<area shape="rect" id="Node000006" href="$classpyft_1_1applications_1_1Applications.html#a5828b662d01e9189a7cce4fc4c350950" title=" " alt="" coords="5,5,264,45"/>
+<area shape="poly" id="edge6_Node000004_Node000006" title=" " alt="" coords="314,32,264,31,265,25,314,27"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="661,128,570,117,411,105,264,97,264,92,411,100,571,112,661,123"/>
+<area shape="rect" id="Node000008" href="$classpyft_1_1applications_1_1Applications.html#a657504a66ad8b46931c851650292b9ed" title=" " alt="" coords="312,127,571,167"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="605,146,571,147,571,141,605,141"/>
+<area shape="rect" id="Node000009" href="$classpyft_1_1applications_1_1Applications.html#ace96a5126bcc967d8357e9e020193013" title=" " alt="" coords="312,191,571,231"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="669,158,619,168,571,181,525,193,524,188,570,176,618,163,668,152"/>
+</map>

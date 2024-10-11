@@ -1,0 +1,11 @@
+<map id="pyft.tree.Tree.plotTree" name="pyft.tree.Tree.plotTree">
+<area shape="rect" id="Node000001" title=" " alt="" coords="248,109,412,134"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#aedf5d5e05192f8f11b0f9c14d931af30" title=" " alt="" coords="11,5,194,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="292,105,199,60,168,48,169,43,201,55,295,100"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a134926606afaae83ab1571f7e4d41415" title=" " alt="" coords="11,69,194,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,110,194,105,195,100,234,105"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#a724f92a4b255b2b8e6f6cdea795c6c66" title=" " alt="" coords="5,133,200,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="234,137,201,142,200,137,234,132"/>
+<area shape="rect" id="Node000005" href="$classpyft_1_1tree_1_1Tree.html#ab85071fc02c5f9c361c6328a53f0b40f" title=" " alt="" coords="5,197,200,237"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="295,143,201,188,169,200,168,195,199,183,292,138"/>
+</map>

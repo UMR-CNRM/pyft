@@ -1,0 +1,14 @@
+<map id="pyft.scope.PYFTscope._getNodePath" name="pyft.scope.PYFTscope._getNodePath">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,169,87"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="245,5,409,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,50,231,39,232,44,170,55"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="217,94,436,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,78,237,89,236,94,169,83"/>
+<area shape="poly" id="edge7_Node000003_Node000003" title=" " alt="" coords="288,96,280,86,284,76,300,70,327,67,360,71,373,81,369,85,358,76,327,73,301,75,288,80,285,85,292,92"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="484,87,667,127"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="436,104,470,104,470,109,436,109"/>
+<area shape="rect" id="Node000005" href="$classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="715,94,921,119"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="667,113,701,113,701,118,667,118"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="714,100,680,100,680,95,714,95"/>
+<area shape="poly" id="edge6_Node000005_Node000005" title=" " alt="" coords="779,96,770,86,775,76,791,70,818,67,852,71,862,76,866,82,861,85,858,80,851,76,818,73,792,75,778,80,775,85,783,92"/>
+</map>
