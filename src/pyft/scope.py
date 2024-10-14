@@ -502,7 +502,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         for scope in scopes:
             for node in list(scope):
                 if tag(node) not in tagExcluded:
-                    self.remove(node)
+                    scope.remove(node)
             scope.removeUnusedLocalVar(simplify=simplify)
             if addStmt is not None:
                 if isinstance(addStmt, str):

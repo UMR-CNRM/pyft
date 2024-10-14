@@ -92,9 +92,9 @@ class Applications():
         Not converted : TOTO%CST%XG (for now, recursion must be coded)
         Not converted : TOTO%ARRAY(:) (shape of the array must be determined from E1)
         """
-        def convertOneType(component, newVarList):
+        def convertOneType(component, newVarList, scope):
             # 1) Build the name of the new variable
-            objType = self.getParent(component, 2)  # The object STR%VAR
+            objType = scope.getParent(component, 2)  # The object STR%VAR
             objTypeStr = alltext(objType)
             namedENn = objType.find('.//{*}N/{*}n')
             structure = namedENn.text
@@ -142,7 +142,7 @@ class Applications():
                 compo = ifStmt.findall('.//{*}component-R')
                 if len(compo) > 0:
                     for elcompo in compo:
-                        convertOneType(elcompo, newVarList)
+                        convertOneType(elcompo, newVarList, scope)
 
             for aStmt in scope.findall('.//{*}a-stmt'):
                 # Exclude statements in which the component-R is in E1
@@ -160,7 +160,7 @@ class Applications():
                         if nbNamedEinE2 > 1 or nbNamedEinE2 == 1 and \
                            len(aStmt[0].findall('.//{*}R-LT')) == 1:
                             for elcompoE2 in compoE2:
-                                convertOneType(elcompoE2, newVarList)
+                                convertOneType(elcompoE2, newVarList, scope)
 
             # Add the declaration of the new variables and their affectation
             for el, var in newVarList.items():
@@ -195,7 +195,7 @@ class Applications():
 
                 # Affectation
                 stmtAffect = createExpr(el + "=" + var[1])[0]
-                scope.insertStatement(self.indent(stmtAffect), first=True)
+                scope.insertStatement(scope.indent(stmtAffect), first=True)
 
     @debugDecor
     def deleteDrHook(self, simplify=False):
@@ -218,7 +218,7 @@ class Applications():
                        scope.path.split('/')[-2].split(':')[0] != 'interface')]:
             name = scope.path.split(':')[-1].upper()
             # Add USE YOMHOOK,    ONLY: LHOOK, DR_HOOK, JPHOOK
-            self.addModuleVar([[scope.path, 'YOMHOOK', ['LHOOK', 'DR_HOOK', 'JPHOOK']]])
+            scope.addModuleVar([[scope.path, 'YOMHOOK', ['LHOOK', 'DR_HOOK', 'JPHOOK']]])
             # REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
             scope.addVar([[scope.path, 'ZHOOK_HANDLE', 'REAL(KIND=JPHOOK) :: ZHOOK_HANDLE',
                           None]])
@@ -340,7 +340,7 @@ class Applications():
                     break
 
                 # Add necessary module
-                self.addModuleVar([(scope.path, 'MODE_MPPDB', None)])
+                scope.addModuleVar([(scope.path, 'MODE_MPPDB', None)])
 
                 # Prepare some FORTRAN comments
                 commentIN = createElem('C', text='!Check all IN arrays', tail='\n')
@@ -369,7 +369,7 @@ class Applications():
                                                                     strMSG='beg:'))
 
                     # Add the new IN and INOUT block
-                    scope.insertStatement(self.indent(ifMPPDBinit), first=True)
+                    scope.insertStatement(scope.indent(ifMPPDBinit), first=True)
 
                 # 2) variables INOUT and OUT block (end of the routine)
                 if len(arraysInOut) + len(arraysOut) > 0:
@@ -393,7 +393,7 @@ class Applications():
                                                                     strMSG='end:'))
 
                     # Add the new INOUT and OUT block
-                    scope.insertStatement(self.indent(ifMPPDBend), first=False)
+                    scope.insertStatement(scope.indent(ifMPPDBend), first=False)
 
     @debugDecor
     def addStack(self, model, stopScopes, parser=None, parserOptions=None, wrapH=False):
@@ -432,7 +432,7 @@ class Applications():
                                        "KIND({name})*SIZE({name});" +
                                        "IF(YLSTACK%L(KIND({name})/4)>" +
                                        "YLSTACK%U(KIND({name})/4))" +
-                                       "CALL SOF('" + self.getFileName() + ":{name}', " +
+                                       "CALL SOF('" + scope.getFileName() + ":{name}', " +
                                        "KIND({name}))")
 
                 if nb > 0:
@@ -465,9 +465,9 @@ class Applications():
                     if nb > 0:
                         # Some automatic arrays have been modified
                         # we need to add the stack module,
-                        self.addModuleVar([(scope.path, 'MODE_MNH_ZWORK',
-                                          ['MNH_MEM_GET', 'MNH_MEM_POSITION_PIN',
-                                           'MNH_MEM_RELEASE'])])
+                        scope.addModuleVar([(scope.path, 'MODE_MNH_ZWORK',
+                                           ['MNH_MEM_GET', 'MNH_MEM_POSITION_PIN',
+                                            'MNH_MEM_RELEASE'])])
                         # to pin the memory position,
                         scope.insertStatement(
                             createExpr(f"CALL MNH_MEM_POSITION_PIN('{scope.path}')")[0], True)
@@ -591,7 +591,7 @@ class Applications():
                     if loopIname in indexToCheck:
                         # Move the content of the doNode (except do-stmt and end_do_stmt)
                         # in parent node
-                        par = self.getParent(doNode)
+                        par = scope.getParent(doNode)
                         index = list(par).index(doNode)
                         for item in doNode[1:-1][::-1]:
                             par.insert(index, item)
@@ -613,7 +613,7 @@ class Applications():
                     parToUse = intr
                     par = intr
                     while par is not None and not isStmt(par):
-                        par = self.getParent(par)
+                        par = scope.getParent(par)
                         if tag(par) in ('a-stmt', 'op-E'):
                             parToUse = par
 
@@ -628,7 +628,7 @@ class Applications():
                             # eg: MAXVAL(X(:)) => MAXVAL(X(JI)) => X(JI)
                             parens = intr.find('./{*}R-LT/{*}parens-R')
                             parens.tag = f'{{{NAMESPACE}}}parens-E'
-                            intrPar = self.getParent(intr)
+                            intrPar = scope.getParent(intr)
                             intrPar.insert(list(intrPar).index(intr), parens)
                             intrPar.remove(intr)
                         elif intrName == 'COUNT':
@@ -654,8 +654,8 @@ class Applications():
                 # that cannot be transformed into scalar
 
                 # At least for rain_ice.F90, inlining must be performed before executing this code
-                assert self.find('.//{*}include') is None and \
-                       self.find('.//{*}include-stmt') is None, \
+                assert scope.find('.//{*}include') is None and \
+                       scope.find('.//{*}include-stmt') is None, \
                        "inlining must be performed before removing horizontal dimensions"
 
                 if scope.path in stopScopes:
@@ -716,7 +716,7 @@ class Applications():
                                     slice2index(namedE, scope)
                                 else:
                                     nodeRLT = namedE.find('.//{*}R-LT')
-                                    self.getParent(nodeRLT).remove(nodeRLT)
+                                    scope.getParent(nodeRLT).remove(nodeRLT)
                             if index:
                                 slice2index(namedE, scope)
 
@@ -733,9 +733,9 @@ class Applications():
                                    (len(subs) == 2 and (alltext(subs[0]) in hUupperBounds and
                                                         alltext(subs[1]) in hUupperBounds)):
                                     # Transform array declaration into scalar declaration
-                                    itemToRemove = self.getParent(varShape)
-                                    self.getParent(itemToRemove).remove(itemToRemove)
-                                    # We should set self.varList to None here to clear the cache
+                                    itemToRemove = scope.getParent(varShape)
+                                    scope.getParent(itemToRemove).remove(itemToRemove)
+                                    # We should set scope.varList to None here to clear the cache
                                     # but we don't to save some computational time
 
             # 4 - Values for removed indexes
@@ -908,7 +908,7 @@ class Applications():
                     parOfopE.insert(index, nodeBRP)
 
                     # Add necessary module in the current scope
-                    self.addModuleVar([(scope.path, 'MODI_BITREP', None)])
+                    scope.addModuleVar([(scope.path, 'MODI_BITREP', None)])
 
             # 2/2 Look for all specific functions LOG, ATAN, EXP,etc
             for nnn in scope.findall('.//{*}named-E/{*}N/{*}n'):
@@ -918,7 +918,7 @@ class Applications():
                     else:
                         nnn.text = 'BR_' + nnn.text
                     # Add necessary module in the current scope
-                    self.addModuleVar([(scope.path, 'MODI_BITREP', None)])
+                    scope.addModuleVar([(scope.path, 'MODI_BITREP', None)])
 
     @debugDecor
     def shumanFUNCtoCALL(self):
@@ -975,7 +975,7 @@ class Applications():
                                  in the calling function in stmt
             """
             # Function name, parent and grandParent
-            parStmt = self.getParent(stmt)
+            parStmt = scope.getParent(stmt)
             parItemFuncN = scope.getParent(itemFuncN)  # <N><n>MZM</N></n>
             # <named-E><N><n>MZM</N></n> <R-LT><f:parens-R>(<f:element-LT><f:element>....
             grandparItemFuncN = scope.getParent(itemFuncN, level=2)
@@ -993,8 +993,8 @@ class Applications():
             # We must look for all contents until the last ')'
             if len(siblsItemFuncN[0][0]) > 1:
                 # last [0] is to avoid getting the '( )' from the function
-                workingItem = self.updateContinuation(siblsItemFuncN[0][0], removeALL=True,
-                                                      align=False, addBegin=False)[0]
+                workingItem = scope.updateContinuation(siblsItemFuncN[0][0], removeALL=True,
+                                                       align=False, addBegin=False)[0]
 
             # Detect if the workingItem contains expressions, if so:
             # create a compute statement embedded by mnh_expand directives
@@ -1082,8 +1082,8 @@ class Applications():
                 # Init : look for all a-stmt and call-stmt which contains a shuman or
                 # gradients function, and save it into a list foundStmtandCalls
                 foundStmtandCalls, computeStmtforParenthesis = {}, []
-                aStmt = self.findall('.//{*}a-stmt')
-                callStmts = self.findall('.//{*}call-stmt')
+                aStmt = scope.findall('.//{*}a-stmt')
+                callStmts = scope.findall('.//{*}call-stmt')
                 aStmtandCallStmts = aStmt + callStmts
                 for stmt in aStmtandCallStmts:
                     elemN = stmt.findall('.//{*}n')
@@ -1093,7 +1093,7 @@ class Applications():
                             # to add all the new lines further.
                             parStmt = scope.getParent(stmt)
                             if tag(parStmt) == 'action-stmt':
-                                self.changeIfStatementsInIfConstructs(
+                                scope.changeIfStatementsInIfConstructs(
                                     singleItem=scope.getParent(parStmt))
 
                             if str(stmt) in foundStmtandCalls:
@@ -1128,7 +1128,7 @@ class Applications():
                                     # 2) if the stmt is from a call-stmt,
                                     #    check the first <named-E><N> in the function
                                     else:
-                                        elPar = self.getParent(el, level=2)  # MXM(...)
+                                        elPar = scope.getParent(el, level=2)  # MXM(...)
                                         callVar = elPar.findall('.//{*}named-E/{*}N')
                                         if alltext(el)[0] == 'G':
                                             # If it is a gradient, the array on which the gradient
@@ -1246,7 +1246,7 @@ class Applications():
                         dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = \
                             getDimsAndMNHExpandIndexes(arrayDim, dimWorkingVar)
 
-                        parStmt = self.getParent(foundStmtandCalls[stmt][0])
+                        parStmt = scope.getParent(foundStmtandCalls[stmt][0])
                         indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])
                         mnhOpenDir = "!$mnh_expand_array(" + mnhExpandArrayIndexes + ")"
                         mnhCloseDir = "!$mnh_end_expand_array(" + mnhExpandArrayIndexes + ")"
@@ -1275,9 +1275,9 @@ class Applications():
         for scope in self.getScopes():
             if scope.path.split('/')[-1].split(':')[0] == 'type':
                 typeName = scope.path.split('/')[-1].split(':')[1]
-                filename = os.path.join(os.path.dirname(self.getFileName()),
+                filename = os.path.join(os.path.dirname(scope.getFileName()),
                                         "modd_util_{t}.F90".format(t=typeName.lower()))
-                self.tree.signal(filename)
+                scope.tree.signal(filename)
                 with open(filename, 'w', encoding="utf-8") as file:
                     file.write("""
 MODULE MODD_UTIL_{t}

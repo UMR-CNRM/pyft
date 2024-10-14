@@ -302,12 +302,12 @@ class Statements():
                     addExtra(cnt, extraindent)  # Add indentation after continuation characters
             elif tag(stmt) == 'if-stmt':
                 logging.warning("An if statement is inside a code section " +
-                                "transformed in DO loop in {f}".format(f=self.getFileName()))
+                                "transformed in DO loop in {f}".format(f=scope.getFileName()))
                 # Update the statement contained in the action node
                 updateStmt(stmt.find('./{*}action-stmt')[0], table, kind, 0, stmt, scope)
             elif tag(stmt) == 'if-construct':
                 logging.warning("An if construct is inside a code section " +
-                                "transformed in DO loop in {f}".format(f=self.getFileName()))
+                                "transformed in DO loop in {f}".format(f=scope.getFileName()))
                 # Loop over the blocks: if, elseif, else
                 for ifBlock in stmt.findall('./{*}if-block'):
                     for child in ifBlock:  # Loop over each statement inside the block
@@ -433,8 +433,8 @@ class Statements():
                         toinsert.append((elem, accCollapse, ie))
 
                     # Building loop
-                    inner, outer, extraindent = self.createDoConstruct(table, indent=indent,
-                                                                       concurrent=concurrent)
+                    inner, outer, extraindent = scope.createDoConstruct(table, indent=indent,
+                                                                        concurrent=concurrent)
                     toinsert.append((elem, outer, ie))  # Place to insert the loop
 
                 elif (tag(sElem) == 'C' and
@@ -442,10 +442,10 @@ class Statements():
                     # This is a closing mnh directive
                     if not inMnh:
                         raise PYFTError('End mnh_directive found before begin directive ' +
-                                        'in {f}'.format(f=self.getFileName()))
+                                        'in {f}'.format(f=scope.getFileName()))
                     if (table, kind) != decode(sElem.text):
                         raise PYFTError("Opening and closing mnh directives must be conform " +
-                                        "in {f}".format(f=self.getFileName()))
+                                        "in {f}".format(f=scope.getFileName()))
                     inMnh = False
                     toremove.append((elem, sElem))  # we remove the directive itself
                     # We add, to the tail of outer DO loop, the tail of the
@@ -497,7 +497,7 @@ class Statements():
                                          '{*}named-E/{*}R-LT/{*}array-R/../..')
                         if arr is not None:
                             # In this case we transform the if statement into an if-construct
-                            self.changeIfStatementsInIfConstructs(singleItem=sElem, parent=elem)
+                            scope.changeIfStatementsInIfConstructs(singleItem=sElem, parent=elem)
                             recur(sElem, scope)  # to transform the content of the if
                             arr = None  # to do nothing more on this node
                     elif tag(sElem) == 'where-stmt':
@@ -557,7 +557,7 @@ class Statements():
                             table = newtable  # save the information on the newly build loop
                             kind = None  # not built from mnh directives
                             # Building loop
-                            inner, outer, extraindent = self.createDoConstruct(
+                            inner, outer, extraindent = scope.createDoConstruct(
                                 table, indent=indent, concurrent=concurrent)
                             toinsert.append((elem, outer, ie))  # place to insert the loop
                             inEverywhere = (inner, outer, indent, extraindent)  # we are now in loop
@@ -703,12 +703,12 @@ class Statements():
                         namedE.text = '.TRUE.' if val else '.FALSE.'
 
         # Get parent of callStmt
-        parent = self.getParent(callStmt)
+        parent = mainScope.getParent(callStmt)
 
         # Expand the if-construct if the call-stmt is in a one-line if-construct
         if tag(parent) == 'action-stmt':
-            self.changeIfStatementsInIfConstructs(self.getParent(parent))
-            parent = self.getParent(callStmt)  # update parent
+            mainScope.changeIfStatementsInIfConstructs(mainScope.getParent(parent))
+            parent = mainScope.getParent(callStmt)  # update parent
 
         # Specific case for ELEMENTAL subroutines
         # Introduce DO-loops if it is called on arrays
@@ -724,7 +724,7 @@ class Statements():
             arrayRincallStmt = callStmt.findall('.//{*}array-R')
             if len(arrayRincallStmt) > 0:  # Called on arrays
                 # Look for an array affectation to guess the DO loops to put around the call
-                table, _ = mainScope.findArrayBounds(self.getParent(arrayRincallStmt[0], 2),
+                table, _ = mainScope.findArrayBounds(mainScope.getParent(arrayRincallStmt[0], 2),
                                                      loopVar)
 
                 # Add declaration of loop index if missing
@@ -738,7 +738,7 @@ class Statements():
                                            mainScope.varSpec2stmt(var), None]])
 
                 # Create the DO loops
-                inner, outer, _ = self.createDoConstruct(table)
+                inner, outer, _ = mainScope.createDoConstruct(table)
 
                 # Move the call statement in the DO loops
                 inner.insert(-1, callStmt)  # callStmt in the DO-loops
@@ -1082,11 +1082,12 @@ class Statements():
         node.remove(node.find('./{*}end-subroutine-stmt'))
 
         # Add local var and use to main routine
-        mainScope.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]
+        mainScope.addVar([[mainScope.path, var['n'], mainScope.varSpec2stmt(var), None]
                           for var in localVarToAdd])
-        self.addModuleVar([[mainScope.path, n2name(useStmt.find('.//{*}module-N//{*}N')),
-                            [n2name(v.find('.//{*}N')) for v in useStmt.findall('.//{*}use-N')]]
-                           for useStmt in localUseToAdd])
+        mainScope.addModuleVar([[mainScope.path, n2name(useStmt.find('.//{*}module-N//{*}N')),
+                                 [n2name(v.find('.//{*}N'))
+                                  for v in useStmt.findall('.//{*}use-N')]]
+                                for useStmt in localUseToAdd])
 
         # Remove call statement of the contained routines
         index = list(parent).index(callStmt)
@@ -1112,8 +1113,8 @@ class Statements():
         if isinstance(flags, str):
             flags = [flags]
         flags = [flag.upper() for flag in flags]
-        singleFalseBlock, multipleFalseBlock = [], []
         for scope in self.getScopes(excludeContains=True, excludeKinds=['type']):
+            singleFalseBlock, multipleFalseBlock = [], []
             # Loop on nodes composing the scope
             for node in scope:
                 # Loop on condition nodes
@@ -1136,12 +1137,13 @@ class Statements():
                         else:
                             # Solo condition
                             # <if-block><if-then-stmt>
-                            if tag(self.getParent(cond, level=1)).startswith('if-stmt'):
-                                self.changeIfStatementsInIfConstructs(self.getParent(cond, level=1))
-                            singleFalseBlock.append(self.getParent(cond, level=2))
-        if simplify:
-            self.removeStmtNode(singleFalseBlock, simplify, simplify)
-            self.evalFalseIfStmt(multipleFalseBlock, simplify)
+                            if tag(scope.getParent(cond, level=1)).startswith('if-stmt'):
+                                scope.changeIfStatementsInIfConstructs(
+                                    scope.getParent(cond, level=1))
+                            singleFalseBlock.append(scope.getParent(cond, level=2))
+            if simplify:
+                scope.removeStmtNode(singleFalseBlock, simplify, simplify)
+                scope.evalFalseIfStmt(multipleFalseBlock, simplify)
 
     @debugDecor
     def evalFalseIfStmt(self, nodes, simplify=False):

@@ -168,7 +168,7 @@ class Openacc():
                     count += 1
                 listVarEnd = listVar[:-3]  # remove last comma and &
                 accAddMultipleLines = createExpr(listVarEnd + ')')
-                idx = scope.insertStatement(self.indent(accAddMultipleLines[0]), first=True)
+                idx = scope.insertStatement(scope.indent(accAddMultipleLines[0]), first=True)
 
                 # 2) multi-lines !$acc &
                 for iLine, line in enumerate(accAddMultipleLines[1:]):
@@ -176,7 +176,7 @@ class Openacc():
 
                 # 3) !$acc end data
                 comment = createElem('C', text='!$acc end data', tail='\n')
-                scope.insertStatement(self.indent(comment), first=False)
+                scope.insertStatement(scope.indent(comment), first=False)
 
     @debugDecor
     def addACCRoutineSeq(self, stopScopes):

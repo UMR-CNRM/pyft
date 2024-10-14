@@ -322,7 +322,7 @@ class Variables():
                  scope.path.split('/')[-2].startswith('interface:'))):
                 if scope.find('./{*}implicit-none-stmt') is None:
                     message = "The 'IMPLICIT NONE' statment is missing in file " + \
-                              "'{file}' for {scopePath}.".format(file=self.getFileName(),
+                              "'{file}' for {scopePath}.".format(file=scope.getFileName(),
                                                                  scopePath=scope.path)
                     if mustRaise:
                         logging.error(message)
@@ -380,6 +380,8 @@ class Variables():
             sortedVarList[nb] = sortedVarList.get(nb, [])
             # Loop on scopes
             for scopePath in list(set(scopePath for scopePath, _ in sortedVarList[nb])):
+                # use of mainScope because variable can be declared upper than self
+                scope = self.mainScope.getScopeNode(scopePath, excludeContains=True)
                 # Variables searched in this scope
                 varNames = list(set(v for (w, v) in sortedVarList[nb] if w == scopePath))
                 declStmt = _getDeclStmtTag(scopePath)
@@ -389,8 +391,7 @@ class Variables():
                 # after a "contains" statement
                 previous = None
                 # list() to allow removing during the iteration
-                # use of mainScope because variable can be declared upper than self
-                for node in list(self.mainScope.getScopeNode(scopePath, excludeContains=True)):
+                for node in list(scope):
                     deleted = False
 
                     # Checks if variable is a dummy argument
@@ -401,7 +402,7 @@ class Variables():
                             name = n2name(arg.find('.//{*}N')).upper()
                             for varName in [v for v in varNames if v == name]:
                                 # This dummy arg is a searched variable, we remove it from the list
-                                self.removeFromList(arg, dummyList)
+                                scope.removeFromList(arg, dummyList)
 
                     # In case the variable is declared
                     if tag(node) == declStmt:
@@ -414,7 +415,7 @@ class Variables():
                                 # The argument is declared here,
                                 # we suppress it from the declaration list
                                 varNames.remove(varName)
-                                self.removeFromList(enDecl, declList)
+                                scope.removeFromList(enDecl, declList)
                         # In all the variables are suppressed from the declaration statement
                         if len(list(declList.findall('./{*}EN-decl'))) == 0:
                             if simplify:
@@ -427,7 +428,7 @@ class Variables():
                                     previous.tail = ''
                                 previous.tail += node.tail
                             deleted = True
-                            self.getParent(node).remove(node)
+                            scope.getParent(node).remove(node)
 
                     # In case the variable is a module variable
                     if tag(node) == 'use-stmt':
@@ -439,7 +440,7 @@ class Variables():
                                 for varName in [v for v in varNames if v == name]:
                                     varNames.remove(varName)
                                     # The variable is declared here, we remove it from the list
-                                    self.removeFromList(rename, useList)
+                                    scope.removeFromList(rename, useList)
                                     # In case the variable was alone
                                     attribute = node.find('{*}module-N').tail
                                     if attribute is None:
@@ -456,16 +457,16 @@ class Variables():
                                                 previous.tail = ''
                                             previous.tail += node.tail
                                         deleted = True
-                                        self.getParent(node).remove(node)
-                                        self.tree.signal(self)  # Tree must be updated
+                                        scope.getParent(node).remove(node)
+                                        scope.tree.signal(scope)  # Tree must be updated
                                     elif len(useList) == 0:
                                         # there is no 'ONLY' attribute
-                                        moduleName = self.getSiblings(useList, before=True,
-                                                                      after=False)[-1]
+                                        moduleName = scope.getSiblings(useList, before=True,
+                                                                       after=False)[-1]
                                         previousTail = moduleName.tail
                                         if previousTail is not None:
                                             moduleName.tail = previousTail.replace(',', '')
-                                        self.getParent(useList).remove(useList)
+                                        scope.getParent(useList).remove(useList)
                     # end loop if all variables have been found
                     if len(varNames) == 0:
                         break
@@ -630,7 +631,7 @@ class Variables():
                 us.tail = scope[index - 1].tail
                 scope[index - 1].tail = '\n'
                 scope.insert(index, us)
-                self.tree.signal(self)  # Tree must be updated
+                scope.tree.signal(scope)  # Tree must be updated
 
     @debugDecor
     def showUnusedVar(self):
@@ -914,7 +915,7 @@ class Variables():
                     index = list(scope).index(decl)
                     if var['n'] in [n2name(nodeN) for nodeN in decl.findall('.//{*}N')]:
                         break
-                self.removeVar([(scope.path, var['n'])], simplify=False)
+                scope.removeVar([(scope.path, var['n'])], simplify=False)
                 for nnn in templ['decl'][::-1]:
                     scope.insert(index, nnn)
 
@@ -1276,7 +1277,7 @@ class Variables():
             for scopePath, varName in varList:
                 # We search everywhere if var declaration is not found
                 # Otherwise, we search from the scope where the variable is declared
-                var = self.getScopeNode(scopePath, excludeContains=True).varList.findVar(varName)
+                var = allScopes[scopePath].varList.findVar(varName)
                 path = scopePath.split('/')[0] if var is None else var['scopePath']
 
                 # We start search from here but we must include all routines in contains
@@ -1317,7 +1318,7 @@ class Variables():
                             # and will be considered as used
                             usedVar[scopePath].append(n2name(nodeN).upper())
                         else:
-                            parPar = self.getParent(nodeN, 2)  # parent of parent
+                            parPar = allScopes[scopePath].getParent(nodeN, 2)  # parent of parent
                             # We exclude dummy argument list to really check if the variable is used
                             # and do not only appear as an argument of the subroutine/function
                             if parPar is None or not tag(parPar) == 'dummy-arg-LT':
@@ -1446,12 +1447,13 @@ class Variables():
             if var is None and self.path not in stopScopes:
                 # We must propagates upward
                 # scopes calling the current scope
-                for scopeUp in self.tree.calledByScope(self.path):
-                    if scopeUp in stopScopes or self.tree.isUnderStopScopes(scopeUp, stopScopes):
-                        # We are on the path to a scope in the stopScopes list, or scopeUp is one
+                for scopePathUp in self.tree.calledByScope(self.path):
+                    if scopePathUp in stopScopes or self.tree.isUnderStopScopes(scopePathUp,
+                                                                                stopScopes):
+                        # We are on the path to a scope in the stopScopes list, or scopePathUp is one
                         # of the stopScopes
                         # can be defined several times?
-                        for filename in self.tree.scopeToFiles(scopeUp):
+                        for filename in self.tree.scopeToFiles(scopePathUp):
                             if self.getFileName() == os.path.normpath(filename):
                                 # Upper scope is in the same file
                                 xml = self.mainScope
@@ -1461,27 +1463,26 @@ class Variables():
                                                                  wrapH, tree=self.tree,
                                                                  clsPYFT=self._mainScope.__class__)
                                 xml = pft
+                            scopeUp = xml.getScopeNode(scopePathUp, excludeContains=True)
                             # Add the argument and propagate upward
-                            xml.getScopeNode(scopeUp, excludeContains=True).addArgInTree(
+                            scopeUp.addArgInTree(
                                 varName, declStmt, pos,
                                 stopScopes, moduleVarList, otherNames,
                                 parser=parser, parserOptions=parserOptions,
                                 wrapH=wrapH)
                             # Add the argument to calls (subroutine or function)
-                            scopeUpNode = xml.getScopeNode(scopeUp, excludeContains=True)
-
                             name = self.path.split('/')[-1].split(':')[1].upper()
                             isCalled = False
                             varNameToUse = varName
                             if otherNames is not None:
-                                vOther = [scopeUpNode.varList.findVar(v, exactScope=True)
+                                vOther = [scopeUp.varList.findVar(v, exactScope=True)
                                           for v in otherNames]
                                 vOther = [v for v in vOther if v is not None]
                                 if len(vOther) > 0:
                                     varNameToUse = vOther[-1]['n']
                             if self.path.split('/')[-1].split(':')[0] == 'sub':
                                 # We look for call statements
-                                for callStmt in scopeUpNode.findall('.//{*}call-stmt'):
+                                for callStmt in scopeUp.findall('.//{*}call-stmt'):
                                     callName = n2name(callStmt.find('./{*}procedure-designator/' +
                                                                     '{*}named-E/{*}N')).upper()
                                     if callName == name:
@@ -1489,7 +1490,7 @@ class Variables():
                                         isCalled = True
                             else:
                                 # We look for function use
-                                for funcCall in scopeUpNode.findall(
+                                for funcCall in scopeUp.findall(
                                                 './/{*}named-E/{*}R-LT/{*}parens-R/' +
                                                 '{*}element-LT/../../..'):
                                     funcName = n2name(funcCall.find('./{*}N')).upper()
