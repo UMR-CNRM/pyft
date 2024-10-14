@@ -577,7 +577,7 @@ class Statements():
                         recur(sElem, scope)
             inEverywhere = closeLoop(inEverywhere)
 
-        for scope in self.getScopes(excludeContains=True):
+        for scope in self.getScopes():
             recur(scope, scope)
         # First, element insertion by reverse order (in order to keep the insertion index correct)
         for elem, outer, ie in toinsert[::-1]:
@@ -1113,7 +1113,7 @@ class Statements():
         if isinstance(flags, str):
             flags = [flags]
         flags = [flag.upper() for flag in flags]
-        for scope in self.getScopes(excludeContains=True, excludeKinds=['type']):
+        for scope in self.getScopes(excludeKinds=['type']):
             singleFalseBlock, multipleFalseBlock = [], []
             # Loop on nodes composing the scope
             for node in scope:

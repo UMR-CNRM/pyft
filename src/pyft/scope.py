@@ -14,7 +14,7 @@ from pyft.statements import Statements
 from pyft.cpp import Cpp
 from pyft.openacc import Openacc
 from pyft.util import PYFTError, debugDecor, n2name, tag
-from pyft.tree import Tree
+from pyft.tree import Tree, updateTree
 from pyft.expressions import createElem, createExpr
 
 
@@ -372,7 +372,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
                          for scope in self.getScopes(includeItself=includeItself)]))
 
     @debugDecor
-    def getScopes(self, level=-1, excludeContains=False, excludeKinds=None, includeItself=True):
+    def getScopes(self, level=-1, excludeContains=True, excludeKinds=None, includeItself=True):
         """
         :param level: -1 to get all child scopes
                       1 to get only direct child scopes
@@ -417,7 +417,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         return _getRecur(self, level, self.path) + itself
 
     @debugDecor
-    def getScopeNode(self, scopePath, excludeContains=False, includeItself=True):
+    def getScopeNode(self, scopePath, excludeContains=True, includeItself=True):
         """
         :param scopePath: scope path to search for
         :param excludeContains: see getScopes
@@ -482,6 +482,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         """
         return os.path.normpath(self.mainScope.find('.//{*}file').attrib['name'])
 
+    @updateTree()
     @updateVarList
     def empty(self, addStmt=None, simplify=False):
         """
@@ -491,9 +492,9 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         :param simplify: try to simplify code
         """
         scopes = []  # list of scopes to empty
-        for scope in self.getScopes(level=1):
+        for scope in self.getScopes(level=1, excludeContains=False):
             if scope.path.split('/')[-1].split(':')[0] == 'module':
-                scopes.extend(scope.getScopes(level=1, includeItself=False))
+                scopes.extend(scope.getScopes(level=1, excludeContains=False, includeItself=False))
             else:
                 scopes.append(scope)
         tagExcluded = (list(self.SCOPE_STMT.values()) +

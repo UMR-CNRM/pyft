@@ -96,7 +96,7 @@ class VarList():
             return asList, asxList
 
         result = []
-        for scope in mainScope.getScopes(excludeContains=True):
+        for scope in mainScope.getScopes():
             # In case scope is a function, we determine the name of the result
             if tag(scope[0]) == 'function-stmt':
                 rSpec = scope[0].find('./{*}result-spec/{*}N')
@@ -381,7 +381,7 @@ class Variables():
             # Loop on scopes
             for scopePath in list(set(scopePath for scopePath, _ in sortedVarList[nb])):
                 # use of mainScope because variable can be declared upper than self
-                scope = self.mainScope.getScopeNode(scopePath, excludeContains=True)
+                scope = self.mainScope.getScopeNode(scopePath)
                 # Variables searched in this scope
                 varNames = list(set(v for (w, v) in sortedVarList[nb] if w == scopePath))
                 declStmt = _getDeclStmtTag(scopePath)
@@ -676,7 +676,7 @@ class Variables():
         :param node: xml node in which ':' must be replaced (None to replace everywhere)
         """
         if node is None:
-            nodes = [(scope, scope) for scope in self.getScopes(excludeContains=True)]
+            nodes = [(scope, scope) for scope in self.getScopes()]
         else:
             nodes = [(self, node)]
 
@@ -731,7 +731,7 @@ class Variables():
         Look for arrays and add parenthesis. A => A(:)
         """
         # Loop on scopes
-        for scope in self.getScopes(excludeContains=True, includeItself=True):
+        for scope in self.getScopes():
             for node in scope.iter():
                 # Arrays are used in statements
                 # * We must exclude allocate-stmt, deallocate-stmt, pointer-a-stmt, T-decl-stmt and
@@ -825,7 +825,7 @@ class Variables():
                      'end': endTemplate if endTemplate is not None else ''}  # ordered dict
 
         number = 0
-        for scope in [scope for scope in self.getScopes(excludeContains=True, includeItself=True)
+        for scope in [scope for scope in self.getScopes()
                       if scope.path.split('/')[-1].split(':')[0] in ('sub', 'func')]:
             # For all subroutine and function scopes
             # Determine the list of variables to transform
@@ -1266,7 +1266,7 @@ class Variables():
         """
         varList = self._normalizeUniqVar(varList)
         # We must not limit to self.getScopes because var can be used upper than self
-        allScopes = {scope.path: scope for scope in self.mainScope.getScopes(excludeContains=True)}
+        allScopes = {scope.path: scope for scope in self.mainScope.getScopes()}
 
         # Computes in which scopes variable must be searched
         if exactScope:
@@ -1463,7 +1463,7 @@ class Variables():
                                                                  wrapH, tree=self.tree,
                                                                  clsPYFT=self._mainScope.__class__)
                                 xml = pft
-                            scopeUp = xml.getScopeNode(scopePathUp, excludeContains=True)
+                            scopeUp = xml.getScopeNode(scopePathUp)
                             # Add the argument and propagate upward
                             scopeUp.addArgInTree(
                                 varName, declStmt, pos,

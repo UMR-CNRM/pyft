@@ -130,7 +130,7 @@ class Applications():
                 else:
                     newVarList[newName] = (arrayR, objTypeStr)
 
-        scopes = self.getScopes(excludeContains=True)
+        scopes = self.getScopes()
         if scopes[0].path.split('/')[-1].split(':')[1][:4] == 'MODD':
             return
         for scope in [scope for scope in scopes
@@ -212,7 +212,7 @@ class Applications():
         """
         Add DR_HOOK calls.
         """
-        for scope in [scope for scope in self.getScopes(excludeContains=True)
+        for scope in [scope for scope in self.getScopes()
                       if scope.path.split('/')[-1].split(':')[0] in ('func', 'sub') and
                       (len(scope.path.split('/')) == 1 or
                        scope.path.split('/')[-2].split(':')[0] != 'interface')]:
@@ -409,7 +409,7 @@ class Applications():
             # The AROME transformation needs an additional parameter
             # We apply the transformation only if the routine is called
             # from a scope within stopScopes
-            for scope in [scope for scope in self.getScopes(excludeContains=True)
+            for scope in [scope for scope in self.getScopes()
                           if scope.path in stopScopes or
                           self.tree.isUnderStopScopes(scope.path, stopScopes)]:
                 # Intermediate transformation, needs cpp to be completed
@@ -453,7 +453,7 @@ class Applications():
                             argN[0].text = 'YLSTACK'
 
         elif model == 'MESONH':
-            for scope in self.getScopes(excludeContains=True):
+            for scope in self.getScopes():
                 # We apply the transformation only if the routine is called
                 # from a scope within stopScopes
                 if (not self.tree.isValid) or stopScopes is None or scope.path in stopScopes or \
@@ -575,7 +575,7 @@ class Applications():
 
         # Loop on all scopes (reversed order); except functions (in particular
         # FWSED from ice4_sedimentation_stat)
-        for scope in [scope for scope in self.getScopes(excludeContains=True)[::-1]
+        for scope in [scope for scope in self.getScopes()[::-1]
                       if 'func:' not in scope.path and
                          (scope.path in stopScopes or
                           self.tree.isUnderStopScopes(scope.path, stopScopes,

@@ -468,7 +468,7 @@ class Tree():
             self._useList[filename] = {}
             self._callList[filename] = {}
             self._funcList[filename] = {}
-            scopes = pft.getScopes(excludeContains=True)
+            scopes = pft.getScopes()
             for scope in scopes:
                 # Scope found in file
                 self._scopes[filename].append(scope.path)
