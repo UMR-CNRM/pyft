@@ -11,6 +11,7 @@ import os
 from pyft.pyft import PYFT
 from pyft.tree import Tree
 from pyft.util import isint
+from pyft import __version__
 
 ARG_UPDATE_CNT = ('--alignContinuation', '--addBeginContinuation',
                   '--removeBeginContinuation',
@@ -119,6 +120,8 @@ def updateParser(parser, withInput, withOutput, withXml, withPlotCentralFile, tr
     # ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
     assert not parser.allow_abbrev, 'parser must be created with allow_abbrev=False'
 
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {version}'.format(version=__version__))
     parser.add_argument('--simplify', default=False, action='store_true',
                         help='After a deletion, recursively deletes the code ' +
                              'and variables that have become useless')
