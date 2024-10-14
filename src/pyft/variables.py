@@ -308,19 +308,6 @@ class Variables():
                     self.removeFromList(attrElem, decl)
 
     @debugDecor
-    def getImplicitNoneText(self, scope):
-        """
-        :param scope: PYFTscope (or scope path) to search for the implicit none statement
-        :return: the "IMPLICIT NONE" text
-        """
-        if isinstance(scope, str):
-            scope = self.getScopeNode(scope)
-        for node in scope:
-            if tag(node) == 'implicit-none-stmt':
-                return node.text
-        return None
-
-    @debugDecor
     def checkImplicitNone(self, mustRaise=False):
         """
         :param mustRaise: True to raise
@@ -333,7 +320,7 @@ class Variables():
             if (scope.path.count('/') == 0 or
                 (scope.path.count('/') >= 2 and
                  scope.path.split('/')[-2].startswith('interface:'))):
-                if self.getImplicitNoneText(scope) is None:
+                if scope.find('./{*}implicit-none-stmt') is None:
                     message = "The 'IMPLICIT NONE' statment is missing in file " + \
                               "'{file}' for {scopePath}.".format(file=self.getFileName(),
                                                                  scopePath=scope.path)
