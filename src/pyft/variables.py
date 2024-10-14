@@ -1032,7 +1032,7 @@ class Variables():
         return None
 
     @debugDecor
-    def arrayR2parensR(self, namedE, table, scopePath):
+    def arrayR2parensR(self, namedE, table):
         """
         Transform a array-R into a parens-R node by replacing slices by variables
         In 'A(:)', the ':' is in a array-R node whereas in 'A(JL)', 'JL' is in a parens-R node.
@@ -1040,7 +1040,6 @@ class Variables():
         :param namedE: a named-E node
         :param table: dictionnary returned by the decode function
         :param varList: None or a VarList object in which varaibles are searched for
-        :param scopePath: scope path in which nameE is
         """
         # Before A(:): <f:named-E>
         #                <f:N><f:n>A</f:n></f:N>
@@ -1063,7 +1062,6 @@ class Variables():
         #                </f:R-LT>
         #              </f:named-E>
 
-        scope = self.getScopeNode(scopePath, excludeContains=True)
         nodeRLT = namedE.find('./{*}R-LT')
         arrayR = nodeRLT.find('./{*}array-R')  # Not always in first position, eg: ICED%XRTMIN(:)
         if arrayR is not None:
@@ -1099,14 +1097,14 @@ class Variables():
                         # A(2:15) or A(:15) or A(2:)
                         if lower is None:
                             # lower bound not defined, getting lower declared bound for this array
-                            lower = scope.varList.findVar(n2name(namedE.find('{*}N')),
-                                                          array=True)['as'][ivar][0]
+                            lower = self.varList.findVar(n2name(namedE.find('{*}N')),
+                                                         array=True)['as'][ivar][0]
                             if lower is None:
                                 lower = '1'  # default fortran lower bound
                         elif upper is None:
                             # upper bound not defined, getting upper declared bound for this array
-                            upper = scope.varList.findVar(n2name(namedE.find('{*}N')),
-                                                          array=True)['as'][ivar][1]
+                            upper = self.varList.findVar(n2name(namedE.find('{*}N')),
+                                                         array=True)['as'][ivar][1]
                         # If the DO loop starts from JI=I1 and goes to JI=I2; and array
                         # bounds are J1:J2
                         # We compute J1-I1+JI and J2-I2+JI and they should be the same
