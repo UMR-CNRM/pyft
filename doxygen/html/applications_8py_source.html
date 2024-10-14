@@ -182,9 +182,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span><span class="stringliteral">        Not converted : TOTO%CST%XG (for now, recursion must be coded)</span></div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span><span class="stringliteral">        Not converted : TOTO%ARRAY(:) (shape of the array must be determined from E1)</span></div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keyword">def </span>convertOneType(component, newVarList):</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keyword">def </span>convertOneType(component, newVarList, scope):</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="comment"># 1) Build the name of the new variable</span></div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            objType = self.getParent(component, 2)  <span class="comment"># The object STR%VAR</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            objType = scope.getParent(component, 2)  <span class="comment"># The object STR%VAR</span></div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>            objTypeStr = alltext(objType)</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            namedENn = objType.find(<span class="stringliteral">&#39;.//{*}N/{*}n&#39;</span>)</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            structure = namedENn.text</div>
@@ -232,7 +232,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>                compo = ifStmt.findall(<span class="stringliteral">&#39;.//{*}component-R&#39;</span>)</div>
 <div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>                <span class="keywordflow">if</span> len(compo) &gt; 0:</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>                    <span class="keywordflow">for</span> elcompo <span class="keywordflow">in</span> compo:</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                        convertOneType(elcompo, newVarList)</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>                        convertOneType(elcompo, newVarList, scope)</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>            <span class="keywordflow">for</span> aStmt <span class="keywordflow">in</span> scope.findall(<span class="stringliteral">&#39;.//{*}a-stmt&#39;</span>):</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>                <span class="comment"># Exclude statements in which the component-R is in E1</span></div>
@@ -250,7 +250,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>                        <span class="keywordflow">if</span> nbNamedEinE2 &gt; 1 <span class="keywordflow">or</span> nbNamedEinE2 == 1 <span class="keywordflow">and</span> \</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>                           len(aStmt[0].findall(<span class="stringliteral">&#39;.//{*}R-LT&#39;</span>)) == 1:</div>
 <div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>                            <span class="keywordflow">for</span> elcompoE2 <span class="keywordflow">in</span> compoE2:</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                                convertOneType(elcompoE2, newVarList)</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>                                convertOneType(elcompoE2, newVarList, scope)</div>
 <div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
 <div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>            <span class="comment"># Add the declaration of the new variables and their affectation</span></div>
 <div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>            <span class="keywordflow">for</span> el, var <span class="keywordflow">in</span> newVarList.items():</div>
@@ -281,11 +281,11 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>                            dimSize = <span class="stringliteral">&#39;SIZE(&#39;</span> + var[1] + <span class="stringliteral">&#39;,&#39;</span> + str(i+1) + <span class="stringliteral">&#39;)&#39;</span></div>
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>                        varArray = <span class="stringliteral">&#39;, DIMENSION(&#39;</span> + dimSize + <span class="stringliteral">&#39;,&#39;</span></div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>                    varArray = varArray[:-1] + <span class="stringliteral">&#39;)&#39;</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>                self.addVar([[scope.path, el, varType + varArray + <span class="stringliteral">&#39; :: &#39;</span> + el, <span class="keywordtype">None</span>]])</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>                scope.addVar([[scope.path, el, varType + varArray + <span class="stringliteral">&#39; :: &#39;</span> + el, <span class="keywordtype">None</span>]])</div>
 <div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>                <span class="comment"># Affectation</span></div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>                stmtAffect = createExpr(el + <span class="stringliteral">&quot;=&quot;</span> + var[1])[0]</div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>                scope.insertStatement(self.indent(stmtAffect), first=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>                scope.insertStatement(scope.indent(stmtAffect), first=<span class="keyword">True</span>)</div>
 <div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
 </div>
 <div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="preprocessor">@debugDecor</span></div>
@@ -312,9 +312,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>                       scope.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-2].split(<span class="stringliteral">&#39;:&#39;</span>)[0] != <span class="stringliteral">&#39;interface&#39;</span>)]:</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>            name = scope.path.split(<span class="stringliteral">&#39;:&#39;</span>)[-1].upper()</div>
 <div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>            <span class="comment"># Add USE YOMHOOK,    ONLY: LHOOK, DR_HOOK, JPHOOK</span></div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>            self.addModuleVar([[scope.path, <span class="stringliteral">&#39;YOMHOOK&#39;</span>, [<span class="stringliteral">&#39;LHOOK&#39;</span>, <span class="stringliteral">&#39;DR_HOOK&#39;</span>, <span class="stringliteral">&#39;JPHOOK&#39;</span>]]])</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>            scope.addModuleVar([[scope.path, <span class="stringliteral">&#39;YOMHOOK&#39;</span>, [<span class="stringliteral">&#39;LHOOK&#39;</span>, <span class="stringliteral">&#39;DR_HOOK&#39;</span>, <span class="stringliteral">&#39;JPHOOK&#39;</span>]]])</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>            <span class="comment"># REAL(KIND=JPHOOK) :: ZHOOK_HANDLE</span></div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            self.addVar([[scope.path, <span class="stringliteral">&#39;ZHOOK_HANDLE&#39;</span>, <span class="stringliteral">&#39;REAL(KIND=JPHOOK) :: ZHOOK_HANDLE&#39;</span>,</div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>            scope.addVar([[scope.path, <span class="stringliteral">&#39;ZHOOK_HANDLE&#39;</span>, <span class="stringliteral">&#39;REAL(KIND=JPHOOK) :: ZHOOK_HANDLE&#39;</span>,</div>
 <div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>                          <span class="keywordtype">None</span>]])</div>
 <div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>            <span class="comment"># Insert IF (LHOOK) CALL DR_HOOK(&#39;XXnameXX&#39;, 0, ZHOOK_HANDLE)</span></div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            scope.insertStatement(createExpr(f<span class="stringliteral">&quot;IF (LHOOK) CALL DR_HOOK(&#39;{name}&#39;, &quot;</span> +</div>
@@ -440,7 +440,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>                    <span class="keywordflow">break</span></div>
 <div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span> </div>
 <div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>                <span class="comment"># Add necessary module</span></div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>                self.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODE_MPPDB&#39;</span>, <span class="keywordtype">None</span>)])</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>                scope.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODE_MPPDB&#39;</span>, <span class="keywordtype">None</span>)])</div>
 <div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span> </div>
 <div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span>                <span class="comment"># Prepare some FORTRAN comments</span></div>
 <div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span>                commentIN = createElem(<span class="stringliteral">&#39;C&#39;</span>, text=<span class="stringliteral">&#39;!Check all IN arrays&#39;</span>, tail=<span class="stringliteral">&#39;\n&#39;</span>)</div>
@@ -469,7 +469,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>                                                                    strMSG=<span class="stringliteral">&#39;beg:&#39;</span>))</div>
 <div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span> </div>
 <div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>                    <span class="comment"># Add the new IN and INOUT block</span></div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>                    scope.insertStatement(self.indent(ifMPPDBinit), first=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>                    scope.insertStatement(scope.indent(ifMPPDBinit), first=<span class="keyword">True</span>)</div>
 <div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
 <div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>                <span class="comment"># 2) variables INOUT and OUT block (end of the routine)</span></div>
 <div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>                <span class="keywordflow">if</span> len(arraysInOut) + len(arraysOut) &gt; 0:</div>
@@ -493,7 +493,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>                                                                    strMSG=<span class="stringliteral">&#39;end:&#39;</span>))</div>
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span> </div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>                    <span class="comment"># Add the new INOUT and OUT block</span></div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>                    scope.insertStatement(self.indent(ifMPPDBend), first=<span class="keyword">False</span>)</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>                    scope.insertStatement(scope.indent(ifMPPDBend), first=<span class="keyword">False</span>)</div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span> </div>
 </div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>    <span class="preprocessor">@debugDecor</span></div>
@@ -534,7 +534,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00432" name="l00432"></a><span class="lineno">  432</span>                                       <span class="stringliteral">&quot;KIND({name})*SIZE({name});&quot;</span> +</div>
 <div class="line"><a id="l00433" name="l00433"></a><span class="lineno">  433</span>                                       <span class="stringliteral">&quot;IF(YLSTACK%L(KIND({name})/4)&gt;&quot;</span> +</div>
 <div class="line"><a id="l00434" name="l00434"></a><span class="lineno">  434</span>                                       <span class="stringliteral">&quot;YLSTACK%U(KIND({name})/4))&quot;</span> +</div>
-<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>                                       <span class="stringliteral">&quot;CALL SOF(&#39;&quot;</span> + self.getFileName() + <span class="stringliteral">&quot;:{name}&#39;, &quot;</span> +</div>
+<div class="line"><a id="l00435" name="l00435"></a><span class="lineno">  435</span>                                       <span class="stringliteral">&quot;CALL SOF(&#39;&quot;</span> + scope.getFileName() + <span class="stringliteral">&quot;:{name}&#39;, &quot;</span> +</div>
 <div class="line"><a id="l00436" name="l00436"></a><span class="lineno">  436</span>                                       <span class="stringliteral">&quot;KIND({name}))&quot;</span>)</div>
 <div class="line"><a id="l00437" name="l00437"></a><span class="lineno">  437</span> </div>
 <div class="line"><a id="l00438" name="l00438"></a><span class="lineno">  438</span>                <span class="keywordflow">if</span> nb &gt; 0:</div>
@@ -547,7 +547,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00445" name="l00445"></a><span class="lineno">  445</span> </div>
 <div class="line"><a id="l00446" name="l00446"></a><span class="lineno">  446</span>                    <span class="comment"># Copy the stack to a local variable and use it for call statements</span></div>
 <div class="line"><a id="l00447" name="l00447"></a><span class="lineno">  447</span>                    <span class="comment"># this operation must be done after the call to addArgInTree</span></div>
-<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>                    self.addVar([[scope.path, <span class="stringliteral">&#39;YLSTACK&#39;</span>, <span class="stringliteral">&#39;TYPE (STACK) :: YLSTACK&#39;</span>, <span class="keywordtype">None</span>]])</div>
+<div class="line"><a id="l00448" name="l00448"></a><span class="lineno">  448</span>                    scope.addVar([[scope.path, <span class="stringliteral">&#39;YLSTACK&#39;</span>, <span class="stringliteral">&#39;TYPE (STACK) :: YLSTACK&#39;</span>, <span class="keywordtype">None</span>]])</div>
 <div class="line"><a id="l00449" name="l00449"></a><span class="lineno">  449</span>                    scope.insertStatement(createExpr(<span class="stringliteral">&#39;YLSTACK=YDSTACK&#39;</span>)[0], <span class="keyword">True</span>)</div>
 <div class="line"><a id="l00450" name="l00450"></a><span class="lineno">  450</span>                    <span class="keywordflow">for</span> argN <span class="keywordflow">in</span> scope.findall(<span class="stringliteral">&#39;.//{*}call-stmt/{*}arg-spec/&#39;</span> +</div>
 <div class="line"><a id="l00451" name="l00451"></a><span class="lineno">  451</span>                                              <span class="stringliteral">&#39;{*}arg/{*}arg-N/../{*}named-E/{*}N&#39;</span>):</div>
@@ -567,9 +567,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00465" name="l00465"></a><span class="lineno">  465</span>                    <span class="keywordflow">if</span> nb &gt; 0:</div>
 <div class="line"><a id="l00466" name="l00466"></a><span class="lineno">  466</span>                        <span class="comment"># Some automatic arrays have been modified</span></div>
 <div class="line"><a id="l00467" name="l00467"></a><span class="lineno">  467</span>                        <span class="comment"># we need to add the stack module,</span></div>
-<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>                        self.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODE_MNH_ZWORK&#39;</span>,</div>
-<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>                                          [<span class="stringliteral">&#39;MNH_MEM_GET&#39;</span>, <span class="stringliteral">&#39;MNH_MEM_POSITION_PIN&#39;</span>,</div>
-<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>                                           <span class="stringliteral">&#39;MNH_MEM_RELEASE&#39;</span>])])</div>
+<div class="line"><a id="l00468" name="l00468"></a><span class="lineno">  468</span>                        scope.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODE_MNH_ZWORK&#39;</span>,</div>
+<div class="line"><a id="l00469" name="l00469"></a><span class="lineno">  469</span>                                           [<span class="stringliteral">&#39;MNH_MEM_GET&#39;</span>, <span class="stringliteral">&#39;MNH_MEM_POSITION_PIN&#39;</span>,</div>
+<div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>                                            <span class="stringliteral">&#39;MNH_MEM_RELEASE&#39;</span>])])</div>
 <div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>                        <span class="comment"># to pin the memory position,</span></div>
 <div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span>                        scope.insertStatement(</div>
 <div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>                            createExpr(f<span class="stringliteral">&quot;CALL MNH_MEM_POSITION_PIN(&#39;{scope.path}&#39;)&quot;</span>)[0], <span class="keyword">True</span>)</div>
@@ -697,7 +697,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>                    <span class="keywordflow">if</span> loopIname <span class="keywordflow">in</span> indexToCheck:</div>
 <div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>                        <span class="comment"># Move the content of the doNode (except do-stmt and end_do_stmt)</span></div>
 <div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>                        <span class="comment"># in parent node</span></div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>                        par = self.getParent(doNode)</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>                        par = scope.getParent(doNode)</div>
 <div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>                        index = list(par).index(doNode)</div>
 <div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>                        <span class="keywordflow">for</span> item <span class="keywordflow">in</span> doNode[1:-1][::-1]:</div>
 <div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>                            par.insert(index, item)</div>
@@ -719,7 +719,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>                    parToUse = intr</div>
 <div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>                    par = intr</div>
 <div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>                    <span class="keywordflow">while</span> par <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> <span class="keywordflow">not</span> isStmt(par):</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                        par = self.getParent(par)</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                        par = scope.getParent(par)</div>
 <div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>                        <span class="keywordflow">if</span> tag(par) <span class="keywordflow">in</span> (<span class="stringliteral">&#39;a-stmt&#39;</span>, <span class="stringliteral">&#39;op-E&#39;</span>):</div>
 <div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>                            parToUse = par</div>
 <div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span> </div>
@@ -734,7 +734,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>                            <span class="comment"># eg: MAXVAL(X(:)) =&gt; MAXVAL(X(JI)) =&gt; X(JI)</span></div>
 <div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>                            parens = intr.find(<span class="stringliteral">&#39;./{*}R-LT/{*}parens-R&#39;</span>)</div>
 <div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>                            parens.tag = f<span class="stringliteral">&#39;{{{NAMESPACE}}}parens-E&#39;</span></div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>                            intrPar = self.getParent(intr)</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>                            intrPar = scope.getParent(intr)</div>
 <div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>                            intrPar.insert(list(intrPar).index(intr), parens)</div>
 <div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>                            intrPar.remove(intr)</div>
 <div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>                        <span class="keywordflow">elif</span> intrName == <span class="stringliteral">&#39;COUNT&#39;</span>:</div>
@@ -760,8 +760,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>                <span class="comment"># that cannot be transformed into scalar</span></div>
 <div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span> </div>
 <div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>                <span class="comment"># At least for rain_ice.F90, inlining must be performed before executing this code</span></div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>                <span class="keyword">assert</span> self.find(<span class="stringliteral">&#39;.//{*}include&#39;</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> \</div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>                       self.find(<span class="stringliteral">&#39;.//{*}include-stmt&#39;</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span>, \</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>                <span class="keyword">assert</span> scope.find(<span class="stringliteral">&#39;.//{*}include&#39;</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> \</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>                       scope.find(<span class="stringliteral">&#39;.//{*}include-stmt&#39;</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span>, \</div>
 <div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span>                       <span class="stringliteral">&quot;inlining must be performed before removing horizontal dimensions&quot;</span></div>
 <div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span> </div>
 <div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>                <span class="keywordflow">if</span> scope.path <span class="keywordflow">in</span> stopScopes:</div>
@@ -822,7 +822,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>                                    slice2index(namedE, scope)</div>
 <div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>                                <span class="keywordflow">else</span>:</div>
 <div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>                                    nodeRLT = namedE.find(<span class="stringliteral">&#39;.//{*}R-LT&#39;</span>)</div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>                                    self.getParent(nodeRLT).remove(nodeRLT)</div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>                                    scope.getParent(nodeRLT).remove(nodeRLT)</div>
 <div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>                            <span class="keywordflow">if</span> index:</div>
 <div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>                                slice2index(namedE, scope)</div>
 <div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span> </div>
@@ -839,9 +839,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>                                   (len(subs) == 2 <span class="keywordflow">and</span> (alltext(subs[0]) <span class="keywordflow">in</span> hUupperBounds <span class="keywordflow">and</span></div>
 <div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>                                                        alltext(subs[1]) <span class="keywordflow">in</span> hUupperBounds)):</div>
 <div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>                                    <span class="comment"># Transform array declaration into scalar declaration</span></div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>                                    itemToRemove = self.getParent(varShape)</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>                                    self.getParent(itemToRemove).remove(itemToRemove)</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>                                    <span class="comment"># We should set self.varList to None here to clear the cache</span></div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>                                    itemToRemove = scope.getParent(varShape)</div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>                                    scope.getParent(itemToRemove).remove(itemToRemove)</div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>                                    <span class="comment"># We should set scope.varList to None here to clear the cache</span></div>
 <div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span>                                    <span class="comment"># but we don&#39;t to save some computational time</span></div>
 <div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
 <div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>            <span class="comment"># 4 - Values for removed indexes</span></div>
@@ -855,9 +855,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>                                   0, stopScopes, moduleVarList=[(<span class="stringliteral">&#39;MODD_DIMPHYEX&#39;</span>, [<span class="stringliteral">&#39;DIMPHYEX_t&#39;</span>])],</div>
 <div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>                                   parser=parser, parserOptions=parserOptions, wrapH=wrapH)</div>
 <div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>            <span class="comment"># Check loop index presence at declaration of the scope</span></div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>            self.addVar([[scope.path, loopIndex, <span class="stringliteral">&#39;INTEGER :: &#39;</span> + loopIndex, <span class="keywordtype">None</span>]</div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>                         <span class="keywordflow">for</span> loopIndex <span class="keywordflow">in</span> indexRemoved</div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>                         <span class="keywordflow">if</span> scope.varList.findVar(loopIndex, exactScope=<span class="keyword">True</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span>])</div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>            scope.addVar([[scope.path, loopIndex, <span class="stringliteral">&#39;INTEGER :: &#39;</span> + loopIndex, <span class="keywordtype">None</span>]</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>                          <span class="keywordflow">for</span> loopIndex <span class="keywordflow">in</span> indexRemoved</div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>                          <span class="keywordflow">if</span> scope.varList.findVar(loopIndex, exactScope=<span class="keyword">True</span>) <span class="keywordflow">is</span> <span class="keywordtype">None</span>])</div>
 <div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span> </div>
 </div>
 <div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>    <span class="preprocessor">@debugDecor</span></div>
@@ -1020,7 +1020,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>                    parOfopE.insert(index, nodeBRP)</div>
 <div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span> </div>
 <div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>                    <span class="comment"># Add necessary module in the current scope</span></div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>                    self.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODI_BITREP&#39;</span>, <span class="keywordtype">None</span>)])</div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>                    scope.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODI_BITREP&#39;</span>, <span class="keywordtype">None</span>)])</div>
 <div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span> </div>
 <div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>            <span class="comment"># 2/2 Look for all specific functions LOG, ATAN, EXP,etc</span></div>
 <div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>            <span class="keywordflow">for</span> nnn <span class="keywordflow">in</span> scope.findall(<span class="stringliteral">&#39;.//{*}named-E/{*}N/{*}n&#39;</span>):</div>
@@ -1030,7 +1030,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>                    <span class="keywordflow">else</span>:</div>
 <div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                        nnn.text = <span class="stringliteral">&#39;BR_&#39;</span> + nnn.text</div>
 <div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>                    <span class="comment"># Add necessary module in the current scope</span></div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>                    self.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODI_BITREP&#39;</span>, <span class="keywordtype">None</span>)])</div>
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>                    scope.addModuleVar([(scope.path, <span class="stringliteral">&#39;MODI_BITREP&#39;</span>, <span class="keywordtype">None</span>)])</div>
 <div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span> </div>
 </div>
 <div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>    <span class="preprocessor">@debugDecor</span></div>
@@ -1089,7 +1089,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00975" name="l00975"></a><span class="lineno">  975</span><span class="stringliteral">                                 in the calling function in stmt</span></div>
 <div class="line"><a id="l00976" name="l00976"></a><span class="lineno">  976</span><span class="stringliteral">            &quot;&quot;&quot;</span></div>
 <div class="line"><a id="l00977" name="l00977"></a><span class="lineno">  977</span>            <span class="comment"># Function name, parent and grandParent</span></div>
-<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>            parStmt = self.getParent(stmt)</div>
+<div class="line"><a id="l00978" name="l00978"></a><span class="lineno">  978</span>            parStmt = scope.getParent(stmt)</div>
 <div class="line"><a id="l00979" name="l00979"></a><span class="lineno">  979</span>            parItemFuncN = scope.getParent(itemFuncN)  <span class="comment"># &lt;N&gt;&lt;n&gt;MZM&lt;/N&gt;&lt;/n&gt;</span></div>
 <div class="line"><a id="l00980" name="l00980"></a><span class="lineno">  980</span>            <span class="comment"># &lt;named-E&gt;&lt;N&gt;&lt;n&gt;MZM&lt;/N&gt;&lt;/n&gt; &lt;R-LT&gt;&lt;f:parens-R&gt;(&lt;f:element-LT&gt;&lt;f:element&gt;....</span></div>
 <div class="line"><a id="l00981" name="l00981"></a><span class="lineno">  981</span>            grandparItemFuncN = scope.getParent(itemFuncN, level=2)</div>
@@ -1107,8 +1107,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00993" name="l00993"></a><span class="lineno">  993</span>            <span class="comment"># We must look for all contents until the last &#39;)&#39;</span></div>
 <div class="line"><a id="l00994" name="l00994"></a><span class="lineno">  994</span>            <span class="keywordflow">if</span> len(siblsItemFuncN[0][0]) &gt; 1:</div>
 <div class="line"><a id="l00995" name="l00995"></a><span class="lineno">  995</span>                <span class="comment"># last [0] is to avoid getting the &#39;( )&#39; from the function</span></div>
-<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span>                workingItem = self.updateContinuation(siblsItemFuncN[0][0], removeALL=<span class="keyword">True</span>,</div>
-<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>                                                      align=<span class="keyword">False</span>, addBegin=<span class="keyword">False</span>)[0]</div>
+<div class="line"><a id="l00996" name="l00996"></a><span class="lineno">  996</span>                workingItem = scope.updateContinuation(siblsItemFuncN[0][0], removeALL=<span class="keyword">True</span>,</div>
+<div class="line"><a id="l00997" name="l00997"></a><span class="lineno">  997</span>                                                       align=<span class="keyword">False</span>, addBegin=<span class="keyword">False</span>)[0]</div>
 <div class="line"><a id="l00998" name="l00998"></a><span class="lineno">  998</span> </div>
 <div class="line"><a id="l00999" name="l00999"></a><span class="lineno">  999</span>            <span class="comment"># Detect if the workingItem contains expressions, if so:</span></div>
 <div class="line"><a id="l01000" name="l01000"></a><span class="lineno"> 1000</span>            <span class="comment"># create a compute statement embedded by mnh_expand directives</span></div>
@@ -1123,8 +1123,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01009" name="l01009"></a><span class="lineno"> 1009</span>                computingVarName = <span class="stringliteral">&#39;ZSHUGRADWK&#39;</span>+str(nbzshugradwk)+<span class="stringliteral">&#39;_&#39;</span>+str(zshugradwkDim)+<span class="stringliteral">&#39;D&#39;</span></div>
 <div class="line"><a id="l01010" name="l01010"></a><span class="lineno"> 1010</span>                <span class="comment"># Add the declaration of the new computing var and workingVar if not already present</span></div>
 <div class="line"><a id="l01011" name="l01011"></a><span class="lineno"> 1011</span>                <span class="keywordflow">if</span> <span class="keywordflow">not</span> scope.varList.findVar(computingVarName):</div>
-<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>                    self.addVar([[scope.path, computingVarName,</div>
-<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>                                  dimWorkingVar + computingVarName, <span class="keywordtype">None</span>]])</div>
+<div class="line"><a id="l01012" name="l01012"></a><span class="lineno"> 1012</span>                    scope.addVar([[scope.path, computingVarName,</div>
+<div class="line"><a id="l01013" name="l01013"></a><span class="lineno"> 1013</span>                                   dimWorkingVar + computingVarName, <span class="keywordtype">None</span>]])</div>
 <div class="line"><a id="l01014" name="l01014"></a><span class="lineno"> 1014</span>                <span class="keywordflow">else</span>:</div>
 <div class="line"><a id="l01015" name="l01015"></a><span class="lineno"> 1015</span>                    <span class="comment"># Case of nested shuman/gradients with a working variable already declared.</span></div>
 <div class="line"><a id="l01016" name="l01016"></a><span class="lineno"> 1016</span>                    <span class="comment"># dimWorkingVar is only set again for mnhExpandArrayIndexes</span></div>
@@ -1177,7 +1177,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01063" name="l01063"></a><span class="lineno"> 1063</span> </div>
 <div class="line"><a id="l01064" name="l01064"></a><span class="lineno"> 1064</span>            <span class="comment"># Add the declaration of the shuman-gradient workingVar if not already present</span></div>
 <div class="line"><a id="l01065" name="l01065"></a><span class="lineno"> 1065</span>            <span class="keywordflow">if</span> <span class="keywordflow">not</span> scope.varList.findVar(workingVar):</div>
-<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>                self.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, <span class="keywordtype">None</span>]])</div>
+<div class="line"><a id="l01066" name="l01066"></a><span class="lineno"> 1066</span>                scope.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, <span class="keywordtype">None</span>]])</div>
 <div class="line"><a id="l01067" name="l01067"></a><span class="lineno"> 1067</span> </div>
 <div class="line"><a id="l01068" name="l01068"></a><span class="lineno"> 1068</span>            <span class="keywordflow">return</span> callStmt, computeStmt, nbzshugradwk</div>
 <div class="line"><a id="l01069" name="l01069"></a><span class="lineno"> 1069</span> </div>
@@ -1196,8 +1196,8 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01082" name="l01082"></a><span class="lineno"> 1082</span>                <span class="comment"># Init : look for all a-stmt and call-stmt which contains a shuman or</span></div>
 <div class="line"><a id="l01083" name="l01083"></a><span class="lineno"> 1083</span>                <span class="comment"># gradients function, and save it into a list foundStmtandCalls</span></div>
 <div class="line"><a id="l01084" name="l01084"></a><span class="lineno"> 1084</span>                foundStmtandCalls, computeStmtforParenthesis = {}, []</div>
-<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>                aStmt = self.findall(<span class="stringliteral">&#39;.//{*}a-stmt&#39;</span>)</div>
-<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>                callStmts = self.findall(<span class="stringliteral">&#39;.//{*}call-stmt&#39;</span>)</div>
+<div class="line"><a id="l01085" name="l01085"></a><span class="lineno"> 1085</span>                aStmt = scope.findall(<span class="stringliteral">&#39;.//{*}a-stmt&#39;</span>)</div>
+<div class="line"><a id="l01086" name="l01086"></a><span class="lineno"> 1086</span>                callStmts = scope.findall(<span class="stringliteral">&#39;.//{*}call-stmt&#39;</span>)</div>
 <div class="line"><a id="l01087" name="l01087"></a><span class="lineno"> 1087</span>                aStmtandCallStmts = aStmt + callStmts</div>
 <div class="line"><a id="l01088" name="l01088"></a><span class="lineno"> 1088</span>                <span class="keywordflow">for</span> stmt <span class="keywordflow">in</span> aStmtandCallStmts:</div>
 <div class="line"><a id="l01089" name="l01089"></a><span class="lineno"> 1089</span>                    elemN = stmt.findall(<span class="stringliteral">&#39;.//{*}n&#39;</span>)</div>
@@ -1207,7 +1207,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01093" name="l01093"></a><span class="lineno"> 1093</span>                            <span class="comment"># to add all the new lines further.</span></div>
 <div class="line"><a id="l01094" name="l01094"></a><span class="lineno"> 1094</span>                            parStmt = scope.getParent(stmt)</div>
 <div class="line"><a id="l01095" name="l01095"></a><span class="lineno"> 1095</span>                            <span class="keywordflow">if</span> tag(parStmt) == <span class="stringliteral">&#39;action-stmt&#39;</span>:</div>
-<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>                                self.changeIfStatementsInIfConstructs(</div>
+<div class="line"><a id="l01096" name="l01096"></a><span class="lineno"> 1096</span>                                scope.changeIfStatementsInIfConstructs(</div>
 <div class="line"><a id="l01097" name="l01097"></a><span class="lineno"> 1097</span>                                    singleItem=scope.getParent(parStmt))</div>
 <div class="line"><a id="l01098" name="l01098"></a><span class="lineno"> 1098</span> </div>
 <div class="line"><a id="l01099" name="l01099"></a><span class="lineno"> 1099</span>                            <span class="keywordflow">if</span> str(stmt) <span class="keywordflow">in</span> foundStmtandCalls:</div>
@@ -1242,7 +1242,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01128" name="l01128"></a><span class="lineno"> 1128</span>                                    <span class="comment"># 2) if the stmt is from a call-stmt,</span></div>
 <div class="line"><a id="l01129" name="l01129"></a><span class="lineno"> 1129</span>                                    <span class="comment">#    check the first &lt;named-E&gt;&lt;N&gt; in the function</span></div>
 <div class="line"><a id="l01130" name="l01130"></a><span class="lineno"> 1130</span>                                    <span class="keywordflow">else</span>:</div>
-<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span>                                        elPar = self.getParent(el, level=2)  <span class="comment"># MXM(...)</span></div>
+<div class="line"><a id="l01131" name="l01131"></a><span class="lineno"> 1131</span>                                        elPar = scope.getParent(el, level=2)  <span class="comment"># MXM(...)</span></div>
 <div class="line"><a id="l01132" name="l01132"></a><span class="lineno"> 1132</span>                                        callVar = elPar.findall(<span class="stringliteral">&#39;.//{*}named-E/{*}N&#39;</span>)</div>
 <div class="line"><a id="l01133" name="l01133"></a><span class="lineno"> 1133</span>                                        <span class="keywordflow">if</span> alltext(el)[0] == <span class="stringliteral">&#39;G&#39;</span>:</div>
 <div class="line"><a id="l01134" name="l01134"></a><span class="lineno"> 1134</span>                                            <span class="comment"># If it is a gradient, the array on which the gradient</span></div>
@@ -1360,7 +1360,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01246" name="l01246"></a><span class="lineno"> 1246</span>                        dimSuffRoutine, dimSuffVar, mnhExpandArrayIndexes = \</div>
 <div class="line"><a id="l01247" name="l01247"></a><span class="lineno"> 1247</span>                            getDimsAndMNHExpandIndexes(arrayDim, dimWorkingVar)</div>
 <div class="line"><a id="l01248" name="l01248"></a><span class="lineno"> 1248</span> </div>
-<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>                        parStmt = self.getParent(foundStmtandCalls[stmt][0])</div>
+<div class="line"><a id="l01249" name="l01249"></a><span class="lineno"> 1249</span>                        parStmt = scope.getParent(foundStmtandCalls[stmt][0])</div>
 <div class="line"><a id="l01250" name="l01250"></a><span class="lineno"> 1250</span>                        indexForCall = list(parStmt).index(foundStmtandCalls[stmt][0])</div>
 <div class="line"><a id="l01251" name="l01251"></a><span class="lineno"> 1251</span>                        mnhOpenDir = <span class="stringliteral">&quot;!$mnh_expand_array(&quot;</span> + mnhExpandArrayIndexes + <span class="stringliteral">&quot;)&quot;</span></div>
 <div class="line"><a id="l01252" name="l01252"></a><span class="lineno"> 1252</span>                        mnhCloseDir = <span class="stringliteral">&quot;!$mnh_end_expand_array(&quot;</span> + mnhExpandArrayIndexes + <span class="stringliteral">&quot;)&quot;</span></div>
@@ -1391,9 +1391,9 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01275" name="l01275"></a><span class="lineno"> 1275</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes():</div>
 <div class="line"><a id="l01276" name="l01276"></a><span class="lineno"> 1276</span>            <span class="keywordflow">if</span> scope.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[0] == <span class="stringliteral">&#39;type&#39;</span>:</div>
 <div class="line"><a id="l01277" name="l01277"></a><span class="lineno"> 1277</span>                typeName = scope.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[1]</div>
-<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>                filename = os.path.join(os.path.dirname(self.getFileName()),</div>
+<div class="line"><a id="l01278" name="l01278"></a><span class="lineno"> 1278</span>                filename = os.path.join(os.path.dirname(scope.getFileName()),</div>
 <div class="line"><a id="l01279" name="l01279"></a><span class="lineno"> 1279</span>                                        <span class="stringliteral">&quot;modd_util_{t}.F90&quot;</span>.format(t=typeName.lower()))</div>
-<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>                self.tree.signal(filename)</div>
+<div class="line"><a id="l01280" name="l01280"></a><span class="lineno"> 1280</span>                scope.tree.signal(filename)</div>
 <div class="line"><a id="l01281" name="l01281"></a><span class="lineno"> 1281</span>                <span class="keyword">with</span> open(filename, <span class="stringliteral">&#39;w&#39;</span>, encoding=<span class="stringliteral">&quot;utf-8&quot;</span>) <span class="keyword">as</span> file:</div>
 <div class="line"><a id="l01282" name="l01282"></a><span class="lineno"> 1282</span>                    file.write(<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a id="l01283" name="l01283"></a><span class="lineno"> 1283</span><span class="stringliteral">MODULE MODD_UTIL_{t}</span></div>

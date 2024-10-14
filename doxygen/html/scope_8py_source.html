@@ -660,7 +660,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00502" name="l00502"></a><span class="lineno">  502</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> scopes:</div>
 <div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span>            <span class="keywordflow">for</span> node <span class="keywordflow">in</span> list(scope):</div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>                <span class="keywordflow">if</span> tag(node) <span class="keywordflow">not</span> <span class="keywordflow">in</span> tagExcluded:</div>
-<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>                    self.<a class="code hl_function" href="classpyft_1_1scope_1_1ElementView.html#ab2b3401dcfc567cbbf39d8ad2a91a7b2">remove</a>(node)</div>
+<div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>                    scope.remove(node)</div>
 <div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>            scope.removeUnusedLocalVar(simplify=simplify)</div>
 <div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>            <span class="keywordflow">if</span> addStmt <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
 <div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>                <span class="keywordflow">if</span> isinstance(addStmt, str):</div>

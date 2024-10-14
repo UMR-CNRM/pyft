@@ -1,16 +1,15 @@
 <map id="pyft.variables.Variables.addModuleVar" name="pyft.variables.Variables.addModuleVar">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,129,208,169"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html#a08ed576b07a4508d8070f48668f0b665" title=" " alt="" coords="256,100,441,140"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,134,242,130,243,136,208,140"/>
-<area shape="rect" id="Node000010" href="$classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="750,161,889,186"/>
-<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="208,150,736,168,736,173,208,155"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="489,100,675,140"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="442,117,476,117,476,123,442,123"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,103,208,143"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html#a08ed576b07a4508d8070f48668f0b665" title=" " alt="" coords="256,103,441,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,120,242,120,242,125,208,125"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="489,103,675,143"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="442,120,476,120,476,125,442,125"/>
 <area shape="rect" id="Node000004" href="$classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="737,45,901,85"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="669,97,723,85,724,90,670,103"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,100,723,86,725,91,666,105"/>
 <area shape="rect" id="Node000009" href="$classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="723,110,916,135"/>
-<area shape="poly" id="edge11_Node000003_Node000009" title=" " alt="" coords="675,118,709,119,709,124,675,124"/>
-<area shape="poly" id="edge12_Node000003_Node000010" title=" " alt="" coords="672,137,750,155,748,160,671,143"/>
+<area shape="poly" id="edge11_Node000003_Node000009" title=" " alt="" coords="675,120,709,120,709,125,675,125"/>
+<area shape="rect" id="Node000010" href="$classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="750,159,889,185"/>
+<area shape="poly" id="edge12_Node000003_Node000010" title=" " alt="" coords="675,139,745,154,744,159,674,144"/>
 <area shape="rect" id="Node000005" href="$classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="991,5,1155,45"/>
 <area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="901,50,977,38,978,43,902,55"/>
 <area shape="rect" id="Node000006" href="$classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="964,94,1183,119"/>

@@ -260,7 +260,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>                    count += 1</div>
 <div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>                listVarEnd = listVar[:-3]  <span class="comment"># remove last comma and &amp;</span></div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>                accAddMultipleLines = createExpr(listVarEnd + <span class="stringliteral">&#39;)&#39;</span>)</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>                idx = scope.insertStatement(self.indent(accAddMultipleLines[0]), first=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>                idx = scope.insertStatement(scope.indent(accAddMultipleLines[0]), first=<span class="keyword">True</span>)</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>                <span class="comment"># 2) multi-lines !$acc &amp;</span></div>
 <div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>                <span class="keywordflow">for</span> iLine, line <span class="keywordflow">in</span> enumerate(accAddMultipleLines[1:]):</div>
@@ -268,7 +268,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>                <span class="comment"># 3) !$acc end data</span></div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>                comment = createElem(<span class="stringliteral">&#39;C&#39;</span>, text=<span class="stringliteral">&#39;!$acc end data&#39;</span>, tail=<span class="stringliteral">&#39;\n&#39;</span>)</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>                scope.insertStatement(self.indent(comment), first=<span class="keyword">False</span>)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>                scope.insertStatement(scope.indent(comment), first=<span class="keyword">False</span>)</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
 </div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    <span class="preprocessor">@debugDecor</span></div>

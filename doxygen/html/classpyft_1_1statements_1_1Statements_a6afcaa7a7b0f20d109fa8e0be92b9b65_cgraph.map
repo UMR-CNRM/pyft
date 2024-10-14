@@ -1,87 +1,70 @@
 <map id="pyft.statements.Statements.removeConstructNode" name="pyft.statements.Statements.removeConstructNode">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,183,264,223"/>
-<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="78,184,75,174,84,164,104,159,135,157,170,159,189,167,187,172,169,165,135,162,105,164,87,169,80,175,83,182"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1statements_1_1Statements.html#aa09dcedde715e089790330750e1c35ab" title=" " alt="" coords="312,183,571,223"/>
-<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="264,210,298,210,298,215,264,215"/>
-<area shape="poly" id="edge31_Node000002_Node000001" title=" " alt="" coords="312,197,277,197,277,192,312,192"/>
-<area shape="poly" id="edge32_Node000002_Node000002" title=" " alt="" coords="388,184,384,174,393,164,412,159,441,157,475,159,493,167,491,172,474,165,441,162,413,164,396,169,390,175,393,182"/>
-<area shape="rect" id="Node000003" href="$namespacepyft_1_1statements.html#a5b9f8ee69d2264e33a25bb93ea6ef333" title=" " alt="" coords="624,5,843,31"/>
-<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="456,182,521,111,567,72,617,40,633,33,636,37,620,44,570,76,525,115,460,185"/>
-<area shape="rect" id="Node000004" href="$namespacepyft_1_1statements.html#a7e7943e48072cc9b369a9fc7ba170e82" title=" " alt="" coords="631,55,836,80"/>
-<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="466,181,532,134,574,110,618,89,639,81,641,86,620,94,577,114,535,139,469,185"/>
-<area shape="rect" id="Node000005" href="$namespacepyft_1_1statements.html#a1aa41b686d2b17ff7df678ccee0a97a4" title=" " alt="" coords="635,104,831,129"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="494,181,618,139,655,130,656,135,619,145,496,186"/>
-<area shape="rect" id="Node000006" href="$namespacepyft_1_1statements.html#ae7adaf2cfa4f10e287c7563ff8ef3272" title=" " alt="" coords="640,154,827,194"/>
-<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="571,188,626,182,627,187,571,193"/>
-<area shape="rect" id="Node000007" href="$classpyft_1_1scope_1_1PYFTscope.html#a02c7493d16f0dabf1a3d95e57c6e20c3" title=" " alt="" coords="1810,427,1995,467"/>
-<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="534,221,633,240,754,259,887,273,1020,279,1325,279,1442,283,1532,295,1621,318,1732,356,1800,385,1860,418,1857,423,1798,390,1730,360,1619,323,1531,300,1441,288,1325,285,1020,285,886,279,754,264,632,245,533,226"/>
-<area shape="rect" id="Node000012" href="$classpyft_1_1scope_1_1PYFTscope.html#a878a37e59f262f23b19d79d9d764bb68" title=" " alt="" coords="1231,205,1417,245"/>
-<area shape="poly" id="edge16_Node000002_Node000012" title=" " alt="" coords="571,204,1217,219,1217,225,571,209"/>
-<area shape="rect" id="Node000018" href="$classpyft_1_1scope_1_1PYFTscope.html#a3a6aa70e68c136c564ae83cebb7d8cf3" title=" " alt="" coords="1523,370,1709,410"/>
-<area shape="poly" id="edge26_Node000002_Node000018" title=" " alt="" coords="472,221,537,262,577,282,619,298,742,330,848,349,942,357,1031,359,1217,356,1326,358,1454,367,1510,374,1509,379,1453,373,1326,363,1217,361,1031,364,942,363,847,354,741,336,618,303,575,287,534,267,469,226"/>
-<area shape="rect" id="Node000020" href="$classpyft_1_1variables_1_1Variables.html#a3207f83bcc469c06d82c1db05e30d691" title=" " alt="" coords="619,554,848,594"/>
-<area shape="poly" id="edge33_Node000002_Node000020" title=" " alt="" coords="461,222,710,541,705,544,457,225"/>
-<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="1850,428,1847,418,1856,408,1874,403,1903,401,1935,403,1953,411,1951,416,1934,409,1903,406,1875,408,1859,413,1852,419,1855,426"/>
-<area shape="rect" id="Node000008" href="$classpyft_1_1scope_1_1ElementView.html#a0b3e4c92ba20b1407bbfe3431dfd8a3b" title=" " alt="" coords="2084,427,2288,452"/>
-<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="1995,442,2070,440,2070,445,1996,447"/>
-<area shape="rect" id="Node000011" href="$classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="2087,614,2285,654"/>
-<area shape="poly" id="edge15_Node000007_Node000011" title=" " alt="" coords="1983,465,2007,477,2029,493,2040,507,2047,521,2053,549,2058,575,2065,588,2076,600,2082,604,2079,609,2073,604,2061,591,2053,577,2047,550,2042,523,2036,510,2025,497,2004,482,1981,470"/>
-<area shape="poly" id="edge14_Node000008_Node000008" title=" " alt="" coords="2145,428,2137,418,2141,408,2158,402,2186,400,2221,404,2231,409,2235,414,2231,417,2228,413,2220,409,2186,405,2159,407,2145,412,2142,418,2149,425"/>
-<area shape="rect" id="Node000009" href="$classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="2345,419,2528,459"/>
-<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="2288,437,2332,437,2332,442,2288,442"/>
-<area shape="rect" id="Node000010" href="$classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="2576,427,2783,452"/>
-<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="2528,445,2562,446,2562,451,2528,451"/>
-<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="2576,433,2542,433,2542,428,2576,428"/>
-<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="2640,428,2631,418,2636,408,2652,402,2679,400,2714,404,2723,409,2727,414,2723,417,2720,413,2712,409,2679,405,2653,407,2639,412,2637,418,2644,425"/>
-<area shape="rect" id="Node000013" href="$classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="1821,507,1985,547"/>
-<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="1416,242,1503,264,1596,292,1678,323,1710,339,1732,356,1745,372,1753,387,1758,418,1762,448,1769,463,1781,477,1811,499,1808,503,1777,481,1764,465,1757,449,1752,419,1748,389,1741,374,1729,360,1707,344,1676,328,1594,297,1501,269,1414,247"/>
-<area shape="rect" id="Node000016" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ef75505ab8331e6df103adec31ec96a" title=" " alt="" coords="1523,205,1709,245"/>
-<area shape="poly" id="edge22_Node000012_Node000016" title=" " alt="" coords="1417,222,1509,222,1509,227,1417,227"/>
-<area shape="rect" id="Node000017" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ed0c4a2bc1602fcec0e06026cabbc0d" title=" " alt="" coords="1779,184,2027,209"/>
-<area shape="poly" id="edge25_Node000012_Node000017" title=" " alt="" coords="1416,202,1501,190,1637,184,1765,186,1765,191,1637,189,1502,195,1417,207"/>
-<area shape="rect" id="Node000014" href="$classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="2104,550,2268,590"/>
-<area shape="poly" id="edge18_Node000013_Node000014" title=" " alt="" coords="1985,537,2091,553,2090,558,1984,542"/>
-<area shape="rect" id="Node000015" href="$classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="2077,500,2295,525"/>
-<area shape="poly" id="edge19_Node000013_Node000015" title=" " alt="" coords="1985,520,2062,516,2063,522,1985,526"/>
-<area shape="poly" id="edge20_Node000015_Node000009" title=" " alt="" coords="2230,497,2354,461,2355,466,2231,502"/>
-<area shape="poly" id="edge21_Node000015_Node000015" title=" " alt="" coords="2145,502,2137,492,2141,482,2158,476,2186,473,2221,477,2231,482,2235,488,2231,491,2228,486,2220,482,2186,479,2159,481,2145,486,2142,491,2149,498"/>
-<area shape="poly" id="edge23_Node000016_Node000007" title=" " alt="" coords="1695,242,1732,261,1779,297,1820,338,1882,414,1878,418,1816,342,1775,301,1729,266,1692,247"/>
-<area shape="poly" id="edge24_Node000016_Node000017" title=" " alt="" coords="1708,213,1764,207,1765,213,1709,218"/>
-<area shape="poly" id="edge30_Node000018_Node000007" title=" " alt="" coords="1709,406,1797,423,1796,429,1708,411"/>
-<area shape="rect" id="Node000019" href="$classpyft_1_1scope_1_1ElementView.html#af1c6a616b3d918363e7cc8401975783e" title=" " alt="" coords="2075,353,2297,379"/>
-<area shape="poly" id="edge27_Node000018_Node000019" title=" " alt="" coords="1709,383,2061,369,2061,374,1709,389"/>
-<area shape="poly" id="edge28_Node000019_Node000009" title=" " alt="" coords="2249,376,2298,389,2370,412,2368,417,2297,394,2247,381"/>
-<area shape="poly" id="edge29_Node000019_Node000019" title=" " alt="" coords="2145,355,2137,345,2141,335,2158,329,2186,327,2221,331,2231,335,2235,341,2231,344,2228,339,2220,336,2186,332,2159,334,2145,339,2142,344,2149,351"/>
-<area shape="rect" id="Node000021" href="$classpyft_1_1variables_1_1Variables.html#a46af8d1cb2b76db818f2e384c5820e53" title=" " alt="" coords="1235,687,1413,727"/>
-<area shape="poly" id="edge34_Node000020_Node000021" title=" " alt="" coords="824,592,1221,682,1220,687,823,597"/>
-<area shape="rect" id="Node000023" href="$classpyft_1_1variables_1_1Variables.html#adbcc5e97704903eff5cea268885d114d" title=" " alt="" coords="926,745,1117,785"/>
-<area shape="poly" id="edge36_Node000020_Node000023" title=" " alt="" coords="765,592,897,682,978,735,975,739,895,687,762,596"/>
-<area shape="rect" id="Node000028" href="$classpyft_1_1variables_1_1Variables.html#aca49e38d8b25c689ece7d04acf59c8a5" title=" " alt="" coords="896,561,1147,587"/>
-<area shape="poly" id="edge45_Node000020_Node000028" title=" " alt="" coords="848,580,882,580,882,586,848,585"/>
-<area shape="rect" id="Node000022" href="$classpyft_1_1scope_1_1PYFTscope.html#aabcad5f6804b0a5ba49f6048cc6afb64" title=" " alt="" coords="1501,687,1731,727"/>
-<area shape="poly" id="edge35_Node000021_Node000022" title=" " alt="" coords="1414,705,1488,705,1488,710,1414,710"/>
-<area shape="poly" id="edge38_Node000023_Node000007" title=" " alt="" coords="1117,765,1283,768,1475,767,1641,758,1698,749,1729,737,1752,710,1761,682,1761,653,1757,623,1752,591,1750,559,1757,526,1777,494,1803,472,1807,476,1781,497,1762,528,1756,559,1757,591,1762,622,1767,653,1766,683,1756,713,1732,742,1699,754,1641,764,1475,773,1283,773,1117,770"/>
-<area shape="poly" id="edge44_Node000023_Node000011" title=" " alt="" coords="1052,782,1116,820,1155,838,1195,851,1431,911,1530,933,1622,945,1714,945,1808,930,1910,898,2025,845,2052,828,2076,808,2117,760,2148,709,2169,666,2174,668,2153,712,2121,763,2080,812,2055,833,2028,850,1912,903,1809,935,1714,950,1622,950,1529,938,1429,916,1194,857,1153,843,1113,825,1049,787"/>
-<area shape="poly" id="edge37_Node000023_Node000021" title=" " alt="" coords="1116,744,1221,724,1222,729,1117,749"/>
-<area shape="rect" id="Node000024" href="$classpyft_1_1scope_1_1PYFTscope.html#a08ed576b07a4508d8070f48668f0b665" title=" " alt="" coords="1231,802,1417,842"/>
-<area shape="poly" id="edge39_Node000023_Node000024" title=" " alt="" coords="1117,780,1218,799,1217,805,1116,785"/>
-<area shape="rect" id="Node000025" href="$classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="1523,802,1709,842"/>
-<area shape="poly" id="edge40_Node000024_Node000025" title=" " alt="" coords="1417,819,1509,819,1509,825,1417,825"/>
-<area shape="poly" id="edge41_Node000025_Node000013" title=" " alt="" coords="1700,800,1729,781,1747,759,1756,738,1763,714,1776,686,1826,615,1873,556,1877,560,1830,618,1781,689,1768,716,1761,740,1752,762,1732,785,1703,804"/>
-<area shape="rect" id="Node000026" href="$classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="1806,809,1999,835"/>
-<area shape="poly" id="edge42_Node000025_Node000026" title=" " alt="" coords="1709,819,1792,819,1792,825,1709,825"/>
-<area shape="rect" id="Node000027" href="$classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="1833,699,1972,724"/>
-<area shape="poly" id="edge43_Node000025_Node000027" title=" " alt="" coords="1678,799,1730,781,1859,727,1861,732,1732,786,1680,804"/>
-<area shape="poly" id="edge48_Node000028_Node000007" title=" " alt="" coords="1145,559,1453,521,1796,464,1797,469,1454,526,1145,564"/>
-<area shape="poly" id="edge50_Node000028_Node000011" title=" " alt="" coords="1147,578,2073,626,2073,631,1147,583"/>
-<area shape="poly" id="edge49_Node000028_Node000018" title=" " alt="" coords="1029,559,1053,526,1090,483,1138,440,1165,421,1194,406,1233,392,1273,381,1357,370,1437,368,1510,372,1509,377,1437,373,1357,375,1274,387,1234,397,1196,411,1168,426,1141,444,1094,487,1057,530,1033,562"/>
-<area shape="poly" id="edge54_Node000028_Node000020" title=" " alt="" coords="896,568,862,568,862,562,896,562"/>
-<area shape="poly" id="edge47_Node000028_Node000021" title=" " alt="" coords="1044,585,1110,624,1196,666,1235,681,1233,686,1194,671,1108,628,1041,589"/>
-<area shape="poly" id="edge55_Node000028_Node000027" title=" " alt="" coords="1066,584,1195,615,1345,637,1463,646,1581,654,1731,673,1835,693,1834,698,1730,678,1580,659,1462,651,1344,642,1194,621,1065,589"/>
-<area shape="rect" id="Node000029" href="$namespacepyft_1_1variables.html#ad1492910783f5b8003f5eef6c9bae86e" title=" " alt="" coords="1211,485,1437,511"/>
-<area shape="poly" id="edge46_Node000028_Node000029" title=" " alt="" coords="1071,559,1194,527,1258,511,1259,517,1195,533,1073,564"/>
-<area shape="rect" id="Node000030" href="$classpyft_1_1statements_1_1Statements.html#af5bc87bf99834250c57822df6c3bdc44" title=" " alt="" coords="1195,421,1453,461"/>
-<area shape="poly" id="edge51_Node000028_Node000030" title=" " alt="" coords="1039,559,1106,517,1194,472,1219,462,1221,467,1196,476,1108,521,1042,563"/>
-<area shape="poly" id="edge52_Node000030_Node000007" title=" " alt="" coords="1454,439,1796,443,1796,449,1453,445"/>
-<area shape="poly" id="edge53_Node000030_Node000018" title=" " alt="" coords="1439,418,1509,406,1510,411,1440,423"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,186,264,226"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="78,187,75,176,84,167,104,161,135,159,170,162,189,169,187,174,169,167,135,165,105,167,87,172,80,177,83,185"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1statements_1_1Statements.html#aa09dcedde715e089790330750e1c35ab" title=" " alt="" coords="312,186,571,226"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="264,212,298,212,298,218,264,218"/>
+<area shape="poly" id="edge31_Node000002_Node000001" title=" " alt="" coords="312,200,277,200,277,194,312,194"/>
+<area shape="poly" id="edge32_Node000002_Node000002" title=" " alt="" coords="389,187,385,176,394,167,413,161,441,159,474,162,492,169,490,174,473,167,441,165,414,167,397,172,391,177,394,185"/>
+<area shape="rect" id="Node000003" href="$namespacepyft_1_1statements.html#a5b9f8ee69d2264e33a25bb93ea6ef333" title=" " alt="" coords="619,5,837,31"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="456,184,521,113,566,73,617,40,632,33,635,38,620,44,570,77,525,116,460,188"/>
+<area shape="rect" id="Node000004" href="$namespacepyft_1_1statements.html#a7e7943e48072cc9b369a9fc7ba170e82" title=" " alt="" coords="625,55,831,80"/>
+<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="466,184,532,136,574,111,618,89,639,81,640,86,620,94,576,115,535,140,469,188"/>
+<area shape="rect" id="Node000005" href="$namespacepyft_1_1statements.html#a1aa41b686d2b17ff7df678ccee0a97a4" title=" " alt="" coords="630,104,826,129"/>
+<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="492,183,618,139,653,130,654,135,619,145,494,188"/>
+<area shape="rect" id="Node000006" href="$namespacepyft_1_1statements.html#ae7adaf2cfa4f10e287c7563ff8ef3272" title=" " alt="" coords="635,154,821,194"/>
+<area shape="poly" id="edge6_Node000002_Node000006" title=" " alt="" coords="571,189,621,183,621,189,571,194"/>
+<area shape="rect" id="Node000007" href="$classpyft_1_1scope_1_1PYFTscope.html#a02c7493d16f0dabf1a3d95e57c6e20c3" title=" " alt="" coords="1195,275,1381,315"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="487,224,549,248,619,267,771,289,924,299,1065,301,1181,299,1181,304,1065,307,924,305,770,294,618,273,547,253,485,229"/>
+<area shape="rect" id="Node000012" href="$classpyft_1_1scope_1_1PYFTscope.html#a878a37e59f262f23b19d79d9d764bb68" title=" " alt="" coords="635,218,821,258"/>
+<area shape="poly" id="edge16_Node000002_Node000012" title=" " alt="" coords="571,218,622,223,621,229,571,223"/>
+<area shape="rect" id="Node000018" href="$classpyft_1_1scope_1_1PYFTscope.html#a3a6aa70e68c136c564ae83cebb7d8cf3" title=" " alt="" coords="907,333,1093,373"/>
+<area shape="poly" id="edge26_Node000002_Node000018" title=" " alt="" coords="469,224,535,270,576,293,620,311,689,330,761,342,831,349,894,352,893,357,830,354,760,348,688,335,618,317,574,298,532,275,466,229"/>
+<area shape="rect" id="Node000020" href="$classpyft_1_1variables_1_1Variables.html#a3207f83bcc469c06d82c1db05e30d691" title=" " alt="" coords="885,397,1115,437"/>
+<area shape="poly" id="edge33_Node000002_Node000020" title=" " alt="" coords="461,224,526,290,570,325,620,354,682,378,747,394,811,405,872,411,871,417,811,410,746,399,680,383,618,359,567,330,522,294,457,228"/>
+<area shape="poly" id="edge8_Node000007_Node000007" title=" " alt="" coords="1235,276,1232,266,1241,256,1259,251,1288,249,1321,251,1339,259,1337,264,1320,257,1288,254,1260,256,1243,261,1237,267,1240,274"/>
+<area shape="rect" id="Node000008" href="$classpyft_1_1scope_1_1ElementView.html#a0b3e4c92ba20b1407bbfe3431dfd8a3b" title=" " alt="" coords="1472,243,1676,268"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="1381,280,1469,267,1470,273,1381,285"/>
+<area shape="rect" id="Node000011" href="$classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="1475,415,1673,455"/>
+<area shape="poly" id="edge15_Node000007_Node000011" title=" " alt="" coords="1317,313,1382,357,1462,401,1481,408,1479,413,1460,406,1379,361,1314,318"/>
+<area shape="poly" id="edge14_Node000008_Node000008" title=" " alt="" coords="1530,244,1520,234,1525,224,1543,218,1574,216,1613,220,1624,225,1628,231,1623,234,1621,229,1612,225,1574,221,1544,223,1529,228,1525,234,1534,241"/>
+<area shape="rect" id="Node000009" href="$classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="1758,235,1941,275"/>
+<area shape="poly" id="edge10_Node000008_Node000009" title=" " alt="" coords="1676,253,1744,253,1744,258,1676,258"/>
+<area shape="rect" id="Node000010" href="$classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="2012,243,2219,268"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="1941,261,1998,262,1998,267,1941,267"/>
+<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="2012,249,1954,249,1954,244,2012,244"/>
+<area shape="poly" id="edge13_Node000010_Node000010" title=" " alt="" coords="2073,244,2063,234,2068,224,2086,218,2115,216,2153,220,2164,225,2167,231,2163,234,2160,229,2152,225,2115,221,2087,223,2072,228,2069,234,2077,241"/>
+<area shape="rect" id="Node000013" href="$classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="918,103,1082,143"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="811,215,836,204,850,193,859,182,869,171,884,160,911,146,914,151,887,164,873,175,863,186,854,197,839,208,813,220"/>
+<area shape="rect" id="Node000016" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ef75505ab8331e6df103adec31ec96a" title=" " alt="" coords="907,218,1093,258"/>
+<area shape="poly" id="edge22_Node000012_Node000016" title=" " alt="" coords="821,235,893,235,893,241,821,241"/>
+<area shape="rect" id="Node000017" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ed0c4a2bc1602fcec0e06026cabbc0d" title=" " alt="" coords="1164,201,1412,227"/>
+<area shape="poly" id="edge25_Node000012_Node000017" title=" " alt="" coords="811,215,885,203,1021,197,1150,200,1150,206,1021,202,886,209,812,221"/>
+<area shape="rect" id="Node000014" href="$classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="1206,137,1370,177"/>
+<area shape="poly" id="edge18_Node000013_Node000014" title=" " alt="" coords="1083,130,1193,143,1192,148,1082,135"/>
+<area shape="rect" id="Node000015" href="$classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="1465,132,1683,157"/>
+<area shape="poly" id="edge19_Node000013_Node000015" title=" " alt="" coords="1082,118,1236,116,1413,122,1474,128,1473,133,1413,127,1236,122,1082,123"/>
+<area shape="poly" id="edge20_Node000015_Node000009" title=" " alt="" coords="1608,155,1787,228,1785,233,1606,160"/>
+<area shape="poly" id="edge21_Node000015_Node000015" title=" " alt="" coords="1530,134,1520,124,1525,114,1543,107,1574,105,1613,109,1624,114,1628,120,1623,123,1621,118,1612,115,1574,111,1544,113,1529,118,1525,123,1534,130"/>
+<area shape="poly" id="edge23_Node000016_Node000007" title=" " alt="" coords="1093,254,1183,272,1181,277,1092,259"/>
+<area shape="poly" id="edge24_Node000016_Node000017" title=" " alt="" coords="1093,228,1150,223,1151,228,1093,233"/>
+<area shape="poly" id="edge30_Node000018_Node000007" title=" " alt="" coords="1092,332,1181,314,1183,319,1093,337"/>
+<area shape="rect" id="Node000019" href="$classpyft_1_1scope_1_1ElementView.html#af1c6a616b3d918363e7cc8401975783e" title=" " alt="" coords="1463,316,1685,341"/>
+<area shape="poly" id="edge27_Node000018_Node000019" title=" " alt="" coords="1093,346,1449,331,1449,337,1093,351"/>
+<area shape="poly" id="edge28_Node000019_Node000009" title=" " alt="" coords="1622,313,1759,276,1761,282,1624,318"/>
+<area shape="poly" id="edge29_Node000019_Node000019" title=" " alt="" coords="1530,318,1520,308,1525,298,1543,291,1574,289,1613,293,1624,298,1628,304,1623,307,1621,302,1612,299,1574,295,1544,297,1529,302,1525,307,1534,314"/>
+<area shape="rect" id="Node000021" href="$classpyft_1_1variables_1_1Variables.html#a46af8d1cb2b76db818f2e384c5820e53" title=" " alt="" coords="1485,479,1663,519"/>
+<area shape="poly" id="edge34_Node000020_Node000021" title=" " alt="" coords="1031,434,1090,469,1126,485,1163,497,1243,510,1324,515,1402,514,1471,510,1471,515,1402,520,1324,521,1242,516,1162,502,1124,490,1088,474,1029,439"/>
+<area shape="rect" id="Node000023" href="$classpyft_1_1variables_1_1Variables.html#adbcc5e97704903eff5cea268885d114d" title=" " alt="" coords="1193,447,1383,487"/>
+<area shape="poly" id="edge36_Node000020_Node000023" title=" " alt="" coords="1115,434,1180,446,1179,451,1114,439"/>
+<area shape="rect" id="Node000024" href="$classpyft_1_1variables_1_1Variables.html#aca49e38d8b25c689ece7d04acf59c8a5" title=" " alt="" coords="1163,397,1413,423"/>
+<area shape="poly" id="edge39_Node000020_Node000024" title=" " alt="" coords="1115,420,1148,420,1149,425,1115,426"/>
+<area shape="rect" id="Node000022" href="$classpyft_1_1scope_1_1PYFTscope.html#aabcad5f6804b0a5ba49f6048cc6afb64" title=" " alt="" coords="1735,479,1964,519"/>
+<area shape="poly" id="edge35_Node000021_Node000022" title=" " alt="" coords="1663,497,1721,497,1721,502,1663,502"/>
+<area shape="poly" id="edge38_Node000023_Node000011" title=" " alt="" coords="1383,454,1461,445,1462,451,1384,459"/>
+<area shape="poly" id="edge37_Node000023_Node000021" title=" " alt="" coords="1384,475,1471,485,1471,491,1383,481"/>
+<area shape="poly" id="edge42_Node000024_Node000011" title=" " alt="" coords="1414,418,1462,423,1461,428,1413,424"/>
+<area shape="poly" id="edge43_Node000024_Node000020" title=" " alt="" coords="1162,407,1129,407,1128,402,1162,401"/>
+<area shape="poly" id="edge41_Node000024_Node000021" title=" " alt="" coords="1375,420,1414,433,1439,449,1463,465,1479,472,1477,477,1460,470,1436,453,1412,438,1373,425"/>
+<area shape="rect" id="Node000025" href="$namespacepyft_1_1variables.html#ad1492910783f5b8003f5eef6c9bae86e" title=" " alt="" coords="1461,365,1687,391"/>
+<area shape="poly" id="edge40_Node000024_Node000025" title=" " alt="" coords="1401,395,1447,389,1448,395,1402,400"/>
 </map>
