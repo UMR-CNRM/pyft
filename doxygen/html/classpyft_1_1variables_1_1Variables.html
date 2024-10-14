@@ -105,8 +105,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a19da35da09289cbdd4c677fc7cf06394"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af7aa35fc6482db67730175ca0289faa0" id="r_af7aa35fc6482db67730175ca0289faa0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1variables_1_1Variables.html#af7aa35fc6482db67730175ca0289faa0">attachArraySpecToEntity</a> (self)</td></tr>
 <tr class="separator:af7aa35fc6482db67730175ca0289faa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aecd55abb119e7cac49e504b785acd2fc" id="r_aecd55abb119e7cac49e504b785acd2fc"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1variables_1_1Variables.html#aecd55abb119e7cac49e504b785acd2fc">getImplicitNoneText</a> (self, scope)</td></tr>
-<tr class="separator:aecd55abb119e7cac49e504b785acd2fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9e5cafe7a6332122a734dcdafd339349" id="r_a9e5cafe7a6332122a734dcdafd339349"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1variables_1_1Variables.html#a9e5cafe7a6332122a734dcdafd339349">checkImplicitNone</a> (self, mustRaise=False)</td></tr>
 <tr class="separator:a9e5cafe7a6332122a734dcdafd339349"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a091b41709a1629c24916ef5f5c4a2d11" id="r_a091b41709a1629c24916ef5f5c4a2d11"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1variables_1_1Variables.html#a091b41709a1629c24916ef5f5c4a2d11">checkIntent</a> (self, mustRaise=False)</td></tr>
@@ -397,7 +395,7 @@ where the variable exists or a scope in stopScopes
 
 Argument is inserted only on paths leading to one of scopes listed in stopScopes
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01350">1350</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01337">1337</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -486,7 +484,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <pre class="fragment">Look for arrays and add parenthesis. A =&gt; A(:)
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00741">741</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00728">728</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -555,7 +553,7 @@ Here is the caller graph for this function:</div>
 <pre class="fragment">Look for arrays and add parenthesis. A =&gt; A(:)
 :param node: xml node in which ':' must be added
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00785">785</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00772">772</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -626,7 +624,7 @@ Here is the call graph for this function:</div>
 <pre class="fragment">Replace ':' by explicit arrays bounds.
 :param node: xml node in which ':' must be replaced (None to replace everywhere)
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00685">685</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00672">672</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -693,7 +691,7 @@ For example addModuleVar('sub:FOO', 'MODD_XX', 'Y') will add the following line 
 subroutine FOO:
 USE MODD_XX, ONLY: Y
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00588">588</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00575">575</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -786,7 +784,7 @@ Here is the caller graph for this function:</div>
                 - position of the variable in the list of dummy argument,
                   None for a local variable
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00500">500</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00487">487</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -893,7 +891,7 @@ Both the array-R and the parens-R nodes are inside a R-LT node
 :param table: dictionnary returned by the decode function
 :param varList: None or a VarList object in which varaibles are searched for
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01035">1035</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01022">1022</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1011,42 +1009,37 @@ Here is the caller graph for this function:</div>
 Issue a logging.warning if the "IMPLICIT NONE" statment is missing
 If mustRaise is True, issue a logging.error instead and raise an error
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00324">324</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00311">311</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="classpyft_1_1variables_1_1Variables_a9e5cafe7a6332122a734dcdafd339349_cgraph.png" border="0" usemap="#aclasspyft_1_1variables_1_1Variables_a9e5cafe7a6332122a734dcdafd339349_cgraph" alt=""/></div>
 <map name="aclasspyft_1_1variables_1_1Variables_a9e5cafe7a6332122a734dcdafd339349_cgraph" id="aclasspyft_1_1variables_1_1Variables_a9e5cafe7a6332122a734dcdafd339349_cgraph">
-<area shape="rect" title=" " alt="" coords="5,141,223,181"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a70d76721de372da513e3c8b999e56328" title=" " alt="" coords="989,79,1175,119"/>
-<area shape="poly" title=" " alt="" coords="199,138,270,126,465,108,659,99,835,95,976,95,976,100,835,100,659,104,465,114,271,131,200,143"/>
-<area shape="rect" href="classpyft_1_1variables_1_1Variables.html#aecd55abb119e7cac49e504b785acd2fc" title=" " alt="" coords="271,141,471,181"/>
-<area shape="poly" title=" " alt="" coords="223,158,257,158,257,163,223,163"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="752,198,937,238"/>
-<area shape="poly" title=" " alt="" coords="201,178,271,190,396,202,522,210,738,216,738,221,522,215,396,208,270,195,200,183"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="1233,29,1439,55"/>
-<area shape="poly" title=" " alt="" coords="1171,77,1265,55,1267,60,1172,82"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="1237,79,1435,119"/>
-<area shape="poly" title=" " alt="" coords="1175,97,1223,97,1223,102,1175,102"/>
-<area shape="poly" title=" " alt="" coords="1296,31,1287,21,1292,11,1308,5,1336,3,1371,7,1381,11,1385,17,1380,20,1377,15,1370,12,1336,8,1309,10,1295,15,1292,20,1300,27"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="1493,22,1676,62"/>
-<area shape="poly" title=" " alt="" coords="1440,48,1480,48,1480,54,1440,54"/>
-<area shape="poly" title=" " alt="" coords="1493,36,1453,36,1453,30,1493,31"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a08ed576b07a4508d8070f48668f0b665" title=" " alt="" coords="519,141,704,181"/>
-<area shape="poly" title=" " alt="" coords="471,158,505,158,505,163,471,163"/>
-<area shape="poly" title=" " alt="" coords="694,178,750,192,749,197,693,183"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="1000,143,1164,183"/>
-<area shape="poly" title=" " alt="" coords="931,195,986,183,987,188,933,201"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="985,208,1179,233"/>
-<area shape="poly" title=" " alt="" coords="937,216,972,217,972,222,937,222"/>
-<area shape="rect" href="classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="1013,257,1151,283"/>
-<area shape="poly" title=" " alt="" coords="937,235,1011,252,1009,257,936,241"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="1254,143,1418,183"/>
-<area shape="poly" title=" " alt="" coords="1164,161,1241,161,1241,166,1164,166"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="1227,232,1445,257"/>
-<area shape="poly" title=" " alt="" coords="1146,181,1283,225,1281,230,1145,186"/>
-<area shape="poly" title=" " alt="" coords="1374,229,1409,214,1444,193,1478,164,1510,132,1559,72,1563,75,1514,136,1482,168,1447,198,1411,219,1376,234"/>
-<area shape="poly" title=" " alt="" coords="1296,234,1287,224,1292,214,1308,208,1336,205,1371,209,1381,214,1385,220,1380,223,1377,218,1370,214,1336,211,1309,213,1295,218,1292,223,1300,230"/>
+<area shape="rect" title=" " alt="" coords="5,145,223,185"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a70d76721de372da513e3c8b999e56328" title=" " alt="" coords="508,79,693,119"/>
+<area shape="poly" title=" " alt="" coords="222,148,494,111,494,116,223,153"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="271,173,456,213"/>
+<area shape="poly" title=" " alt="" coords="223,174,257,178,256,183,223,180"/>
+<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="751,29,958,55"/>
+<area shape="poly" title=" " alt="" coords="689,77,784,55,785,60,690,82"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="756,79,953,119"/>
+<area shape="poly" title=" " alt="" coords="693,97,742,97,742,102,693,102"/>
+<area shape="poly" title=" " alt="" coords="814,31,806,21,810,11,827,5,855,3,890,7,900,11,903,17,899,20,896,15,888,12,855,8,828,10,814,15,811,20,818,27"/>
+<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="1012,22,1195,62"/>
+<area shape="poly" title=" " alt="" coords="958,48,998,48,998,54,958,54"/>
+<area shape="poly" title=" " alt="" coords="1012,36,972,36,972,30,1012,31"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="519,143,683,183"/>
+<area shape="poly" title=" " alt="" coords="456,179,505,172,505,178,456,184"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="504,208,697,233"/>
+<area shape="poly" title=" " alt="" coords="456,201,491,205,490,210,456,206"/>
+<area shape="rect" href="classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="531,257,670,283"/>
+<area shape="poly" title=" " alt="" coords="416,210,505,242,535,251,534,256,503,247,414,215"/>
+<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="773,143,937,183"/>
+<area shape="poly" title=" " alt="" coords="683,161,759,161,759,166,683,166"/>
+<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="745,232,964,257"/>
+<area shape="poly" title=" " alt="" coords="665,181,802,225,800,230,663,186"/>
+<area shape="poly" title=" " alt="" coords="892,229,928,214,962,193,997,164,1028,132,1078,72,1082,75,1032,136,1000,168,966,198,930,219,895,234"/>
+<area shape="poly" title=" " alt="" coords="814,234,806,224,810,214,827,208,855,205,890,209,900,214,903,220,899,223,896,218,888,214,855,211,828,213,814,218,811,223,818,230"/>
 </map>
 </div>
 
@@ -1081,7 +1074,7 @@ Here is the call graph for this function:</div>
 Issue a logging.warning if some "INTENT" attributes are missing
 If mustRaise is True, issue a logging.error instead and raise an error
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00346">346</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00333">333</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1167,7 +1160,7 @@ Here is the call graph for this function:</div>
 
 In case the loop variable cannot be defined, the function returns (None, [])
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01129">1129</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01116">1116</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1247,7 +1240,7 @@ loopName can be:
     - False to discard this index
     - True to create a new variable to loop with
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00981">981</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00968">968</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1270,77 +1263,6 @@ Here is the caller graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="256,5,459,45"/>
 <area shape="rect" href="classpyft_1_1variables_1_1Variables.html#a0bdd60b67f594ad8836d61b0c991e255" title=" " alt="" coords="5,5,208,45"/>
 <area shape="poly" title=" " alt="" coords="242,28,208,28,208,23,242,23"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="aecd55abb119e7cac49e504b785acd2fc" name="aecd55abb119e7cac49e504b785acd2fc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aecd55abb119e7cac49e504b785acd2fc">&#9670;&#160;</a></span>getImplicitNoneText()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">pyft.variables.Variables.getImplicitNoneText </td>
-          <td>(</td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>self</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>scope</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">:param scope: PYFTscope (or scope path) to search for the implicit none statement
-:return: the "IMPLICIT NONE" text
-</pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00311">311</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classpyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_cgraph.png" border="0" usemap="#aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_cgraph" alt=""/></div>
-<map name="aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_cgraph" id="aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_cgraph">
-<area shape="rect" title=" " alt="" coords="5,103,205,143"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a08ed576b07a4508d8070f48668f0b665" title=" " alt="" coords="253,103,439,143"/>
-<area shape="poly" title=" " alt="" coords="206,120,239,120,239,125,206,125"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab76f6b2d7f6e181289bf67044c0213b1" title=" " alt="" coords="487,103,672,143"/>
-<area shape="poly" title=" " alt="" coords="439,120,473,120,473,125,439,125"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ab592400f27bd90ddd4d59a56e49aaee5" title=" " alt="" coords="735,45,899,85"/>
-<area shape="poly" title=" " alt="" coords="662,100,721,86,722,91,663,105"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="720,110,913,135"/>
-<area shape="poly" title=" " alt="" coords="672,120,706,120,706,125,672,125"/>
-<area shape="rect" href="classpyft_1_1tree_1_1Tree.html#a5439949e632ab7ceb10f66bd7b55cada" title=" " alt="" coords="747,159,886,185"/>
-<area shape="poly" title=" " alt="" coords="673,139,742,154,741,159,672,144"/>
-<area shape="rect" href="classpyft_1_1scope_1_1PYFTscope.html#ae907e1c44e5e8ec278e626f01b85ecec" title=" " alt="" coords="989,5,1153,45"/>
-<area shape="poly" title=" " alt="" coords="898,50,975,38,976,43,899,55"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a8461319837c2cd72801831c6eb5c8d59" title=" " alt="" coords="961,94,1180,119"/>
-<area shape="poly" title=" " alt="" coords="899,76,979,89,978,94,898,81"/>
-<area shape="poly" title=" " alt="" coords="1030,96,1022,86,1026,76,1043,70,1071,67,1106,71,1116,76,1119,82,1115,85,1112,80,1104,76,1071,73,1044,75,1030,80,1027,85,1034,92"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6" title=" " alt="" coords="1228,87,1411,127"/>
-<area shape="poly" title=" " alt="" coords="1180,104,1214,104,1214,109,1180,109"/>
-<area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#a6ee8dc200444564d69b0ee073b01303e" title=" " alt="" coords="1459,94,1665,119"/>
-<area shape="poly" title=" " alt="" coords="1411,113,1445,113,1445,118,1411,118"/>
-<area shape="poly" title=" " alt="" coords="1458,100,1424,100,1424,95,1458,95"/>
-<area shape="poly" title=" " alt="" coords="1523,96,1514,86,1519,76,1535,70,1562,67,1596,71,1606,76,1610,82,1605,85,1602,80,1595,76,1562,73,1536,75,1522,80,1519,85,1527,92"/>
-</map>
-</div>
-<div class="dynheader">
-Here is the caller graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="classpyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_icgraph.png" border="0" usemap="#aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_icgraph" alt=""/></div>
-<map name="aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_icgraph" id="aclasspyft_1_1variables_1_1Variables_aecd55abb119e7cac49e504b785acd2fc_icgraph">
-<area shape="rect" title=" " alt="" coords="271,5,471,45"/>
-<area shape="rect" href="classpyft_1_1variables_1_1Variables.html#a9e5cafe7a6332122a734dcdafd339349" title=" " alt="" coords="5,5,223,45"/>
-<area shape="poly" title=" " alt="" coords="257,28,223,28,223,23,257,23"/>
 </map>
 </div>
 
@@ -1407,7 +1329,7 @@ If exactScope is False:
 
 To know if a variable can be removed, you must use exactScope=False
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01253">1253</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01240">1240</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1553,7 +1475,7 @@ declaration statement was "A(I, I:J, 0:I)". The template
  ALLOCATE({name}({shape}))#DEALLOCATE({name})"
 replaces automatic arrays by allocatables
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00818">818</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00805">805</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1663,7 +1585,7 @@ Here is the call graph for this function:</div>
                  variable as kind selector, and if this variable is not used else where,
                  we also delete it)
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00665">665</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00652">652</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1788,7 +1710,7 @@ Here is the caller graph for this function:</div>
                  we also delete it)
 Remove the variable from declaration, and from the argument list if needed
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00367">367</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00354">354</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1958,7 +1880,7 @@ Here is the caller graph for this function:</div>
 :return: the varList without the unremovable variables
 If possible, remove the variable from declaration, and from the argument list if needed
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01222">1222</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01209">1209</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2105,7 +2027,7 @@ Here is the caller graph for this function:</div>
 <pre class="fragment">:param oldName: old name of the variable
 :param newName: new name of the variable
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01208">1208</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l01195">1195</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2143,7 +2065,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <pre class="fragment">Displays on stdout a list of unued variables
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00649">649</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00636">636</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2288,7 +2210,7 @@ Here is the caller graph for this function:</div>
 <pre class="fragment">:param varSpec: a variable description, same form as the items return by self.varList
 :return: the associated declarative statement
 </pre> 
-<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00943">943</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="variables_8py_source.html#l00930">930</a> of file <a class="el" href="variables_8py_source.html">variables.py</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
