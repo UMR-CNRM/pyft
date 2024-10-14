@@ -225,13 +225,13 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         self._path = scopePath
         self._parentScope = parentScope
         self.tree = Tree() if tree is None else tree
-        self.__cacheParent = {}
+        self._cacheParent = {}
 
         if enableCache and parentScope is None:
             # parent cache associated to the main scope
             for node in self.iter():
                 for subNode in node:
-                    self.__cacheParent[id(subNode)] = node
+                    self._cacheParent[id(subNode)] = node
 
     def __copy__(self):
         cls = self.__class__
@@ -287,21 +287,21 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
         def check(node):
             # We check if the registered parent is still the right one
             # node must be in its parent, and the parent chain must go to the root node
-            return node in self.mainScope.__cacheParent.get(id(node), []) and \
-                   (self.mainScope.__cacheParent[id(node)] == self.mainScope._xml or
-                    check(self.mainScope.__cacheParent[id(node)]))
+            return node in self.mainScope._cacheParent.get(id(node), []) and \
+                   (self.mainScope._cacheParent[id(node)] == self.mainScope._xml or
+                    check(self.mainScope._cacheParent[id(node)]))
 
         assert level >= 1
         parent = None
         if check(item):
-            parent = self.mainScope.__cacheParent[id(item)]
+            parent = self.mainScope._cacheParent[id(item)]
         else:
             for node in self.mainScope.iter():
                 if item in list(node):
                     parent = node
-                    if self.mainScope.__cacheParent:
-                        # __cacheParent not empty means that we want to use the caching system
-                        self.mainScope.__cacheParent[id(item)] = node
+                    if self.mainScope._cacheParent:
+                        # _cacheParent not empty means that we want to use the caching system
+                        self.mainScope._cacheParent[id(item)] = node
                     break
         return parent if level == 1 else self.getParent(parent, level - 1)
 
