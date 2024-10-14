@@ -188,7 +188,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="keywordflow">return</span> asList, asxList</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        result = []</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> mainScope.getScopes(excludeContains=<span class="keyword">True</span>):</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> mainScope.getScopes():</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            <span class="comment"># In case scope is a function, we determine the name of the result</span></div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            <span class="keywordflow">if</span> tag(scope[0]) == <span class="stringliteral">&#39;function-stmt&#39;</span>:</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>                rSpec = scope[0].find(<span class="stringliteral">&#39;./{*}result-spec/{*}N&#39;</span>)</div>
@@ -495,7 +495,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>            <span class="comment"># Loop on scopes</span></div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>            <span class="keywordflow">for</span> scopePath <span class="keywordflow">in</span> list(set(scopePath <span class="keywordflow">for</span> scopePath, _ <span class="keywordflow">in</span> sortedVarList[nb])):</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>                <span class="comment"># use of mainScope because variable can be declared upper than self</span></div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>                scope = self.mainScope.getScopeNode(scopePath, excludeContains=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>                scope = self.mainScope.getScopeNode(scopePath)</div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>                <span class="comment"># Variables searched in this scope</span></div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>                varNames = list(set(v <span class="keywordflow">for</span> (w, v) <span class="keywordflow">in</span> sortedVarList[nb] <span class="keywordflow">if</span> w == scopePath))</div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>                declStmt = <a class="code hl_function" href="namespacepyft_1_1variables.html#ad1492910783f5b8003f5eef6c9bae86e">_getDeclStmtTag</a>(scopePath)</div>
@@ -800,7 +800,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span><span class="stringliteral">        :param node: xml node in which &#39;:&#39; must be replaced (None to replace everywhere)</span></div>
 <div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
 <div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span>        <span class="keywordflow">if</span> node <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>            nodes = [(scope, scope) <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes(excludeContains=<span class="keyword">True</span>)]</div>
+<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>            nodes = [(scope, scope) <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes()]</div>
 <div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>        <span class="keywordflow">else</span>:</div>
 <div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span>            nodes = [(self, node)]</div>
 <div class="line"><a id="l00682" name="l00682"></a><span class="lineno">  682</span> </div>
@@ -857,7 +857,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span><span class="stringliteral">        Look for arrays and add parenthesis. A =&gt; A(:)</span></div>
 <div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
 <div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>        <span class="comment"># Loop on scopes</span></div>
-<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes(excludeContains=<span class="keyword">True</span>, includeItself=<span class="keyword">True</span>):</div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes():</div>
 <div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>            <span class="keywordflow">for</span> node <span class="keywordflow">in</span> scope.iter():</div>
 <div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>                <span class="comment"># Arrays are used in statements</span></div>
 <div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>                <span class="comment"># * We must exclude allocate-stmt, deallocate-stmt, pointer-a-stmt, T-decl-stmt and</span></div>
@@ -955,7 +955,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>                     <span class="stringliteral">&#39;end&#39;</span>: endTemplate <span class="keywordflow">if</span> endTemplate <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">else</span> <span class="stringliteral">&#39;&#39;</span>}  <span class="comment"># ordered dict</span></div>
 <div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span> </div>
 <div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>        number = 0</div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> [scope <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes(excludeContains=<span class="keyword">True</span>, includeItself=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>        <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> [scope <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.getScopes()</div>
 <div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span>                      <span class="keywordflow">if</span> scope.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[0] <span class="keywordflow">in</span> (<span class="stringliteral">&#39;sub&#39;</span>, <span class="stringliteral">&#39;func&#39;</span>)]:</div>
 <div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>            <span class="comment"># For all subroutine and function scopes</span></div>
 <div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span>            <span class="comment"># Determine the list of variables to transform</span></div>
@@ -1410,7 +1410,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01266" name="l01266"></a><span class="lineno"> 1266</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
 <div class="line"><a id="l01267" name="l01267"></a><span class="lineno"> 1267</span>        varList = self.<a class="code hl_function" href="classpyft_1_1variables_1_1Variables.html#a46af8d1cb2b76db818f2e384c5820e53">_normalizeUniqVar</a>(varList)</div>
 <div class="line"><a id="l01268" name="l01268"></a><span class="lineno"> 1268</span>        <span class="comment"># We must not limit to self.getScopes because var can be used upper than self</span></div>
-<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>        allScopes = {scope.path: scope <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.mainScope.getScopes(excludeContains=<span class="keyword">True</span>)}</div>
+<div class="line"><a id="l01269" name="l01269"></a><span class="lineno"> 1269</span>        allScopes = {scope.path: scope <span class="keywordflow">for</span> scope <span class="keywordflow">in</span> self.mainScope.getScopes()}</div>
 <div class="line"><a id="l01270" name="l01270"></a><span class="lineno"> 1270</span> </div>
 <div class="line"><a id="l01271" name="l01271"></a><span class="lineno"> 1271</span>        <span class="comment"># Computes in which scopes variable must be searched</span></div>
 <div class="line"><a id="l01272" name="l01272"></a><span class="lineno"> 1272</span>        <span class="keywordflow">if</span> exactScope:</div>
@@ -1609,7 +1609,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span>                                                                 wrapH, tree=self.tree,</div>
 <div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>                                                                 clsPYFT=self._mainScope.__class__)</div>
 <div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span>                                xml = pft</div>
-<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span>                            scopeUp = xml.getScopeNode(scopePathUp, excludeContains=<span class="keyword">True</span>)</div>
+<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span>                            scopeUp = xml.getScopeNode(scopePathUp)</div>
 <div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span>                            <span class="comment"># Add the argument and propagate upward</span></div>
 <div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>                            scopeUp.addArgInTree(</div>
 <div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>                                varName, declStmt, pos,</div>
