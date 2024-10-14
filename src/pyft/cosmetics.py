@@ -850,7 +850,7 @@ class Cosmetics():
                     node.text = re.sub(lf, repl, node.text, flags=re.IGNORECASE)
 
     @debugDecor
-    def changeIfStatementsInIfConstructs(self, singleItem=None, parent=None):
+    def changeIfStatementsInIfConstructs(self, singleItem=None):
         """
         Convert if-stmt to if-then-stmt. If singleItem is not filled, conversion to entire
         object is performed.
@@ -862,7 +862,6 @@ class Cosmetics():
         END IF
         Conversion is not done if 'CYLE' is found in action-stmt
         :param singleItem: single if-stmt; in case transformation is applied on one if-stmt only
-        :param parent: parent of singleItem, if not provided will be recomputed
         """
         if singleItem is not None:
             ifstmt = [singleItem]
@@ -872,10 +871,7 @@ class Cosmetics():
             cycleStmt = item.findall('.//{*}cycle-stmt')
             if len(cycleStmt) == 0:
                 # Get indentation from last sibling
-                if singleItem is not None and parent is not None:
-                    par = parent
-                else:
-                    par = self.getParent(item)
+                par = self.getParent(item)
                 ind = par[:].index(item)
                 if ind != 0 and par[ind - 1].tail is not None:
                     # if tail of previous sibling exists

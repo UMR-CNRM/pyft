@@ -497,7 +497,7 @@ class Statements():
                                          '{*}named-E/{*}R-LT/{*}array-R/../..')
                         if arr is not None:
                             # In this case we transform the if statement into an if-construct
-                            scope.changeIfStatementsInIfConstructs(singleItem=sElem, parent=elem)
+                            scope.changeIfStatementsInIfConstructs(singleItem=sElem)
                             recur(sElem, scope)  # to transform the content of the if
                             arr = None  # to do nothing more on this node
                     elif tag(sElem) == 'where-stmt':
@@ -1137,9 +1137,8 @@ class Statements():
                         else:
                             # Solo condition
                             # <if-block><if-then-stmt>
-                            if tag(scope.getParent(cond, level=1)).startswith('if-stmt'):
-                                scope.changeIfStatementsInIfConstructs(
-                                    scope.getParent(cond, level=1))
+                            if tag(scope.getParent(cond)).startswith('if-stmt'):
+                                scope.changeIfStatementsInIfConstructs(scope.getParent(cond))
                             singleFalseBlock.append(scope.getParent(cond, level=2))
             if simplify:
                 scope.removeStmtNode(singleFalseBlock, simplify, simplify)
