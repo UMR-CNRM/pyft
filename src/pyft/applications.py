@@ -191,7 +191,7 @@ class Applications():
                             dimSize = 'SIZE(' + var[1] + ',' + str(i+1) + ')'
                         varArray = ', DIMENSION(' + dimSize + ','
                     varArray = varArray[:-1] + ')'
-                self.addVar([[scope.path, el, varType + varArray + ' :: ' + el, None]])
+                scope.addVar([[scope.path, el, varType + varArray + ' :: ' + el, None]])
 
                 # Affectation
                 stmtAffect = createExpr(el + "=" + var[1])[0]
@@ -220,7 +220,7 @@ class Applications():
             # Add USE YOMHOOK,    ONLY: LHOOK, DR_HOOK, JPHOOK
             self.addModuleVar([[scope.path, 'YOMHOOK', ['LHOOK', 'DR_HOOK', 'JPHOOK']]])
             # REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
-            self.addVar([[scope.path, 'ZHOOK_HANDLE', 'REAL(KIND=JPHOOK) :: ZHOOK_HANDLE',
+            scope.addVar([[scope.path, 'ZHOOK_HANDLE', 'REAL(KIND=JPHOOK) :: ZHOOK_HANDLE',
                           None]])
             # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 0, ZHOOK_HANDLE)
             scope.insertStatement(createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
@@ -445,7 +445,7 @@ class Applications():
 
                     # Copy the stack to a local variable and use it for call statements
                     # this operation must be done after the call to addArgInTree
-                    self.addVar([[scope.path, 'YLSTACK', 'TYPE (STACK) :: YLSTACK', None]])
+                    scope.addVar([[scope.path, 'YLSTACK', 'TYPE (STACK) :: YLSTACK', None]])
                     scope.insertStatement(createExpr('YLSTACK=YDSTACK')[0], True)
                     for argN in scope.findall('.//{*}call-stmt/{*}arg-spec/' +
                                               '{*}arg/{*}arg-N/../{*}named-E/{*}N'):
@@ -749,9 +749,9 @@ class Applications():
                                    0, stopScopes, moduleVarList=[('MODD_DIMPHYEX', ['DIMPHYEX_t'])],
                                    parser=parser, parserOptions=parserOptions, wrapH=wrapH)
             # Check loop index presence at declaration of the scope
-            self.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]
-                         for loopIndex in indexRemoved
-                         if scope.varList.findVar(loopIndex, exactScope=True) is None])
+            scope.addVar([[scope.path, loopIndex, 'INTEGER :: ' + loopIndex, None]
+                          for loopIndex in indexRemoved
+                          if scope.varList.findVar(loopIndex, exactScope=True) is None])
 
     @debugDecor
     def removePHYEXUnusedLocalVar(self, excludeList=None, simplify=False):
@@ -1009,8 +1009,8 @@ class Applications():
                 computingVarName = 'ZSHUGRADWK'+str(nbzshugradwk)+'_'+str(zshugradwkDim)+'D'
                 # Add the declaration of the new computing var and workingVar if not already present
                 if not scope.varList.findVar(computingVarName):
-                    self.addVar([[scope.path, computingVarName,
-                                  dimWorkingVar + computingVarName, None]])
+                    scope.addVar([[scope.path, computingVarName,
+                                   dimWorkingVar + computingVarName, None]])
                 else:
                     # Case of nested shuman/gradients with a working variable already declared.
                     # dimWorkingVar is only set again for mnhExpandArrayIndexes
@@ -1063,7 +1063,7 @@ class Applications():
 
             # Add the declaration of the shuman-gradient workingVar if not already present
             if not scope.varList.findVar(workingVar):
-                self.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, None]])
+                scope.addVar([[scope.path, workingVar, dimWorkingVar + workingVar, None]])
 
             return callStmt, computeStmt, nbzshugradwk
 

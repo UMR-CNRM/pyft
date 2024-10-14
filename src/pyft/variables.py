@@ -496,7 +496,7 @@ class Variables():
                           None for a local variable
         """
         for (scopePath, name, declStmt, pos) in varList:
-            locNode = self.getScopeNode(scopePath)
+            scope = self.getScopeNode(scopePath)
 
             # Add variable to the argument list
             if pos is not None:
@@ -505,13 +505,13 @@ class Variables():
                 nodeN.append(createElem('n', text=name))
                 argN.append(nodeN)
                 # search for a potential node, within the scope, with a list of dummy arguments
-                argLst = locNode.find('.//{*}dummy-arg-LT')
+                argLst = scope.find('.//{*}dummy-arg-LT')
                 if argLst is None:
                     # This was a subroutine or function without dummy arguments
-                    locNode[0][0].tail = '('
+                    scope[0][0].tail = '('
                     argLst = createElem('dummy-arg-LT', tail=')')
-                    locNode[0].insert(1, argLst)
-                self.insertInList(pos, argN, argLst)
+                    scope[0].insert(1, argLst)
+                scope.insertInList(pos, argN, argLst)
 
             # Declare the variable
             # The following test is needed in case several variables are added in the argument list
@@ -527,12 +527,12 @@ class Variables():
                     previousTail = '\n' + declStmt[:re.search(r'\S', declStmt).start()]
 
                     # node insertion
-                    # locNode[0] is the T-stmt node, locNode[-1] is the end-T-stmt node
-                    # locNode[-2] is the last node before the end-T-stmt node (last component,
+                    # scope[0] is the T-stmt node, scope[-1] is the end-T-stmt node
+                    # scope[-2] is the last node before the end-T-stmt node (last component,
                     # comment or the T-stmt node)
-                    ds.tail = locNode[-2].tail
-                    locNode[-2].tail = previousTail
-                    locNode.insert(-1, ds)  # insert before last one
+                    ds.tail = scope[-2].tail
+                    scope[-2].tail = previousTail
+                    scope.insert(-1, ds)  # insert before last one
 
                 else:
                     # Add declaration statement (not type declaration case)
@@ -541,32 +541,32 @@ class Variables():
                     previousTail = '\n' + declStmt[:re.search(r'\S', declStmt).start()]
 
                     # node insertion index
-                    declLst = [node for node in locNode if tag(node) == declStmtTag]
+                    declLst = [node for node in scope if tag(node) == declStmtTag]
                     if len(declLst) != 0:
                         # There already are declaration statements
                         # We look for the last position in the declaration list which do not use
                         # the variable we add
                         for decl in declLst:
-                            index = list(locNode).index(decl)
+                            index = list(scope).index(decl)
                             if name in [n2name(nodeN) for nodeN in decl.findall('.//{*}N')]:
                                 break
                     else:
                         # There is no declaration statement
                         # list of executable nodes
-                        stmtLst = [node for node in locNode if isExecutable(node)]
+                        stmtLst = [node for node in scope if isExecutable(node)]
                         if len(stmtLst) == 0:
                             # There is no executable statement, we insert the declaration at the end
                             # Last node is the ending node (e.g. end-subroutine-stmt)
-                            index = len(locNode) - 1
+                            index = len(scope) - 1
                         else:
                             # We insert the declaration just before the first executable statement
-                            index = list(locNode).index(stmtLst[0])
+                            index = list(scope).index(stmtLst[0])
 
                     # node insertion
                     if index != 0:
-                        ds.tail = locNode[index - 1].tail
-                        locNode[index - 1].tail = previousTail
-                    locNode.insert(index, ds)
+                        ds.tail = scope[index - 1].tail
+                        scope[index - 1].tail = previousTail
+                    scope.insert(index, ds)
 
     @debugDecor
     @noParallel
@@ -590,10 +590,10 @@ class Variables():
                 varName = []
             elif not isinstance(varName, list):
                 varName = [varName]
-            locNode = self.getScopeNode(scopePath)
+            scope = self.getScopeNode(scopePath)
 
             # USE statement already present
-            useLst = [node for node in locNode if tag(node) == 'use-stmt']
+            useLst = [node for node in scope if tag(node) == 'use-stmt']
 
             # Check if we need to add a USE
             insertUse = True
@@ -622,14 +622,14 @@ class Variables():
                 # node insertion index
                 if len(useLst) != 0:
                     # There already have use statements, we add the new one after them
-                    index = list(locNode).index(useLst[-1]) + 1
+                    index = list(scope).index(useLst[-1]) + 1
                 else:
                     # There is no use statement, we add the new node just after the first node
                     index = 1
 
-                us.tail = locNode[index - 1].tail
-                locNode[index - 1].tail = '\n'
-                locNode.insert(index, us)
+                us.tail = scope[index - 1].tail
+                scope[index - 1].tail = '\n'
+                scope.insert(index, us)
                 self.tree.signal(self)  # Tree must be updated
 
     @debugDecor
@@ -1419,7 +1419,7 @@ class Variables():
 
                 # We look for interface declaration if subroutine is directly accessible
                 if len(self.path.split('/')) == 1:
-                    filename, scopeInterface = self.tree.findScopeInterface(self.path)
+                    filename, scopePathInterface = self.tree.findScopeInterface(self.path)
                     if filename is not None:
                         if self.getFileName() == os.path.normpath(filename):
                             # interface declared in same file
@@ -1430,13 +1430,13 @@ class Variables():
                                                              wrapH, tree=self.tree,
                                                              clsPYFT=self._mainScope.__class__)
                             xml = pft
-                        varInterface = xml.getScopeNode(scopeInterface).varList.findVar(
-                            varName, exactScope=True)
+                        scopeInterface = xml.getScopeNode(scopePathInterface)
+                        varInterface = scopeInterface.varList.findVar(varName, exactScope=True)
                         if varInterface is None:
-                            xml.addVar([[scopeInterface, varName, declStmt, pos]])
+                            scopeInterface.addVar([[scopePathInterface, varName, declStmt, pos]])
                             if moduleVarList is not None:
                                 # Module variables must be added when var is added
-                                xml.addModuleVar([(scopeInterface, moduleName, moduleVarNames)
+                                xml.addModuleVar([(scopePathInterface, moduleName, moduleVarNames)
                                                   for (moduleName,
                                                        moduleVarNames) in moduleVarList])
                         if pft is not None:

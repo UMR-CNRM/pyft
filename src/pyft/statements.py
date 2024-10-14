@@ -734,7 +734,8 @@ class Statements():
                                'n': varName, 'i': None, 't': 'INTEGER', 'arg': False,
                                'use': False, 'opt': False, 'allocatable': False,
                                'parameter': False, 'init': None, 'scopePath': mainScope.path}
-                        self.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]])
+                        mainScope.addVar([[mainScope.path, var['n'],
+                                           mainScope.varSpec2stmt(var), None]])
 
                 # Create the DO loops
                 inner, outer, _ = self.createDoConstruct(table)
@@ -1081,8 +1082,8 @@ class Statements():
         node.remove(node.find('./{*}end-subroutine-stmt'))
 
         # Add local var and use to main routine
-        self.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]
-                     for var in localVarToAdd])
+        mainScope.addVar([[mainScope.path, var['n'], self.varSpec2stmt(var), None]
+                          for var in localVarToAdd])
         self.addModuleVar([[mainScope.path, n2name(useStmt.find('.//{*}module-N//{*}N')),
                             [n2name(v.find('.//{*}N')) for v in useStmt.findall('.//{*}use-N')]]
                            for useStmt in localUseToAdd])
