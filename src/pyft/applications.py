@@ -226,8 +226,11 @@ class Applications():
             scope.insertStatement(createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
                                              "0, ZHOOK_HANDLE)")[0], True)
             # Insert IF (LHOOK) CALL DR_HOOK('XXnameXX', 1, ZHOOK_HANDLE)
-            scope.insertStatement(createExpr(f"IF (LHOOK) CALL DR_HOOK('{name}', " +
-                                             "1, ZHOOK_HANDLE)")[0], False)
+            endStr = f"IF (LHOOK) CALL DR_HOOK('{name}', 1, ZHOOK_HANDLE)"
+            scope.insertStatement(createExpr(endStr)[0], False)
+            for ret in scope.findall('.//{*}return-stmt'):
+                par = scope.getParent(ret)
+                par.insert(list(par).index(ret), createExpr(endStr)[0])
 
     @debugDecor
     def deleteBudgetDDH(self, simplify=False):
@@ -525,7 +528,7 @@ class Applications():
             Eg.: X(1:D%NIJT, 1:D%NKT) => X(JIJ, 1:D%NKT) Be careful, this array is not contiguous.
                  X(1:D%NIJT, JK) => X(JIJ, JK)
             :param namedE: array to transform
-            :param scopePath: scope path where the array is
+            :param scope: scope where the array is
             """
             # Loop on all array dimensions
             for isub, sub in enumerate(namedE.findall('./{*}R-LT/{*}array-R/' +
