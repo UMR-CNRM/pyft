@@ -950,7 +950,7 @@ $(document).ready(function() { init_codefold(0); });
 </div>
 <div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>    <span class="preprocessor">@debugDecor</span></div>
 <div class="foldopen" id="foldopen00853" data-start="" data-end="">
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a76a4a44a164c173a75225ef1b1c2ac23">  853</a></span>    <span class="keyword">def </span><a class="code hl_function" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a76a4a44a164c173a75225ef1b1c2ac23">changeIfStatementsInIfConstructs</a>(self, singleItem=None, parent=None):</div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#aa876e28ce2d4e636392acb55965d70ab">  853</a></span>    <span class="keyword">def </span><a class="code hl_function" href="classpyft_1_1cosmetics_1_1Cosmetics.html#aa876e28ce2d4e636392acb55965d70ab">changeIfStatementsInIfConstructs</a>(self, singleItem=None):</div>
 <div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span><span class="stringliteral">        Convert if-stmt to if-then-stmt. If singleItem is not filled, conversion to entire</span></div>
 <div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span><span class="stringliteral">        object is performed.</span></div>
@@ -962,95 +962,91 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span><span class="stringliteral">        END IF</span></div>
 <div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span><span class="stringliteral">        Conversion is not done if &#39;CYLE&#39; is found in action-stmt</span></div>
 <div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span><span class="stringliteral">        :param singleItem: single if-stmt; in case transformation is applied on one if-stmt only</span></div>
-<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span><span class="stringliteral">        :param parent: parent of singleItem, if not provided will be recomputed</span></div>
-<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>        <span class="keywordflow">if</span> singleItem <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>            ifstmt = [singleItem]</div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>        <span class="keywordflow">else</span>:</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>            ifstmt = self.findall(<span class="stringliteral">&#39;.//{*}if-stmt&#39;</span>)</div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>        <span class="keywordflow">for</span> item <span class="keywordflow">in</span> ifstmt:</div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>            cycleStmt = item.findall(<span class="stringliteral">&#39;.//{*}cycle-stmt&#39;</span>)</div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>            <span class="keywordflow">if</span> len(cycleStmt) == 0:</div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>                <span class="comment"># Get indentation from last sibling</span></div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>                <span class="keywordflow">if</span> singleItem <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> parent <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>                    par = parent</div>
-<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>                <span class="keywordflow">else</span>:</div>
-<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>                    par = self.getParent(item)</div>
-<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>                ind = par[:].index(item)</div>
-<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>                <span class="keywordflow">if</span> ind != 0 <span class="keywordflow">and</span> par[ind - 1].tail <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>                    <span class="comment"># if tail of previous sibling exists</span></div>
-<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span>                    currIndent = len(par[ind - 1].tail) - len(par[ind - 1].tail.rstrip(<span class="stringliteral">&#39; &#39;</span>))</div>
-<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>                <span class="keywordflow">else</span>:</div>
-<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>                    <span class="comment"># no tail = no indentation</span></div>
-<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>                    currIndent = 0</div>
-<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span> </div>
-<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>                <span class="comment"># Convert if-stmt into if-construct</span></div>
-<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>                <span class="comment"># &lt;if-stmt&gt;IF(&lt;condition-E&gt;...&lt;/condition-E&gt;) &lt;f:action-stmt&gt;...</span></div>
-<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>                <span class="comment">#      ...&lt;/f:action-stmt&gt;&lt;/f:if-stmt&gt;</span></div>
-<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>                <span class="comment"># &lt;if-construct&gt;&lt;if-block&gt;&lt;if-then-stmt&gt;IF(&lt;f:condition-E&gt;...</span></div>
-<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>                <span class="comment">#      ...&lt;/condition-E&gt;) THEN&lt;/f:if-then-stmt&gt;</span></div>
-<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>                <span class="comment">#                         ...</span></div>
-<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>                <span class="comment">#              &lt;f:end-if-stmt&gt;ENDIF&lt;/f:end-if-stmt&gt;&lt;/f:if-block&gt;&lt;/f:if-construct&gt;</span></div>
-<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>                <span class="comment"># 1 create missing blocks</span></div>
-<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>                item.tag = f<span class="stringliteral">&#39;{{{NAMESPACE}}}if-construct&#39;</span></div>
-<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>                ifBlock = createElem(<span class="stringliteral">&#39;if-block&#39;</span>)</div>
-<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>                ifThenStmt = createElem(<span class="stringliteral">&#39;if-then-stmt&#39;</span>)</div>
-<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>                endif = createElem(<span class="stringliteral">&#39;end-if-stmt&#39;</span>)</div>
-<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>                ifBlock.append(ifThenStmt)</div>
-<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>                item.append(ifBlock)</div>
-<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>                <span class="comment"># 2 move &#39;IF(&#39; text</span></div>
-<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>                ifThenStmt.text = item.text  <span class="comment"># copy &#39;IF(&#39; text</span></div>
-<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>                ifThenStmt.tail = <span class="stringliteral">&#39;\n&#39;</span> + (2 + currIndent) * <span class="stringliteral">&#39; &#39;</span>  <span class="comment"># indentation for main statement</span></div>
-<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>                item.text = <span class="keywordtype">None</span>  <span class="comment"># remove olf &#39;IF(&#39; text</span></div>
-<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>                <span class="comment"># 3 move condition and add THEN</span></div>
-<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>                condition = item.find(<span class="stringliteral">&#39;{*}condition-E&#39;</span>)</div>
-<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>                <span class="keywordflow">if</span> <span class="keywordflow">not</span> condition.tail.endswith(<span class="stringliteral">&#39; &#39;</span>):</div>
-<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>                    condition.tail += <span class="stringliteral">&#39; &#39;</span></div>
-<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>                condition.tail += <span class="stringliteral">&#39;THEN&#39;</span></div>
-<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>                ifThenStmt.append(condition)</div>
-<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>                item.remove(condition)</div>
-<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>                <span class="comment"># 4 move action</span></div>
-<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>                action = item.find(<span class="stringliteral">&#39;{*}action-stmt&#39;</span>)</div>
-<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>                action[0].tail = <span class="stringliteral">&#39;\n&#39;</span> + currIndent * <span class="stringliteral">&#39; &#39;</span>  <span class="comment"># indentation for the ENDIF</span></div>
-<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>                ifBlock.append(action[0])</div>
-<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>                item.remove(action)</div>
-<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>                <span class="comment"># 5 add ENDIF</span></div>
-<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>                endif.text = <span class="stringliteral">&#39;END IF&#39;</span></div>
-<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                ifBlock.append(endif)</div>
-<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span>                <span class="comment"># 6 remove any cnt which was directly in the if-stmt node</span></div>
-<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>                <span class="comment"># (replaced by &#39;\n&#39; after THEN)</span></div>
-<div class="line"><a id="l00922" name="l00922"></a><span class="lineno">  922</span>                <span class="keywordflow">for</span> cnt <span class="keywordflow">in</span> item.findall(<span class="stringliteral">&#39;./{*}cnt&#39;</span>):</div>
-<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>                    item.remove(cnt)</div>
-<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span> </div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>        <span class="keywordflow">if</span> singleItem <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>            ifstmt = [singleItem]</div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>        <span class="keywordflow">else</span>:</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>            ifstmt = self.findall(<span class="stringliteral">&#39;.//{*}if-stmt&#39;</span>)</div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>        <span class="keywordflow">for</span> item <span class="keywordflow">in</span> ifstmt:</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>            cycleStmt = item.findall(<span class="stringliteral">&#39;.//{*}cycle-stmt&#39;</span>)</div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>            <span class="keywordflow">if</span> len(cycleStmt) == 0:</div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span>                <span class="comment"># Get indentation from last sibling</span></div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>                par = self.getParent(item)</div>
+<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span>                ind = par[:].index(item)</div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>                <span class="keywordflow">if</span> ind != 0 <span class="keywordflow">and</span> par[ind - 1].tail <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span>                    <span class="comment"># if tail of previous sibling exists</span></div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span>                    currIndent = len(par[ind - 1].tail) - len(par[ind - 1].tail.rstrip(<span class="stringliteral">&#39; &#39;</span>))</div>
+<div class="line"><a id="l00879" name="l00879"></a><span class="lineno">  879</span>                <span class="keywordflow">else</span>:</div>
+<div class="line"><a id="l00880" name="l00880"></a><span class="lineno">  880</span>                    <span class="comment"># no tail = no indentation</span></div>
+<div class="line"><a id="l00881" name="l00881"></a><span class="lineno">  881</span>                    currIndent = 0</div>
+<div class="line"><a id="l00882" name="l00882"></a><span class="lineno">  882</span> </div>
+<div class="line"><a id="l00883" name="l00883"></a><span class="lineno">  883</span>                <span class="comment"># Convert if-stmt into if-construct</span></div>
+<div class="line"><a id="l00884" name="l00884"></a><span class="lineno">  884</span>                <span class="comment"># &lt;if-stmt&gt;IF(&lt;condition-E&gt;...&lt;/condition-E&gt;) &lt;f:action-stmt&gt;...</span></div>
+<div class="line"><a id="l00885" name="l00885"></a><span class="lineno">  885</span>                <span class="comment">#      ...&lt;/f:action-stmt&gt;&lt;/f:if-stmt&gt;</span></div>
+<div class="line"><a id="l00886" name="l00886"></a><span class="lineno">  886</span>                <span class="comment"># &lt;if-construct&gt;&lt;if-block&gt;&lt;if-then-stmt&gt;IF(&lt;f:condition-E&gt;...</span></div>
+<div class="line"><a id="l00887" name="l00887"></a><span class="lineno">  887</span>                <span class="comment">#      ...&lt;/condition-E&gt;) THEN&lt;/f:if-then-stmt&gt;</span></div>
+<div class="line"><a id="l00888" name="l00888"></a><span class="lineno">  888</span>                <span class="comment">#                         ...</span></div>
+<div class="line"><a id="l00889" name="l00889"></a><span class="lineno">  889</span>                <span class="comment">#              &lt;f:end-if-stmt&gt;ENDIF&lt;/f:end-if-stmt&gt;&lt;/f:if-block&gt;&lt;/f:if-construct&gt;</span></div>
+<div class="line"><a id="l00890" name="l00890"></a><span class="lineno">  890</span>                <span class="comment"># 1 create missing blocks</span></div>
+<div class="line"><a id="l00891" name="l00891"></a><span class="lineno">  891</span>                item.tag = f<span class="stringliteral">&#39;{{{NAMESPACE}}}if-construct&#39;</span></div>
+<div class="line"><a id="l00892" name="l00892"></a><span class="lineno">  892</span>                ifBlock = createElem(<span class="stringliteral">&#39;if-block&#39;</span>)</div>
+<div class="line"><a id="l00893" name="l00893"></a><span class="lineno">  893</span>                ifThenStmt = createElem(<span class="stringliteral">&#39;if-then-stmt&#39;</span>)</div>
+<div class="line"><a id="l00894" name="l00894"></a><span class="lineno">  894</span>                endif = createElem(<span class="stringliteral">&#39;end-if-stmt&#39;</span>)</div>
+<div class="line"><a id="l00895" name="l00895"></a><span class="lineno">  895</span>                ifBlock.append(ifThenStmt)</div>
+<div class="line"><a id="l00896" name="l00896"></a><span class="lineno">  896</span>                item.append(ifBlock)</div>
+<div class="line"><a id="l00897" name="l00897"></a><span class="lineno">  897</span>                <span class="comment"># 2 move &#39;IF(&#39; text</span></div>
+<div class="line"><a id="l00898" name="l00898"></a><span class="lineno">  898</span>                ifThenStmt.text = item.text  <span class="comment"># copy &#39;IF(&#39; text</span></div>
+<div class="line"><a id="l00899" name="l00899"></a><span class="lineno">  899</span>                ifThenStmt.tail = <span class="stringliteral">&#39;\n&#39;</span> + (2 + currIndent) * <span class="stringliteral">&#39; &#39;</span>  <span class="comment"># indentation for main statement</span></div>
+<div class="line"><a id="l00900" name="l00900"></a><span class="lineno">  900</span>                item.text = <span class="keywordtype">None</span>  <span class="comment"># remove olf &#39;IF(&#39; text</span></div>
+<div class="line"><a id="l00901" name="l00901"></a><span class="lineno">  901</span>                <span class="comment"># 3 move condition and add THEN</span></div>
+<div class="line"><a id="l00902" name="l00902"></a><span class="lineno">  902</span>                condition = item.find(<span class="stringliteral">&#39;{*}condition-E&#39;</span>)</div>
+<div class="line"><a id="l00903" name="l00903"></a><span class="lineno">  903</span>                <span class="keywordflow">if</span> <span class="keywordflow">not</span> condition.tail.endswith(<span class="stringliteral">&#39; &#39;</span>):</div>
+<div class="line"><a id="l00904" name="l00904"></a><span class="lineno">  904</span>                    condition.tail += <span class="stringliteral">&#39; &#39;</span></div>
+<div class="line"><a id="l00905" name="l00905"></a><span class="lineno">  905</span>                condition.tail += <span class="stringliteral">&#39;THEN&#39;</span></div>
+<div class="line"><a id="l00906" name="l00906"></a><span class="lineno">  906</span>                ifThenStmt.append(condition)</div>
+<div class="line"><a id="l00907" name="l00907"></a><span class="lineno">  907</span>                item.remove(condition)</div>
+<div class="line"><a id="l00908" name="l00908"></a><span class="lineno">  908</span>                <span class="comment"># 4 move action</span></div>
+<div class="line"><a id="l00909" name="l00909"></a><span class="lineno">  909</span>                action = item.find(<span class="stringliteral">&#39;{*}action-stmt&#39;</span>)</div>
+<div class="line"><a id="l00910" name="l00910"></a><span class="lineno">  910</span>                action[0].tail = <span class="stringliteral">&#39;\n&#39;</span> + currIndent * <span class="stringliteral">&#39; &#39;</span>  <span class="comment"># indentation for the ENDIF</span></div>
+<div class="line"><a id="l00911" name="l00911"></a><span class="lineno">  911</span>                ifBlock.append(action[0])</div>
+<div class="line"><a id="l00912" name="l00912"></a><span class="lineno">  912</span>                item.remove(action)</div>
+<div class="line"><a id="l00913" name="l00913"></a><span class="lineno">  913</span>                <span class="comment"># 5 add ENDIF</span></div>
+<div class="line"><a id="l00914" name="l00914"></a><span class="lineno">  914</span>                endif.text = <span class="stringliteral">&#39;END IF&#39;</span></div>
+<div class="line"><a id="l00915" name="l00915"></a><span class="lineno">  915</span>                ifBlock.append(endif)</div>
+<div class="line"><a id="l00916" name="l00916"></a><span class="lineno">  916</span>                <span class="comment"># 6 remove any cnt which was directly in the if-stmt node</span></div>
+<div class="line"><a id="l00917" name="l00917"></a><span class="lineno">  917</span>                <span class="comment"># (replaced by &#39;\n&#39; after THEN)</span></div>
+<div class="line"><a id="l00918" name="l00918"></a><span class="lineno">  918</span>                <span class="keywordflow">for</span> cnt <span class="keywordflow">in</span> item.findall(<span class="stringliteral">&#39;./{*}cnt&#39;</span>):</div>
+<div class="line"><a id="l00919" name="l00919"></a><span class="lineno">  919</span>                    item.remove(cnt)</div>
+<div class="line"><a id="l00920" name="l00920"></a><span class="lineno">  920</span> </div>
 </div>
-<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span>    <span class="preprocessor">@debugDecor</span></div>
-<div class="foldopen" id="foldopen00926" data-start="" data-end="">
-<div class="line"><a id="l00926" name="l00926"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">  926</a></span>    <span class="keyword">def </span><a class="code hl_function" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">removeEmptyCONTAINS</a>(self):</div>
-<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>        <span class="stringliteral">&quot;&quot;&quot;</span></div>
-<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span><span class="stringliteral">        Remove the CONTAINS statement if this section is empty</span></div>
-<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
-<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>        <span class="keywordflow">for</span> contains <span class="keywordflow">in</span> self.findall(<span class="stringliteral">&#39;.//{*}contains-stmt&#39;</span>):</div>
-<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>            par = self.getParent(contains)</div>
-<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>            index = list(par).index(contains)</div>
-<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>            nextStmt = index + 1</div>
-<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>            <span class="keywordflow">while</span> tag(par[nextStmt]) == <span class="stringliteral">&#39;C&#39;</span>:</div>
-<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>                nextStmt += 1</div>
-<div class="line"><a id="l00936" name="l00936"></a><span class="lineno">  936</span>            <span class="keywordflow">if</span> tag(par[nextStmt]) <span class="keywordflow">in</span> (<span class="stringliteral">&#39;end-subroutine-stmt&#39;</span>, <span class="stringliteral">&#39;end-function-stmt&#39;</span>,</div>
-<div class="line"><a id="l00937" name="l00937"></a><span class="lineno">  937</span>                                      <span class="stringliteral">&#39;end-module-stmt&#39;</span>):</div>
-<div class="line"><a id="l00938" name="l00938"></a><span class="lineno">  938</span>                <span class="comment"># CONTAINS bloc is empty</span></div>
-<div class="line"><a id="l00939" name="l00939"></a><span class="lineno">  939</span>                par.remove(contains)</div>
+<div class="line"><a id="l00921" name="l00921"></a><span class="lineno">  921</span>    <span class="preprocessor">@debugDecor</span></div>
+<div class="foldopen" id="foldopen00922" data-start="" data-end="">
+<div class="line"><a id="l00922" name="l00922"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">  922</a></span>    <span class="keyword">def </span><a class="code hl_function" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">removeEmptyCONTAINS</a>(self):</div>
+<div class="line"><a id="l00923" name="l00923"></a><span class="lineno">  923</span>        <span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="line"><a id="l00924" name="l00924"></a><span class="lineno">  924</span><span class="stringliteral">        Remove the CONTAINS statement if this section is empty</span></div>
+<div class="line"><a id="l00925" name="l00925"></a><span class="lineno">  925</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
+<div class="line"><a id="l00926" name="l00926"></a><span class="lineno">  926</span>        <span class="keywordflow">for</span> contains <span class="keywordflow">in</span> self.findall(<span class="stringliteral">&#39;.//{*}contains-stmt&#39;</span>):</div>
+<div class="line"><a id="l00927" name="l00927"></a><span class="lineno">  927</span>            par = self.getParent(contains)</div>
+<div class="line"><a id="l00928" name="l00928"></a><span class="lineno">  928</span>            index = list(par).index(contains)</div>
+<div class="line"><a id="l00929" name="l00929"></a><span class="lineno">  929</span>            nextStmt = index + 1</div>
+<div class="line"><a id="l00930" name="l00930"></a><span class="lineno">  930</span>            <span class="keywordflow">while</span> tag(par[nextStmt]) == <span class="stringliteral">&#39;C&#39;</span>:</div>
+<div class="line"><a id="l00931" name="l00931"></a><span class="lineno">  931</span>                nextStmt += 1</div>
+<div class="line"><a id="l00932" name="l00932"></a><span class="lineno">  932</span>            <span class="keywordflow">if</span> tag(par[nextStmt]) <span class="keywordflow">in</span> (<span class="stringliteral">&#39;end-subroutine-stmt&#39;</span>, <span class="stringliteral">&#39;end-function-stmt&#39;</span>,</div>
+<div class="line"><a id="l00933" name="l00933"></a><span class="lineno">  933</span>                                      <span class="stringliteral">&#39;end-module-stmt&#39;</span>):</div>
+<div class="line"><a id="l00934" name="l00934"></a><span class="lineno">  934</span>                <span class="comment"># CONTAINS bloc is empty</span></div>
+<div class="line"><a id="l00935" name="l00935"></a><span class="lineno">  935</span>                par.remove(contains)</div>
 </div>
 </div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html">pyft.cosmetics.Cosmetics</a></div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00011">cosmetics.py:11</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a1127c3088aba9149b0b1958880c62abe"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a1127c3088aba9149b0b1958880c62abe">pyft.cosmetics.Cosmetics.updateContinuation</a></div><div class="ttdeci">updateContinuation(self, nodeToUpdate=None, align=True, removeALL=False, addBegin=True, removeBegin=False)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00216">cosmetics.py:217</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a15e04ee0e765edb2efc5326f1d03a150"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a15e04ee0e765edb2efc5326f1d03a150">pyft.cosmetics.Cosmetics.removeEmptyLines</a></div><div class="ttdeci">removeEmptyLines(self)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00153">cosmetics.py:153</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a1e7e42fe180b9e0cb06f039545f7f110"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a1e7e42fe180b9e0cb06f039545f7f110">pyft.cosmetics.Cosmetics.__NO_VALUE__</a></div><div class="ttdeci">str __NO_VALUE__</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00417">cosmetics.py:417</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a76a4a44a164c173a75225ef1b1c2ac23"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a76a4a44a164c173a75225ef1b1c2ac23">pyft.cosmetics.Cosmetics.changeIfStatementsInIfConstructs</a></div><div class="ttdeci">changeIfStatementsInIfConstructs(self, singleItem=None, parent=None)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00853">cosmetics.py:853</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a8f623b5a8771147bfac524e0fe29987a"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a8f623b5a8771147bfac524e0fe29987a">pyft.cosmetics.Cosmetics.lowerCase</a></div><div class="ttdeci">lowerCase(self)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00025">cosmetics.py:25</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a9637f66ac519c70039bc34a9a393ca97"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a9637f66ac519c70039bc34a9a393ca97">pyft.cosmetics.Cosmetics.indent</a></div><div class="ttdeci">indent(self, nodeToUpdate=None, indentProgramunit=0, indentBranch=2, exclDirectives=None)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00034">cosmetics.py:35</a></div></div>
+<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_aa876e28ce2d4e636392acb55965d70ab"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#aa876e28ce2d4e636392acb55965d70ab">pyft.cosmetics.Cosmetics.changeIfStatementsInIfConstructs</a></div><div class="ttdeci">changeIfStatementsInIfConstructs(self, singleItem=None)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00853">cosmetics.py:853</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_adbdd0055c8e171611710b71e5424ce6f"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#adbdd0055c8e171611710b71e5424ce6f">pyft.cosmetics.Cosmetics.upperCase</a></div><div class="ttdeci">upperCase(self)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00016">cosmetics.py:16</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ae32c66b6a623b906133ec62bcaf4923b"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae32c66b6a623b906133ec62bcaf4923b">pyft.cosmetics.Cosmetics.updateSpaces</a></div><div class="ttdeci">updateSpaces(self, beforeOp=1, afterOp=1, inOperator=True, beforeComma=0, afterComma=1, beforeParenthesis=0, afterParenthesis=0, beforeAffectation=1, afterAffectation=1, inAffectation=True, beforeRangeDelim=0, afterRangeDelim=0, beforeUseDelim=0, afterUseDelim=1, beforeDeclDelim=1, afterDeclDelim=1, inDeclDelim=True, afterTypeDecl=1, beforeEqDo=0, afterEqDo=0, beforeEqCall=0, afterEqCall=0, beforeEqInit=0, afterEqInit=0, beforeEndcnt=1, afterBegincnt=1, afterIfwherecase=1, beforeThen=1, beforeIfaction=1, afterProgunit=1, endOfLine=True, afterName=0, inName=True, beforeCmdsep=0, afterCmdsep=1, adjacentKeywords=__NO_VALUE__, afterKeywords=__NO_VALUE__)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00420">cosmetics.py:436</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ae46ddc0a92ad0e020145c78ee354436d"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">pyft.cosmetics.Cosmetics.removeEmptyCONTAINS</a></div><div class="ttdeci">removeEmptyCONTAINS(self)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00926">cosmetics.py:926</a></div></div>
+<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ae46ddc0a92ad0e020145c78ee354436d"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">pyft.cosmetics.Cosmetics.removeEmptyCONTAINS</a></div><div class="ttdeci">removeEmptyCONTAINS(self)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00922">cosmetics.py:922</a></div></div>
 <div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_aed9b8e94b8615db6e0f453b7a77a86ce"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#aed9b8e94b8615db6e0f453b7a77a86ce">pyft.cosmetics.Cosmetics.removeComments</a></div><div class="ttdeci">removeComments(self, exclDirectives=None, pattern=None)</div><div class="ttdef"><b>Definition</b> <a href="cosmetics_8py_source.html#l00166">cosmetics.py:166</a></div></div>
 <div class="ttc" id="anamespacepyft_1_1expressions_html"><div class="ttname"><a href="namespacepyft_1_1expressions.html">pyft.expressions</a></div><div class="ttdef"><b>Definition</b> <a href="expressions_8py_source.html#l00001">expressions.py:1</a></div></div>
 <div class="ttc" id="anamespacepyft_1_1util_html"><div class="ttname"><a href="namespacepyft_1_1util.html">pyft.util</a></div><div class="ttdef"><b>Definition</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>

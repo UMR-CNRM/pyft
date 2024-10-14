@@ -2,7 +2,7 @@ var searchData=
 [
   ['calledbyscope_0',['calledByScope',['../classpyft_1_1tree_1_1Tree.html#a1c6143eba2fa7b185127f038d54e8973',1,'pyft::tree::Tree']]],
   ['callsscopes_1',['callsScopes',['../classpyft_1_1tree_1_1Tree.html#a377b2dab8ee67bc2a5ad7fa76b3d4288',1,'pyft::tree::Tree']]],
-  ['changeifstatementsinifconstructs_2',['changeIfStatementsInIfConstructs',['../classpyft_1_1cosmetics_1_1Cosmetics.html#a76a4a44a164c173a75225ef1b1c2ac23',1,'pyft::cosmetics::Cosmetics']]],
+  ['changeifstatementsinifconstructs_2',['changeIfStatementsInIfConstructs',['../classpyft_1_1cosmetics_1_1Cosmetics.html#aa876e28ce2d4e636392acb55965d70ab',1,'pyft::cosmetics::Cosmetics']]],
   ['checkimplicitnone_3',['checkImplicitNone',['../classpyft_1_1variables_1_1Variables.html#a9e5cafe7a6332122a734dcdafd339349',1,'pyft::variables::Variables']]],
   ['checkintent_4',['checkIntent',['../classpyft_1_1variables_1_1Variables.html#a091b41709a1629c24916ef5f5c4a2d11',1,'pyft::variables::Variables']]],
   ['checkopincall_5',['checkOpInCall',['../classpyft_1_1statements_1_1Statements.html#a4bba34709e38ecc56e812331310497ab',1,'pyft::statements::Statements']]],

@@ -109,8 +109,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1127c3088aba9149b0b1958880c62abe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae32c66b6a623b906133ec62bcaf4923b" id="r_ae32c66b6a623b906133ec62bcaf4923b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae32c66b6a623b906133ec62bcaf4923b">updateSpaces</a> (self, beforeOp=1, afterOp=1, inOperator=True, beforeComma=0, afterComma=1, beforeParenthesis=0, afterParenthesis=0, beforeAffectation=1, afterAffectation=1, inAffectation=True, beforeRangeDelim=0, afterRangeDelim=0, beforeUseDelim=0, afterUseDelim=1, beforeDeclDelim=1, afterDeclDelim=1, inDeclDelim=True, afterTypeDecl=1, beforeEqDo=0, afterEqDo=0, beforeEqCall=0, afterEqCall=0, beforeEqInit=0, afterEqInit=0, beforeEndcnt=1, afterBegincnt=1, afterIfwherecase=1, beforeThen=1, beforeIfaction=1, afterProgunit=1, endOfLine=True, afterName=0, inName=True, beforeCmdsep=0, afterCmdsep=1, adjacentKeywords=__NO_VALUE__, afterKeywords=__NO_VALUE__)</td></tr>
 <tr class="separator:ae32c66b6a623b906133ec62bcaf4923b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76a4a44a164c173a75225ef1b1c2ac23" id="r_a76a4a44a164c173a75225ef1b1c2ac23"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a76a4a44a164c173a75225ef1b1c2ac23">changeIfStatementsInIfConstructs</a> (self, singleItem=None, parent=None)</td></tr>
-<tr class="separator:a76a4a44a164c173a75225ef1b1c2ac23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa876e28ce2d4e636392acb55965d70ab" id="r_aa876e28ce2d4e636392acb55965d70ab"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1cosmetics_1_1Cosmetics.html#aa876e28ce2d4e636392acb55965d70ab">changeIfStatementsInIfConstructs</a> (self, singleItem=None)</td></tr>
+<tr class="separator:aa876e28ce2d4e636392acb55965d70ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae46ddc0a92ad0e020145c78ee354436d" id="r_ae46ddc0a92ad0e020145c78ee354436d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae46ddc0a92ad0e020145c78ee354436d">removeEmptyCONTAINS</a> (self)</td></tr>
 <tr class="separator:ae46ddc0a92ad0e020145c78ee354436d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -119,8 +119,8 @@ Public Member Functions</h2></td></tr>
 </pre> 
 <p class="definition">Definition at line <a class="el" href="cosmetics_8py_source.html#l00011">11</a> of file <a class="el" href="cosmetics_8py_source.html">cosmetics.py</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a76a4a44a164c173a75225ef1b1c2ac23" name="a76a4a44a164c173a75225ef1b1c2ac23"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a76a4a44a164c173a75225ef1b1c2ac23">&#9670;&#160;</a></span>changeIfStatementsInIfConstructs()</h2>
+<a id="aa876e28ce2d4e636392acb55965d70ab" name="aa876e28ce2d4e636392acb55965d70ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa876e28ce2d4e636392acb55965d70ab">&#9670;&#160;</a></span>changeIfStatementsInIfConstructs()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -135,13 +135,7 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>singleItem</em> = <code>None</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">&#160;</td>
-          <td class="paramname"><em>parent</em> = <code>None</code>&#160;</td>
+          <td class="paramname"><em>singleItem</em> = <code>None</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -160,14 +154,13 @@ IF(A=B) THEN
 END IF
 Conversion is not done if 'CYLE' is found in action-stmt
 :param singleItem: single if-stmt; in case transformation is applied on one if-stmt only
-:param parent: parent of singleItem, if not provided will be recomputed
 </pre> 
 <p class="definition">Definition at line <a class="el" href="cosmetics_8py_source.html#l00853">853</a> of file <a class="el" href="cosmetics_8py_source.html">cosmetics.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="classpyft_1_1cosmetics_1_1Cosmetics_a76a4a44a164c173a75225ef1b1c2ac23_cgraph.png" border="0" usemap="#aclasspyft_1_1cosmetics_1_1Cosmetics_a76a4a44a164c173a75225ef1b1c2ac23_cgraph" alt=""/></div>
-<map name="aclasspyft_1_1cosmetics_1_1Cosmetics_a76a4a44a164c173a75225ef1b1c2ac23_cgraph" id="aclasspyft_1_1cosmetics_1_1Cosmetics_a76a4a44a164c173a75225ef1b1c2ac23_cgraph">
+<div class="center"><img src="classpyft_1_1cosmetics_1_1Cosmetics_aa876e28ce2d4e636392acb55965d70ab_cgraph.png" border="0" usemap="#aclasspyft_1_1cosmetics_1_1Cosmetics_aa876e28ce2d4e636392acb55965d70ab_cgraph" alt=""/></div>
+<map name="aclasspyft_1_1cosmetics_1_1Cosmetics_aa876e28ce2d4e636392acb55965d70ab_cgraph" id="aclasspyft_1_1cosmetics_1_1Cosmetics_aa876e28ce2d4e636392acb55965d70ab_cgraph">
 <area shape="rect" title=" " alt="" coords="5,63,245,103"/>
 <area shape="rect" href="classpyft_1_1scope_1_1ElementView.html#af1c6a616b3d918363e7cc8401975783e" title=" " alt="" coords="293,29,516,55"/>
 <area shape="poly" title=" " alt="" coords="245,63,304,54,305,59,246,68"/>
@@ -366,7 +359,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <pre class="fragment">Remove the CONTAINS statement if this section is empty
 </pre> 
-<p class="definition">Definition at line <a class="el" href="cosmetics_8py_source.html#l00926">926</a> of file <a class="el" href="cosmetics_8py_source.html">cosmetics.py</a>.</p>
+<p class="definition">Definition at line <a class="el" href="cosmetics_8py_source.html#l00922">922</a> of file <a class="el" href="cosmetics_8py_source.html">cosmetics.py</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
