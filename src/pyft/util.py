@@ -33,16 +33,21 @@ def debugDecor(func):
                       '(' + ', '.join([str(a) for a in args] +
                                       [k + '=' + str(v) for (k, v) in kwargs.items()]) + ')'
             logging.debug(callstr + ' --> ...')
+        else:
+            callstr = None
 
         # Count and time
         if logger.isEnabledFor(logging.INFO):
             t0 = time.time()
+        else:
+            t0 = None
 
         # effective call
         result = func(*args, **kwargs)
 
         # Count and time
-        if logger.isEnabledFor(logging.INFO):
+        if t0 is not None:
+            # We test with t0 instead of the log level in case level evolved during func call
             from pyft import util
             if func.__name__ not in util.debugStats:
                 util.debugStats[func.__name__] = dict(nb=0, totalTime=0)
@@ -55,7 +60,8 @@ def debugDecor(func):
                 max(duration, util.debugStats[func.__name__].get('max', duration))
 
         # logging result
-        if logger.isEnabledFor(logging.DEBUG):
+        if callstr is not None:
+            # We test with callstr instead of the log level in case level evolved during func call
             logging.debug(callstr + ' --> ' + str(result))
 
         return result
@@ -109,7 +115,7 @@ def printInfos():
             print('| ' + name.ljust(30) + '| ' + str(nb).ljust(14) + '| ' +
                   str(vmin).ljust(23) + '| ' + str(vmax).ljust(23) + '| ' +
                   str(mean).ljust(23) + '|')
-        _print('Name of the function', '# of calls', 'Min (s)', 'Maxi (s)', 'Total (s)')
+        _print('Name of the function', '# of calls', 'Min (s)', 'Max (s)', 'Total (s)')
         from pyft import util
         for funcName, values in util.debugStats.items():
             _print(funcName, values['nb'], values['min'], values['max'], values['totalTime'])
