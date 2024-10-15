@@ -147,7 +147,7 @@ def updateParser(parser, withInput, withOutput, withXml, withPlotCentralFile, tr
                              'part, it applies to all source code).')
 
     if restrictScope:
-        parser.add_argument('--restrictScope', default=None, type=str, metavar='SCOPEPATH',
+        parser.add_argument('--restrictScope', default='', type=str, metavar='SCOPEPATH',
                             help="Limit the action to this scope path (SUBROUTINE/FUNCTION/" +
                                  "MODULE/TYPE). It is '/'-separated path with each element " +
                                  "having the form 'module:<name of the module>', " +
