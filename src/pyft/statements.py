@@ -766,7 +766,8 @@ class Statements():
                 # the local variable must be renamed before being declared in the main routine
                 newName = re.sub(r'_\d+$', '', var['n'])
                 i = 1
-                while varList.restrict(subContained.path, True).findVar(newName + '_' + str(i)):
+                while (varList.restrict(subContained.path, True).findVar(newName + '_' + str(i)) or
+                       varList.restrict(mainScope.path, True).findVar(newName + '_' + str(i))):
                     i += 1
                 newName += '_' + str(i)
                 node.renameVar(var['n'], newName)
