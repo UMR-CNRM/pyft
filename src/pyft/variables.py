@@ -269,13 +269,27 @@ class Variables():
         return self.mainScope._varList.restrict(self.path, self._excludeContains)
 
     # No @debugDecor for this low-level method
+    def _normalizeScopeVar(self, scopeVarList):
+        """
+        Internal method to normalize scopeVarList
+        (list of tuples made of scope path, variable name, and optional other values)
+        """
+        return [(self.normalizeScope(scopePath), var.upper(), *other)
+                for (scopePath, var, *other) in scopeVarList]
+
+    # No @debugDecor for this low-level method
     def _normalizeUniqVar(self, scopeVarList):
         """
         Internal method to suppress duplicates in scopeVarList
-        (list of tuples made of scope path and variable name)
+        (list of tuples made of scope path, variable name, and optional other values)
         """
-        return list(set((self.normalizeScope(scopePath), var.upper())
-                        for (scopePath, var) in scopeVarList))
+        # We could use list(set(self._normalizeScopeVar(scopeVarList)))
+        # but order differs from one execution to the other
+        result = []
+        for scopeVar in self._normalizeScopeVar(scopeVarList):
+            if scopeVar not in result:
+                result.append(scopeVar)
+        return result
 
     @debugDecor
     def attachArraySpecToEntity(self):
@@ -496,6 +510,8 @@ class Variables():
                         - position of the variable in the list of dummy argument,
                           None for a local variable
         """
+        varList = self._normalizeUniqVar(varList)
+
         for (scopePath, name, declStmt, pos) in varList:
             scope = self.getScopeNode(scopePath)
 
@@ -586,6 +602,8 @@ class Variables():
         subroutine FOO:
         USE MODD_XX, ONLY: Y
         """
+        moduleVarList = self._normalizeScopeVar(moduleVarList)
+
         for (scopePath, moduleName, varName) in moduleVarList:
             if varName is None:
                 varName = []

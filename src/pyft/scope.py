@@ -399,7 +399,7 @@ class PYFTscope(ElementView, Variables, Cosmetics, Applications, Statements, Cpp
                           if tag(child) in self.SCOPE_CONSTRUCT.values()]:
                 nodePath = self._getNodePath(child)
                 if excludeKinds is None or nodePath.split(':')[0] not in excludeKinds:
-                    scopePath = self._getNodePath(child) if basePath in ('', '/') \
+                    scopePath = nodePath if basePath in ('', '/') \
                                 else basePath + '/' + nodePath
                     results.append(PYFTscope(child,
                                              scopePath=scopePath, parentScope=self,
