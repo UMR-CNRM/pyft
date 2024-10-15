@@ -1,5 +1,7 @@
 <map id="pyft.variables.Variables._normalizeUniqVar" name="pyft.variables.Variables._normalizeUniqVar">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,5,184,45"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html#aabcad5f6804b0a5ba49f6048cc6afb64" title=" " alt="" coords="232,5,461,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,23,218,23,218,28,184,28"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1variables_1_1Variables.html#ad6c675f3db65aea78f94b0d8747acd1f" title=" " alt="" coords="232,5,411,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,23,218,23,218,28,185,28"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1PYFTscope.html#aabcad5f6804b0a5ba49f6048cc6afb64" title=" " alt="" coords="459,5,688,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,23,445,23,445,28,411,28"/>
 </map>

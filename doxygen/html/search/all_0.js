@@ -20,8 +20,9 @@ var searchData=
   ['_5fnodesindo_17',['_nodesInDo',['../namespacepyft_1_1statements.html#a7e7943e48072cc9b369a9fc7ba170e82',1,'pyft::statements']]],
   ['_5fnodesinif_18',['_nodesInIf',['../namespacepyft_1_1statements.html#a1aa41b686d2b17ff7df678ccee0a97a4',1,'pyft::statements']]],
   ['_5fnodesinwhere_19',['_nodesInWhere',['../namespacepyft_1_1statements.html#ae7adaf2cfa4f10e287c7563ff8ef3272',1,'pyft::statements']]],
-  ['_5fnormalizeuniqvar_20',['_normalizeUniqVar',['../classpyft_1_1variables_1_1Variables.html#a46af8d1cb2b76db818f2e384c5820e53',1,'pyft::variables::Variables']]],
-  ['_5frecurlist_21',['_recurList',['../classpyft_1_1tree_1_1Tree.html#a45a97ea898451fc6d66c638680e9d43c',1,'pyft::tree::Tree']]],
-  ['_5frename_22',['_rename',['../classpyft_1_1pyft_1_1PYFT.html#a0c8c1745688ca4dcfec54ec860056667',1,'pyft::pyft::PYFT']]],
-  ['_5fvirtual_23',['_virtual',['../classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6',1,'pyft::scope::ElementView']]]
+  ['_5fnormalizescopevar_20',['_normalizeScopeVar',['../classpyft_1_1variables_1_1Variables.html#ad6c675f3db65aea78f94b0d8747acd1f',1,'pyft::variables::Variables']]],
+  ['_5fnormalizeuniqvar_21',['_normalizeUniqVar',['../classpyft_1_1variables_1_1Variables.html#a46af8d1cb2b76db818f2e384c5820e53',1,'pyft::variables::Variables']]],
+  ['_5frecurlist_22',['_recurList',['../classpyft_1_1tree_1_1Tree.html#a45a97ea898451fc6d66c638680e9d43c',1,'pyft::tree::Tree']]],
+  ['_5frename_23',['_rename',['../classpyft_1_1pyft_1_1PYFT.html#a0c8c1745688ca4dcfec54ec860056667',1,'pyft::pyft::PYFT']]],
+  ['_5fvirtual_24',['_virtual',['../classpyft_1_1scope_1_1ElementView.html#a4ba1aa32e8438abf0db74ca8d6320ff6',1,'pyft::scope::ElementView']]]
 ];
