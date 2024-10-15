@@ -130,6 +130,7 @@ General options</h2>
 <li>"FILE_DESCRIPTOR:=:OPTIONS": where FILE_DESCRIPTOR is a regular expression to test against the filename. If there is a match, the OPTIONS can be used for the file.</li>
 <li>"OPTIONS": if the line doesn\'t contain the FILE_DESCRIPTOR part, it applies to all source code.</li>
 </ul>
+<p><b>&ndash;restrictScope SCOPEPATH</b> Limit the action to this scope path (as described in Concepts).</p>
 <h2><a class="anchor" id="autotoc_md7"></a>
 Dealing with variables</h2>
 <p>**--showVariables** displays a list of all the declared variables with some characteristics.</p>
@@ -137,14 +138,14 @@ Dealing with variables</h2>
 <p>**--addVariable SCOPEPATH VARNAME DECLARATION POSITION** adds a new variable. The first argument describes where the variable must be declared (it is a scope path as described in Concepts). The second one is the variable name, the third one is the declarative statement to insert, and the fourth one is the position (python indexing) the new variable will have in the calling statment of the routine (non-integer value for a local variable)</p>
 <p><b>&ndash;addModuleVariable SCOPEPATH MODULENAME VARNAME</b> adds a USE statement with an ONLY attribute. The first argument describes where the variable must be declared (it is a scope path as described in Concepts). The second one is the module name and the third one is the variable name.</p>
 <p>**--attachArraySpecToEntity** move the array declaration attributes to the right part of the declaration statement (e.g. "REAL, DIMENSION(5) :: X" becomes "REAL :: X(5)")</p>
-<p>**--showUnusedVariables [SCOPEPATH]** lists the unused varibales. Without argument all the unused variables are shown. If one argument is given it is the scope path (as described in Concepts) where unused variables are searched for.</p>
-<p>**--removeUnusedLocalVariables SCOPEPATH EXCLUDE** remove unused local variables. Without argument all the unused variables are suppressed. If one argument is given it is the scope path (as described in Concepts) where unused variables are searched for.</p>
-<p>**--removePHYEXUnusedLocalVariables SCOPEPATH EXCLUDE** variation aroud the --removeUnusedLocalVariables to deal with the variables declared in the mnh_expand directives.</p>
+<p>**--showUnusedVariables** lists the unused varibales.</p>
+<p>**--removeUnusedLocalVariables EXCLUDE** remove unused local variables.</p>
+<p>**--removePHYEXUnusedLocalVariables EXCLUDE** variation aroud the --removeUnusedLocalVariables to deal with the variables declared in the mnh_expand directives.</p>
 <p>**--addExplicitArrayBounds** Adds explicit bounds to arrays that already have parentheses.</p>
 <p>**--addArrayParentheses** Adds parentheses to arrays.</p>
 <p>**--modifyAutomaticArrays DECL::START::END** modifies all automatic arrays declaration in subroutine and functions. The declaration is replaced by the DECL template, the START template is inserted as first executable statement and the END template as last executable statement. Each template can use the following place holders: "{doubledotshape}", "{shape}", "{lowUpList}", "{name}" and "{type}" which are, respectively modified into ":, :, :", "I, I:J, 0:I", "1, I, I, J, 0, I", "A", "REAL" if the original declaration statement was "A(I, I:J, 0:I)". The template "{type}, DIMENSION({doubledotshape}), ALLOCATABLE :: {name}#ALLOCATE({name}({shape}))#DEALLOCATE({name})" replaces automatic arrays by allocatables.</p>
 <p>**--replaceAutomaticWithAllocatable** replace all automatic arrays with allocatables</p>
-<p>**--addArgInTree** Add an argument variable recursively. First argument is the scope (as described in Concepts, the second is the variable name, the third is the declarative statement to insert, the fourth is the position (python indexing) the new variable will have in the calling statment of the routine. The recursive inclusion of the argument variable stop at the scopes defined by the &ndash;stopScopes option.</p>
+<p>**--addArgInTree** Add an argument variable recursively begining at the scope path defined with the &ndash;restrictScope option. The first argument is the variable name, the second one is the declarative statement to insert, the third one fourth is the position (python indexing) the new variable will have in the calling statment of the routine. The recursive inclusion of the argument variable stops at the scopes defined by the &ndash;stopScopes option.</p>
 <h2><a class="anchor" id="autotoc_md8"></a>
 Cosmetics</h2>
 <p>**--upperCase** puts the FORTRAN code into upper case letters.</p>
@@ -169,7 +170,7 @@ Checks</h2>
 <p>**--checkOpInCall=Warn|Err** if a call argument is an operation, issue a warning if option is 'Warn'; otherwise issue an error message and raise an exception.</p>
 <h2><a class="anchor" id="autotoc_md10"></a>
 Dealing with statements</h2>
-<p>**--removeCall SCOPEPATH CALLNAME** removes call statements. The first argument describes from where the call statements must be suppressed (it is a scope path as described in Concepts). The second argument is the subprogram name.</p>
+<p>**--removeCall CALLNAME** removes call statements. The argument is the subprogram name.</p>
 <p>**--removePrints** removes print statements. The argument describes from where the call statements must be suppressed (it is a scope path as described in Concepts).</p>
 <p>**--inlineContainedSubroutines** inline containted subroutines in main routine.</p>
 <p>**--setFalseIfStmt VAR** replace VAR by .FALSE. in if statements.</p>
@@ -182,6 +183,7 @@ Applications</h2>
 <p>**--deleteDrHook** removes DrHook statements.</p>
 <p>**--addDrHook** adds DrHook statements.</p>
 <p>**--deleteBudgetDDH** delete Budget/DDH use.</p>
+<p><b>&ndash;deleteRoutineCallsMesoNHGPU</b> Delete parts of the code not compatible with MesoNH-OpenACC such as OCND2 blocks.</p>
 <p>**--deleteNonColumnCallsPHYEX** delete call to PHYEX routines that needs information on horizontal points (multiple column dependency).</p>
 <p>**--removeIJDim** remove DO I and J dimensions (1, KLON).</p>
 <p>**--expandAllArraysPHYEX** expand all array syntax (computing and where block) in DO loops using PHYEX conventions.</p>
@@ -196,12 +198,15 @@ Applications</h2>
 <p>**--addMPPDB_CHECKS** Add MPPDB_CHEKS bit-repro checking routines of MesoNH for all in and inout arrays in subroutines.</p>
 <p>**--shumanFUNCtoCALL** Transform shuman functions to call statements.</p>
 <p>**--mathFunctoBRFunc** Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP, COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.</p>
+<p><b>&ndash;convertTypesInCompute</b> Use single variable instead of variable contained in structure in compute statement for optimization issue.</p>
 <h2><a class="anchor" id="autotoc_md13"></a>
 OpenACC</h2>
-<p>**--addACC_data** add !$acc data present and !$acc end data directives</p>
-<p>**--addACC_routine_seq** add "!$acc routine seq" to routines called directly or indirectly by scopes defined by the &ndash;stopScopes option.</p>
+<p>**--addACCData** add !$acc data present and !$acc end data directives</p>
+<p>**--addACCRoutineSeq** add "!$acc routine seq" to routines called directly or indirectly by scopes defined by the &ndash;stopScopes option.</p>
 <p>**--buildACCTypeHelpers** build module files containing helpers to copy user type structures.</p>
+<p><b>&ndash;craybyPassDOCONCURRENT</b> remove acc loop independant collapse for BR_ fonctions and mnh_undef(OPENACC) macro use DO CONCURRENT with mnh_undef(LOOP)</p>
 <p>**--removeACC** remove ACC directives</p>
+<p><b>&ndash;removebyPassDOCONCURRENT</b> remove macro !$mnh_(un)def(OPENACC) and !$mnh_(un)def(LOOP) directives</p>
 <h2><a class="anchor" id="autotoc_md14"></a>
 Preprocessor</h2>
 <p>**--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys. All #ifdef and #ifndef concerning these keys are evaluated. Undefined keys are preceded by a percentage sign '' (e.g. if we use '&ndash;applyCPPifdef K', '#ifdef K' is evaluated to True; whereas if we use '&ndash;applyCPPifdef K', '#ifdef K' is evaluated to False. But the method does not evaluate more complicated cpp directives such as '#if defined'.</p>

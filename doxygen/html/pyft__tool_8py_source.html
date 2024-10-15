@@ -101,7 +101,7 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>                                     epilog=<span class="stringliteral">&quot;The argument order matters.&quot;</span>)</div>
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    updateParser(parser, withInput=<span class="keyword">True</span>, withOutput=<span class="keyword">True</span>, withXml=<span class="keyword">True</span>, withPlotCentralFile=<span class="keyword">False</span>,</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>                 treeIsOptional=<span class="keyword">True</span>, nbPar=<span class="keyword">False</span>)</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>                 treeIsOptional=<span class="keyword">True</span>, nbPar=<span class="keyword">False</span>, restrictScope=<span class="keyword">True</span>)</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    args, orderedOptions = getArgs(parser)[1]()</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    parserOptions = getParserOptions(args)</div>
@@ -112,28 +112,30 @@ $(document).ready(function() { init_codefold(0); });
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        pft = <a class="code hl_class" href="classpyft_1_1pyft_1_1PYFT.html">PYFT</a>(args.INPUT, args.OUTPUT, parser=args.parser, parserOptions=parserOptions,</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>                   verbosity=args.logLevel, wrapH=args.wrapH, tree=descTree,</div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>                   enableCache=args.enableCache)</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span> </div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        <span class="comment"># apply the transformation in the order they were specified</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        <span class="keywordflow">for</span> arg <span class="keywordflow">in</span> orderedOptions:</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>            logging.debug(<span class="stringliteral">&#39;Applying %s on %s&#39;</span>, arg, args.INPUT)</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>            applyTransfo(pft, arg, args, plotCentralFile=args.INPUT)</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            logging.debug(<span class="stringliteral">&#39;  -&gt; Done&#39;</span>)</div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span> </div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <span class="comment"># Writing</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keywordflow">if</span> descTree <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            descTree.toJson(args.descTree)</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordflow">if</span> args.xml <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            pft.writeXML(args.xml)</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keywordflow">if</span> <span class="keywordflow">not</span> args.dryRun:</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            pft.write()</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>        <span class="comment"># Closing</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        pft.close()</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    <span class="keywordflow">except</span>:  <span class="comment"># noqa E722</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        <span class="comment"># &#39;exept&#39; everything and re-raise error systematically</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        logging.error(<span class="stringliteral">&quot;The following error has occurred in the file %s&quot;</span>, args.INPUT)</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordflow">raise</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        <span class="keywordflow">if</span> args.restrictScope != <span class="stringliteral">&#39;&#39;</span>:</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            pft = pft.getScopeNode(args.restrictScope)</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="comment"># apply the transformation in the order they were specified</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        <span class="keywordflow">for</span> arg <span class="keywordflow">in</span> orderedOptions:</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            logging.debug(<span class="stringliteral">&#39;Applying %s on %s&#39;</span>, arg, args.INPUT)</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>            applyTransfo(pft, arg, args, plotCentralFile=args.INPUT)</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            logging.debug(<span class="stringliteral">&#39;  -&gt; Done&#39;</span>)</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        <span class="comment"># Writing</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        <span class="keywordflow">if</span> descTree <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            descTree.toJson(args.descTree)</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        <span class="keywordflow">if</span> args.xml <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            pft.mainScope.writeXML(args.xml)</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        <span class="keywordflow">if</span> <span class="keywordflow">not</span> args.dryRun:</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            pft.mainScope.write()</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        <span class="comment"># Closing</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        pft.mainScope.close()</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordflow">except</span>:  <span class="comment"># noqa E722</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="comment"># &#39;exept&#39; everything and re-raise error systematically</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        logging.error(<span class="stringliteral">&quot;The following error has occurred in the file %s&quot;</span>, args.INPUT)</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordflow">raise</span></div>
 <div class="ttc" id="aclasspyft_1_1pyft_1_1PYFT_html"><div class="ttname"><a href="classpyft_1_1pyft_1_1PYFT.html">pyft.pyft.PYFT</a></div><div class="ttdef"><b>Definition</b> <a href="pyft_8py_source.html#l00042">pyft.py:42</a></div></div>
 <div class="ttc" id="anamespacepyft_1_1scripting_html"><div class="ttname"><a href="namespacepyft_1_1scripting.html">pyft.scripting</a></div><div class="ttdef"><b>Definition</b> <a href="scripting_8py_source.html#l00001">scripting.py:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
