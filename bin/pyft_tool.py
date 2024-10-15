@@ -17,7 +17,7 @@ if __name__ == '__main__':
                                      epilog="The argument order matters.")
 
     updateParser(parser, withInput=True, withOutput=True, withXml=True, withPlotCentralFile=False,
-                 treeIsOptional=True, nbPar=False)
+                 treeIsOptional=True, nbPar=False, restrictScope=True)
     args, orderedOptions = getArgs(parser)[1]()
 
     parserOptions = getParserOptions(args)
@@ -28,6 +28,8 @@ if __name__ == '__main__':
         pft = PYFT(args.INPUT, args.OUTPUT, parser=args.parser, parserOptions=parserOptions,
                    verbosity=args.logLevel, wrapH=args.wrapH, tree=descTree,
                    enableCache=args.enableCache)
+        if args.restrictScope != '':
+            pft = pft.getScopeNode(args.restrictScope)
 
         # apply the transformation in the order they were specified
         for arg in orderedOptions:
@@ -39,12 +41,12 @@ if __name__ == '__main__':
         if descTree is not None:
             descTree.toJson(args.descTree)
         if args.xml is not None:
-            pft.writeXML(args.xml)
+            pft.mainScope.writeXML(args.xml)
         if not args.dryRun:
-            pft.write()
+            pft.mainScope.write()
 
         # Closing
-        pft.close()
+        pft.mainScope.close()
 
     except:  # noqa E722
         # 'exept' everything and re-raise error systematically

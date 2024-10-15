@@ -98,7 +98,7 @@ def getDescTree(args, cls=Tree):
 
 
 def updateParser(parser, withInput, withOutput, withXml, withPlotCentralFile, treeIsOptional,
-                 nbPar):
+                 nbPar, restrictScope):
     """
     Updates an argparse parser with arguments common to all the different tools
     :param parser: parser in which arguments are added
@@ -108,6 +108,7 @@ def updateParser(parser, withInput, withOutput, withXml, withPlotCentralFile, tr
     :param withPlotCentralFile: to add the --plotCentralFile argument
     :param treeIsOptional: is the --tree argument optional?
     :param nbPar: number of parallel processes
+    :param restrictScope: can we specify the scope path
     """
 
     # ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !
@@ -144,6 +145,14 @@ def updateParser(parser, withInput, withOutput, withXml, withPlotCentralFile, tr
                              'is a match, the OPTIONS can be used for the file) and ' +
                              '2) "OPTIONS" (if the line doesn\'t contain the FILE_DESCRIPTOR ' +
                              'part, it applies to all source code).')
+
+    if restrictScope:
+        parser.add_argument('--restrictScope', default=None, type=str, metavar='SCOPEPATH',
+                            help="Limit the action to this scope path (SUBROUTINE/FUNCTION/" +
+                                 "MODULE/TYPE). It is '/'-separated path with each element " +
+                                 "having the form 'module:<name of the module>', " +
+                                 "'sub:<name of the subroutine>', " +
+                                 "'func:<name of the function>' or 'type:<name of the type>'.")
 
     # Inputs and outputs
     updateParserInputsOutputs(parser, withInput, withOutput, withXml)
@@ -282,13 +291,12 @@ def updateParserVariables(parser):
                                  'will replace automatic arrays by allocatables.')
     gVariables.add_argument('--replaceAutomaticWithAllocatable', action='store_true',
                             help='Replace all automatic arrays with allocatable arrays.')
-    gVariables.add_argument('--addArgInTree', default=None, action='append', nargs=4,
-                            metavar=('SCOPEPATH', 'VARNAME', 'DECLARATION', 'POSITION'),
-                            help='Add an argument variable. The argument is the scope path (as ' +
-                                 'for the --removeVariable option. The second is the variable ' +
-                                 'name, the third is the declarative statement to insert, ' +
-                                 'the fourth is the position (python indexing) the new ' +
-                                 'variable will have in the calling statment of the ' +
+    gVariables.add_argument('--addArgInTree', default=None, action='append', nargs=3,
+                            metavar=('VARNAME', 'DECLARATION', 'POSITION'),
+                            help='Add an argument variable. The first argument is the variable ' +
+                                 'name, the second one is the declarative statement to insert, ' +
+                                 'the third one is the position (python indexing) the new ' +
+                                 'variable will have in the calling statement of the ' +
                                  'routine. Needs the --stopScopes argument')
 
 
@@ -384,9 +392,6 @@ def updateParserApplications(parser):
                                     'all in and inout arrays in subroutines')
     gApplications.add_argument('--shumanFUNCtoCALL', default=False, action='store_true',
                                help='Transform shuman functions to call statements')
-    gApplications.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
-                               help='build module files containing helpers to copy user ' +
-                                    'type structures')
     gApplications.add_argument('--mathFunctoBRFunc', default=False, action='store_true',
                                help='Convert intrinsic math functions **, LOG, ATAN, **2, **3, ' +
                                     '**4, EXP, COS, SIN, ATAN2 into a self defined function BR_ ' +
@@ -414,6 +419,9 @@ def updateParserOpenACC(parser):
     gOpenACC.add_argument('--removebyPassDOCONCURRENT', default=False, action='store_true',
                           help='remove macro !$mnh_(un)def(OPENACC) and !$mnh_(un)def(LOOP) ' +
                                'directives')
+    gOpenACC.add_argument('--buildACCTypeHelpers', default=False, action='store_true',
+                          help='build module files containing helpers to copy user ' +
+                               'type structures')
 
 
 def updateParserChecks(parser):
@@ -601,11 +609,11 @@ def applyTransfoVariables(pft, arg, args, simplify, parserOptions, stopScopes):
             "{type}, DIMENSION({doubledotshape}), ALLOCATABLE :: {name}",
             "ALLOCATE({name}({shape}))", "DEALLOCATE({name})")
     elif arg == '--addArgInTree':
-        for scopePath, varName, declStmt, pos in args.addArgInTree:
-            pft.getScopeNode(scopePath).addArgInTree(varName, declStmt, int(pos), stopScopes,
-                                                     parser=args.parser,
-                                                     parserOptions=parserOptions,
-                                                     wrapH=args.wrapH)
+        for varName, declStmt, pos in args.addArgInTree:
+            pft.addArgInTree(varName, declStmt, int(pos), stopScopes,
+                             parser=args.parser,
+                             parserOptions=parserOptions,
+                             wrapH=args.wrapH)
 
 
 def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes):

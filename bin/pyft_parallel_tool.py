@@ -44,7 +44,7 @@ if __name__ == '__main__':
                                      epilog="The argument order matters.")
 
     updateParser(parser, withInput=False, withOutput=False, withXml=False, withPlotCentralFile=True,
-                 treeIsOptional=False, nbPar=True)
+                 treeIsOptional=False, nbPar=True, restrictScope=False)
     commonArgs, getFileArgs = getArgs(parser)
 
     # Manager to share the Tree instance

@@ -101,6 +101,9 @@ applicable line is used. A line can take one of these two forms:
   * "OPTIONS": if the line doesn\'t contain the FILE\_DESCRIPTOR part, it applies to
     all source code.
 
+**--restrictScope SCOPEPATH** Limit the action to this scope path (as described in
+[Concepts](#concepts)).
+
 ### Dealing with variables
 
 **\--showVariables** displays a list of all the declared variables
@@ -130,15 +133,11 @@ the third one is the variable name.
 **\--attachArraySpecToEntity** move the array declaration attributes to the right
 part of the declaration statement (e.g. "REAL, DIMENSION(5) :: X" becomes "REAL :: X(5)")
 
-**\--showUnusedVariables [SCOPEPATH]** lists the unused varibales. Without argument all the
-unused variables are shown. If one argument is given it is the scope path (as described
-in [Concepts](#concepts)) where unused variables are searched for.
+**\--showUnusedVariables** lists the unused varibales.
 
-**\--removeUnusedLocalVariables SCOPEPATH EXCLUDE** remove unused local variables. Without argument all the
-unused variables are suppressed. If one argument is given it is the scope path (as described
-in [Concepts](#concepts)) where unused variables are searched for.
+**\--removeUnusedLocalVariables EXCLUDE** remove unused local variables.
 
-**\--removePHYEXUnusedLocalVariables SCOPEPATH EXCLUDE** variation aroud the \--removeUnusedLocalVariables
+**\--removePHYEXUnusedLocalVariables EXCLUDE** variation aroud the \--removeUnusedLocalVariables
 to deal with the variables declared in the mnh\_expand directives.
 
 **\--addExplicitArrayBounds** Adds explicit bounds to arrays that already have parentheses.
@@ -156,11 +155,12 @@ replaces automatic arrays by allocatables.
 
 **\--replaceAutomaticWithAllocatable** replace all automatic arrays with allocatables
 
-**\--addArgInTree** Add an argument variable recursively. First argument is the scope (as
-described in [Concepts](#concepts), the second is the variable name, the third is the
-declarative statement to insert, the fourth is the position (python indexing) the new
-variable will have in the calling statment of the routine. The recursive inclusion of
-the argument variable stop at the scopes defined by the --stopScopes option.
+**\--addArgInTree** Add an argument variable recursively begining at the scope path
+defined with the --restrictScope option. The first argument is the variable name,
+the second one is the declarative statement to insert, the third one fourth is the position
+(python indexing) the new variable will have in the calling statment of the routine.
+The recursive inclusion of the argument variable stops at the scopes defined by the
+--stopScopes option.
 
 ### Cosmetics
 
@@ -214,9 +214,7 @@ if option is 'Warn'; otherwise issue an error message and raise an exception.
 
 ### Dealing with statements
 
-**\--removeCall SCOPEPATH CALLNAME** removes call statements. The first argument describes from where the
-call statements must be suppressed (it is a scope path as described in [Concepts](#concepts)).
-The second argument is the subprogram name.
+**\--removeCall CALLNAME** removes call statements. The argument is the subprogram name.
 
 **\--removePrints** removes print statements. The argument describes from where the
 call statements must be suppressed (it is a scope path as described in [Concepts](#concepts)).
@@ -238,6 +236,9 @@ call statements must be suppressed (it is a scope path as described in [Concepts
 **\--addDrHook** adds DrHook statements.
 
 **\--deleteBudgetDDH** delete Budget/DDH use.
+
+**--deleteRoutineCallsMesoNHGPU** Delete parts of the code not compatible with MesoNH-OpenACC
+such as OCND2 blocks.
 
 **\--deleteNonColumnCallsPHYEX** delete call to PHYEX routines that needs information on horizontal
 points (multiple column dependency).
@@ -274,16 +275,24 @@ inout arrays in subroutines.
 **\--mathFunctoBRFunc** Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP,
 COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.
 
+**--convertTypesInCompute** Use single variable instead of variable contained in structure
+in compute statement for optimization issue.
+
 ### OpenACC
 
-**\--addACC_data** add !$acc data present and !$acc end data directives
+**\--addACCData** add !$acc data present and !$acc end data directives
 
-**\--addACC_routine_seq** add "!$acc routine seq" to routines called directly or indirectly
+**\--addACCRoutineSeq** add "!$acc routine seq" to routines called directly or indirectly
 by scopes defined by the --stopScopes option.
 
 **\--buildACCTypeHelpers** build module files containing helpers to copy user type structures.
 
+**--craybyPassDOCONCURRENT** remove acc loop independant collapse for BR_ fonctions and
+mnh\_undef(OPENACC) macro use DO CONCURRENT with mnh\_undef(LOOP)
+
 **\--removeACC** remove ACC directives
+
+**--removebyPassDOCONCURRENT** remove macro !$mnh\_(un)def(OPENACC) and !$mnh\_(un)def(LOOP) directives
 
 ### Preprocessor
 
