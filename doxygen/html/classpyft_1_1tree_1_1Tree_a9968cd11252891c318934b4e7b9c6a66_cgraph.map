@@ -1,9 +1,9 @@
 <map id="pyft.tree.Tree.needsFile" name="pyft.tree.Tree.needsFile">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,31,180,56"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#ae87a91ce93b76153aac601b97eeb2632" title=" " alt="" coords="228,5,457,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,32,214,28,214,34,180,37"/>
-<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#a45a97ea898451fc6d66c638680e9d43c" title=" " alt="" coords="255,55,430,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,49,241,55,241,60,180,54"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a81dc7d970d03e8884cd0d70f1467e5ce" title=" " alt="" coords="505,5,660,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="457,15,492,15,492,21,457,21"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#a6908c81bd6b0d787918b805762b41eb2" title=" " alt="" coords="228,5,451,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,32,214,28,215,33,180,37"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#a45a97ea898451fc6d66c638680e9d43c" title=" " alt="" coords="252,55,427,80"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="180,49,239,55,238,60,180,54"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a81dc7d970d03e8884cd0d70f1467e5ce" title=" " alt="" coords="499,5,653,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="451,15,485,15,485,21,451,21"/>
 </map>

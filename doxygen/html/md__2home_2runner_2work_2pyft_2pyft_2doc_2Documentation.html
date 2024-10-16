@@ -231,6 +231,8 @@ Module overview</h2>
 <p>In addition to these four classes, the module contains some functions in <a class="el" href="namespacepyft_1_1util.html">pyft.util</a> and <a class="el" href="namespacepyft_1_1expressions.html">pyft.expressions</a>.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>
 The developer's point of view</h2>
+<h3><a class="anchor" id="autotoc_md19"></a>
+Separation into modules</h3>
 <p>New methods must be added in one of the abstract classes defined in <a class="el" href="variables_8py_source.html">variables.py</a>, <a class="el" href="statements_8py_source.html">statements.py</a>... according to its main topic. The application.py file deals with methods specific to PHYEX that are not universal. The <a class="el" href="scripting_8py_source.html">scripting.py</a> modules contains functions used to build the two main tools.</p>
 <p>Several decorators are available:</p><ul>
 <li>debugDecor (defined in tool): ease the debugging/profiling when logLevel is set to info or debug. The additional cost is low, except when the method is called many times; in this case, the decorator should not be used.</li>
@@ -244,7 +246,16 @@ The developer's point of view</h2>
 <p>updateVarList (defined in variables): this decorator should be used for methods that can modify the variables (existence, name, characteristics). It suppresses the cached version of the variable list (VarList instance) attached to the PYFT instance.</p><ul>
 <li>noParallel (defined in util): methods decorated with it cannot be executed in parallel with other methods decorated the same way. This is used to decorate methods that introduce modifications into the tree. For this reason, the noParallel decorator <em>must appear</em> before the updateTree one.</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md19"></a>
+<h3><a class="anchor" id="autotoc_md20"></a>
+Coding standards</h3>
+<p>Coding standards are checked using the pylint and flake8 tools. The aim is to have no messages from flake8 and to keep pylint's score above 9.8.</p>
+<p>The project is written in “lower camel case” with lines of up to 100 characters. As the main class is split into several sub-classes that are not independent, it is normal for pylint to detect accesses to attributes that are not members of the classes. The pyproject.toml and .flake8 files have been adapted to take account of these specificities.</p>
+<p>On top of this, the code is often complex and generates multiple “too many” branches/statements/lines/... messages, which are ignored.</p>
+<p>From the project root, tests are launched by commands:</p><ul>
+<li>flake8 src/pyft/ bin/pyft_*.py</li>
+<li>pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyft/ bin/pyft_*.py</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md21"></a>
 Examples and tests</h1>
 <p>The examples directory contains a script (tests.sh) that performs a non-regression test. But, this directory can also be used as a registry of transformation examples. The files *_after.F90 are obtained by transforming the *_before.F90 files using the command line options in comment at the very begining of these files. </p>
 </div></div><!-- contents -->

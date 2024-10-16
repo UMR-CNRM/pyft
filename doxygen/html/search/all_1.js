@@ -13,7 +13,7 @@ var searchData=
   ['addvar_10',['addVar',['../classpyft_1_1variables_1_1Variables.html#af41585209b001446d3b027240e58a36c',1,'pyft::variables::Variables']]],
   ['alltext_11',['alltext',['../namespacepyft_1_1util.html#a6e88db9cd75727b070e6aa66581da276',1,'pyft::util']]],
   ['and_20output_12',['Input and output',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md5',1,'']]],
-  ['and_20tests_13',['Examples and tests',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md19',1,'']]],
+  ['and_20tests_13',['Examples and tests',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md21',1,'']]],
   ['append_14',['append',['../classpyft_1_1scope_1_1ElementView.html#a31d73ef3280d394c46a088ca5436958b',1,'pyft::scope::ElementView']]],
   ['applications_15',['applications',['../classpyft_1_1applications_1_1Applications.html',1,'pyft.applications.Applications'],['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md12',1,'Applications']]],
   ['applycppifdef_16',['applyCPPifdef',['../classpyft_1_1cpp_1_1Cpp.html#acbd36cb411187e91cb896334e5966f86',1,'pyft::cpp::Cpp']]],

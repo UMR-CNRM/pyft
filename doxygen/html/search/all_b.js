@@ -7,5 +7,6 @@ var searchData=
   ['miscellaneous_4',['Miscellaneous',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md11',1,'']]],
   ['modifyautomaticarrays_5',['modifyAutomaticArrays',['../classpyft_1_1variables_1_1Variables.html#a72046fafa950f79b1ca3399ab711b622',1,'pyft::variables::Variables']]],
   ['module_6',['Python module',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md16',1,'']]],
-  ['module_20overview_7',['Module overview',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md17',1,'']]]
+  ['module_20overview_7',['Module overview',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md17',1,'']]],
+  ['modules_8',['Separation into modules',['../md__2home_2runner_2work_2pyft_2pyft_2doc_2Documentation.html#autotoc_md19',1,'']]]
 ];

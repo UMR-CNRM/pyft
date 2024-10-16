@@ -1,14 +1,14 @@
 <map id="pyft.tree.Tree.plotTree" name="pyft.tree.Tree.plotTree">
 <area shape="rect" id="Node000001" title=" " alt="" coords="5,31,169,56"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#ae87a91ce93b76153aac601b97eeb2632" title=" " alt="" coords="717,5,947,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,38,703,20,703,25,170,43"/>
-<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#ac7aaa3d392380e301579075753b96ab2" title=" " alt="" coords="217,56,432,81"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,49,204,53,203,58,169,55"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a81dc7d970d03e8884cd0d70f1467e5ce" title=" " alt="" coords="995,56,1149,81"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="894,28,999,51,998,56,893,33"/>
-<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="389,79,480,91,617,97,754,94,879,86,981,77,981,82,879,92,754,99,617,102,480,97,388,84"/>
-<area shape="rect" id="Node000005" href="$classpyft_1_1tree_1_1Tree.html#a6ccecd4193b7ccf5a46a43c922cfe018" title=" " alt="" coords="480,56,669,81"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="432,66,466,66,466,71,432,71"/>
-<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="640,53,753,31,754,36,641,58"/>
-<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="670,66,981,66,981,71,670,71"/>
+<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#a6908c81bd6b0d787918b805762b41eb2" title=" " alt="" coords="712,5,935,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,38,698,20,698,25,170,43"/>
+<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#a5207c1c9f45404dd4139cc8cccf6f262" title=" " alt="" coords="217,56,427,81"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,50,204,53,203,59,170,55"/>
+<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a81dc7d970d03e8884cd0d70f1467e5ce" title=" " alt="" coords="983,56,1137,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="884,28,987,50,986,56,883,33"/>
+<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="385,79,475,91,609,97,744,94,868,86,969,77,969,82,868,92,744,100,609,102,474,97,385,84"/>
+<area shape="rect" id="Node000005" href="$classpyft_1_1tree_1_1Tree.html#a6ccecd4193b7ccf5a46a43c922cfe018" title=" " alt="" coords="475,56,664,81"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="427,66,461,66,461,71,427,71"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="634,53,745,31,746,36,635,58"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="664,66,969,66,969,71,664,71"/>
 </map>
