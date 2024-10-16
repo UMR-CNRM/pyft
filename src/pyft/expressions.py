@@ -169,7 +169,7 @@ def simplifyExpr(expr, add=None, sub=None):
                 splt[found] = split(str(result))[0]
                 splt.pop(i)
     # Order (no matter what ordering is done but we need to order to allow comparisons)
-    splt.sort(key=lambda s: ''.join(s))
+    splt.sort(key=''.join)
     # Empty e.g. '1-1'
     if len(splt) == 0:
         splt = [('+', '0')]

@@ -301,13 +301,15 @@ class Statements():
                 for cnt in stmt.findall('.//{*}cnt'):
                     addExtra(cnt, extraindent)  # Add indentation after continuation characters
             elif tag(stmt) == 'if-stmt':
-                logging.warning("An if statement is inside a code section " +
-                                "transformed in DO loop in {f}".format(f=scope.getFileName()))
+                logging.warning(
+                    "An if statement is inside a code section transformed in DO loop in %s",
+                    scope.getFileName())
                 # Update the statement contained in the action node
                 updateStmt(stmt.find('./{*}action-stmt')[0], table, kind, 0, stmt, scope)
             elif tag(stmt) == 'if-construct':
-                logging.warning("An if construct is inside a code section " +
-                                "transformed in DO loop in {f}".format(f=scope.getFileName()))
+                logging.warning(
+                    "An if construct is inside a code section transformed in DO loop in %s",
+                    scope.getFileName())
                 # Loop over the blocks: if, elseif, else
                 for ifBlock in stmt.findall('./{*}if-block'):
                     for child in ifBlock:  # Loop over each statement inside the block

@@ -77,6 +77,9 @@ class Tree():
         self._includeList = {}
         self._callList = {}
         self._funcList = {}
+        self._cacheCompilationTree = None
+        self._cacheExecutionTree = None
+        self._cacheIncInScope = None
         if descTreeFile is not None and os.path.exists(descTreeFile):
             self.fromJson(descTreeFile)
         elif tree is not None:
@@ -101,9 +104,9 @@ class Tree():
                 'callList': self._callList,
                 'funcList': self._funcList,
                 'signaled': self._signaled,
-                'cache_compilation_tree': self._cache_compilation_tree,
-                'cache_execution_tree': self._cache_execution_tree,
-                'cache_incInScope': self._cache_incInScope}
+                'cache_compilationTree': self._cacheCompilationTree,
+                'cacheExecutionTree': self._cacheExecutionTree,
+                'cacheIncScope': self._cacheIncInScope}
 
     def setFullContent(self, content):
         """
@@ -122,9 +125,9 @@ class Tree():
         self._callList = content['callList']
         self._funcList = content['funcList']
         self._signaled = content['signaled']
-        self._cache_compilation_tree = content['cache_compilation_tree']
-        self._cache_execution_tree = content['cache_execution_tree']
-        self._cache_incInScope = content['cache_incInScope']
+        self._cacheCompilationTree = content['cache_compilationTree']
+        self._cacheExecutionTree = content['cacheExecutionTree']
+        self._cacheIncInScope = content['cacheIncScope']
 
     def copyFromOtherTree(self, other):
         """
@@ -221,38 +224,38 @@ class Tree():
 
     def _emptyCache(self):
         """Empties cached values"""
-        self._cache_compilation_tree = None
-        self._cache_execution_tree = None
-        self._cache_incInScope = None
+        self._cacheCompilationTree = None
+        self._cacheExecutionTree = None
+        self._cacheIncInScope = None
 
     @property
     def _incInScope(self):
-        """Fill and return the self._cache_incInScope cached value"""
-        if self.isValid and self._cache_incInScope is None:
+        """Fill and return the self._cacheIncInScope cached value"""
+        if self.isValid and self._cacheIncInScope is None:
             # pylint: disable-next=pointless-statement
-            self._compilation_tree  # self._cache_incInScope computed at the same time
-        return self._cache_incInScope
+            self._compilationTree  # self._cacheIncInScope computed at the same time
+        return self._cacheIncInScope
 
     @property
     @debugDecor
-    def _compilation_tree(self):
-        """Fill and return the self._cache_compilation_tree cached value"""
-        if self.isValid and self._cache_compilation_tree is None:
-            self._cache_compilation_tree = {f: [] for f in self._scopes}
-            self._cache_incInScope = {}
+    def _compilationTree(self):
+        """Fill and return the self._cacheCompilationTree cached value"""
+        if self.isValid and self._cacheCompilationTree is None:
+            self._cacheCompilationTree = {f: [] for f in self._scopes}
+            self._cacheIncInScope = {}
             # Compilation_tree computation: include
             for filename, incScopePaths in self._includeList.items():
                 # Loop on scopes
                 for scopePath, incList in incScopePaths.items():
                     # Loop on each included file
-                    self._cache_incInScope[scopePath] = []
+                    self._cacheIncInScope[scopePath] = []
                     for inc in incList:
                         # Try to guess the right file
                         same = []
                         subdir = []
                         basename = []
                         # Loop on each file found in the source tree
-                        for file in self._cache_compilation_tree:
+                        for file in self._cacheCompilationTree:
                             if os.path.normpath(inc) == os.path.normpath(file):
                                 # Exactly the same file name (including directories)
                                 same.append(file)
@@ -282,9 +285,9 @@ class Tree():
                             # We haven't found the file in the tree, we keep the inc untouched
                             found = False
                             incFilename = inc
-                        self._cache_compilation_tree[filename].append(incFilename)
+                        self._cacheCompilationTree[filename].append(incFilename)
                         if found:
-                            self._cache_incInScope[scopePath].append(incFilename)
+                            self._cacheIncInScope[scopePath].append(incFilename)
 
             # Compilation_tree computation: use
             for filename, uList in self._useList.items():
@@ -297,27 +300,27 @@ class Tree():
                         if moduleScopePath in scopes:
                             found.append(file)
                     if len(found) == 1:
-                        self._cache_compilation_tree[filename].append(found[0])
+                        self._cacheCompilationTree[filename].append(found[0])
                     else:
-                        logging.info(('Several or none file containing the scope path ' +
-                                      '{scopePath} have been found for file {filename}'
-                                      ).format(scopePath=moduleScopePath, filename=filename))
+                        logging.info('Several or none file containing the scope path ' +
+                                     '%s have been found for file %s',
+                                     moduleScopePath, filename)
 
             # Compilation_tree: cleaning (uniq values)
-            for filename, depList in self._cache_compilation_tree.items():
-                self._cache_compilation_tree[filename] = list(set(depList))
+            for filename, depList in self._cacheCompilationTree.items():
+                self._cacheCompilationTree[filename] = list(set(depList))
 
-        return self._cache_compilation_tree
+        return self._cacheCompilationTree
 
     @property
     @debugDecor
-    def _execution_tree(self):
-        """Fill and return the self._cache_compilation_tree cached value"""
-        if self.isValid and self._cache_execution_tree is None:
-            self._cache_execution_tree = {}
+    def _executionTree(self):
+        """Fill and return the self._cacheCompilationTree cached value"""
+        if self.isValid and self._cacheExecutionTree is None:
+            self._cacheExecutionTree = {}
             # Execution_tree: call statements
             allScopes = [scopePath for _, l in self._scopes.items() for scopePath in l]
-            self._cache_execution_tree = {scopePath: [] for scopePath in allScopes}
+            self._cacheExecutionTree = {scopePath: [] for scopePath in allScopes}
             for canonicKind, progList in (('sub', self._callList), ('func', self._funcList)):
                 for filename, callScopes in progList.items():
                     # Loop on scopes
@@ -379,40 +382,37 @@ class Tree():
                             foundInUse = list(set(foundInUse))  # If a module is used several times
                             if len(foundInUse + foundInInclude +
                                    foundInContains + foundInSameScope) > 1:
-                                logging.error(('Several definition of the program unit found for '
-                                               '{callScope} called in {scopePath}:').format(
-                                               callScope=call, scopePath=scopePath))
-                                logging.error('  found {i} time(s) in USE statements'.format(
-                                              i=len(foundInUse)))
-                                logging.error('  found {i} time(s) in include files'.format(
-                                              i=len(foundInInclude)))
-                                logging.error('  found {i} time(s) in CONTAINS block'.format(
-                                              i=len(foundInContains)))
-                                logging.error('  found {i} time(s) in the same scope'.format(
-                                              i=len(foundInSameScope)))
-                                self._cache_execution_tree[scopePath].append('??')
+                                logging.error('Several definition of the program unit found for '
+                                              '%s called in %s:', call, scopePath)
+                                logging.error('  found %i time(s) in USE statements',
+                                              len(foundInUse))
+                                logging.error('  found %i time(s) in include files',
+                                              len(foundInInclude))
+                                logging.error('  found %i time(s) in CONTAINS block',
+                                              len(foundInContains))
+                                logging.error('  found %i time(s) in the same scope',
+                                              len(foundInSameScope))
+                                self._cacheExecutionTree[scopePath].append('??')
                             elif len(foundInUse + foundInInclude +
                                      foundInContains + foundInSameScope) == 1:
                                 rr = (foundInUse + foundInInclude +
                                       foundInContains + foundInSameScope)[0]
                                 if canonicKind != 'func' or rr in allScopes:
-                                    self._cache_execution_tree[scopePath].append(rr)
+                                    self._cacheExecutionTree[scopePath].append(rr)
                             elif len(foundElsewhere) > 1:
-                                logging.info(('Several definition of the program unit found for '
-                                              '{callScope} called in {scopePath}').format(
-                                              callScope=call, scopePath=scopePath))
+                                logging.info('Several definition of the program unit found for '
+                                             '%s called in %s', call, scopePath)
                             elif len(foundElsewhere) == 1:
-                                self._cache_execution_tree[scopePath].append(foundElsewhere[0])
+                                self._cacheExecutionTree[scopePath].append(foundElsewhere[0])
                             else:
                                 if canonicKind != 'func':
-                                    logging.info(('No definition of the program unit found for '
-                                                  '{callScope} called in {scopePath}').format(
-                                                  callScope=call, scopePath=scopePath))
+                                    logging.info('No definition of the program unit found for '
+                                                 '%s called in %s', call, scopePath)
 
             # Execution_tree: named interface
             # We replace named interface by the list of routines declared in this interface
             # This is not perfect because only one routine is called and not all
-            for _, execList in self._cache_execution_tree.items():
+            for _, execList in self._cacheExecutionTree.items():
                 for item in list(execList):
                     itemSplt = item.split('/')[-1].split(':')
                     if itemSplt[0] == 'interface' and itemSplt[1] != '--UNKNOWN--':
@@ -431,10 +431,10 @@ class Tree():
                                     execList.append(sub.split('/')[-1])
 
             # Execution_tree: cleaning (uniq values)
-            for scopePath, execList in self._cache_execution_tree.items():
-                self._cache_execution_tree[scopePath] = list(set(execList))
+            for scopePath, execList in self._cacheExecutionTree.items():
+                self._cacheExecutionTree[scopePath] = list(set(execList))
 
-        return self._cache_execution_tree
+        return self._cacheExecutionTree
 
     @debugDecor
     def _analyseFile(self, file):
@@ -602,7 +602,7 @@ class Tree():
         :param level: number of levels (0 to get only the initial file, None to get all files)
         :return: list of file names needed by the initial file (recursively)
         """
-        return self._recurList(filename, self._compilation_tree, level, True)
+        return self._recurList(filename, self._compilationTree, level, True)
 
     @debugDecor
     def neededByFile(self, filename, level=1):
@@ -611,7 +611,7 @@ class Tree():
         :param level: number of levels (0 to get only the initial file, None to get all files)
         :return: list of file names that needs the initial file (recursively)
         """
-        return self._recurList(filename, self._compilation_tree, level, False)
+        return self._recurList(filename, self._compilationTree, level, False)
 
     @debugDecor
     def callsScopes(self, scopePath, level=1):
@@ -621,7 +621,7 @@ class Tree():
                                         None to get all scopes)
         :return: list of scopes called by the initial scope path (recursively)
         """
-        return self._recurList(scopePath, self._execution_tree, level, True)
+        return self._recurList(scopePath, self._executionTree, level, True)
 
     @debugDecor
     def calledByScope(self, scopePath, level=1):
@@ -631,7 +631,7 @@ class Tree():
                                         None to get all scopes)
         :return: list of scopes that calls the initial scope path (recursively)
         """
-        return self._recurList(scopePath, self._execution_tree, level, False)
+        return self._recurList(scopePath, self._executionTree, level, False)
 
     @debugDecor
     def isUnderStopScopes(self, scopePath, stopScopes,
@@ -649,7 +649,7 @@ class Tree():
             # This scope declares an interface, we look for the scope corresponding
             # to this interface
             scopeI = scopeSplt[-1]
-            if scopeI in self._execution_tree:
+            if scopeI in self._executionTree:
                 # The actual code for the routine exists
                 return self.isUnderStopScopes(scopeI, stopScopes,
                                               includeStopScopes=includeStopScopes)
@@ -741,7 +741,7 @@ class Tree():
                 printInFrame = False
 
         # Order the tree to obtain deterministic graphs
-        var = self._execution_tree if kind == 'execution_tree' else self._compilation_tree
+        var = self._executionTree if kind == 'execution_tree' else self._compilationTree
         var = {k: sorted(var[k]) for k in sorted(var)}
 
         dot = ["digraph D {\n"]
@@ -765,7 +765,7 @@ class Tree():
                 file.write(dot)
         else:
             dotCommand = ['dot', '-T' + fmt, '-o', output]
-            logging.info('Dot command: ' + ' '.join(dotCommand))
+            logging.info('Dot command: %s', ' '.join(dotCommand))
             subprocess.run(dotCommand, input=dot.encode('utf8'), check=True)
 
     @debugDecor

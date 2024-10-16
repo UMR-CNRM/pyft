@@ -32,7 +32,7 @@ def debugDecor(func):
             callstr = func.__name__ + \
                       '(' + ', '.join([str(a) for a in args] +
                                       [k + '=' + str(v) for (k, v) in kwargs.items()]) + ')'
-            logging.debug(callstr + ' --> ...')
+            logging.debug('%s --> ...', callstr)
         else:
             callstr = None
 
@@ -48,21 +48,20 @@ def debugDecor(func):
         # Count and time
         if t0 is not None:
             # We test with t0 instead of the log level in case level evolved during func call
-            from pyft import util
-            if func.__name__ not in util.debugStats:
-                util.debugStats[func.__name__] = dict(nb=0, totalTime=0)
-            util.debugStats[func.__name__]['nb'] += 1
+            if func.__name__ not in debugStats:
+                debugStats[func.__name__] = dict(nb=0, totalTime=0)
+            debugStats[func.__name__]['nb'] += 1
             duration = time.time() - t0
-            util.debugStats[func.__name__]['totalTime'] += duration
-            util.debugStats[func.__name__]['min'] = \
-                min(duration, util.debugStats[func.__name__].get('min', duration))
-            util.debugStats[func.__name__]['max'] = \
-                max(duration, util.debugStats[func.__name__].get('max', duration))
+            debugStats[func.__name__]['totalTime'] += duration
+            debugStats[func.__name__]['min'] = \
+                min(duration, debugStats[func.__name__].get('min', duration))
+            debugStats[func.__name__]['max'] = \
+                max(duration, debugStats[func.__name__].get('max', duration))
 
         # logging result
         if callstr is not None:
             # We test with callstr instead of the log level in case level evolved during func call
-            logging.debug(callstr + ' --> ' + str(result))
+            logging.debug('%s --> %s', callstr, str(result))
 
         return result
     return wrapper
@@ -116,8 +115,7 @@ def printInfos():
                   str(vmin).ljust(23) + '| ' + str(vmax).ljust(23) + '| ' +
                   str(mean).ljust(23) + '|')
         _print('Name of the function', '# of calls', 'Min (s)', 'Max (s)', 'Total (s)')
-        from pyft import util
-        for funcName, values in util.debugStats.items():
+        for funcName, values in debugStats.items():
             _print(funcName, values['nb'], values['min'], values['max'], values['totalTime'])
 
 
@@ -245,7 +243,7 @@ def tofortran(doc):
         result = result.encode('raw_unicode_escape').decode('UTF-8')
     except UnicodeDecodeError:
         filename = doc.find('.//{*}file').attrib['name']
-        logging.warning("The file '{}' certainly contains a strange character".format(filename))
+        logging.warning("The file '%s' certainly contains a strange character", filename)
     return result
 
 ################################################################################

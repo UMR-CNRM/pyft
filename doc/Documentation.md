@@ -356,6 +356,8 @@ pyft.expressions.
 
 ### The developer's point of view
 
+#### Separation into modules
+
 New methods must be added in one of the abstract classes defined in variables.py,
 statements.py... according to its main topic.
 The application.py file deals with methods specific to PHYEX that are not universal.
@@ -381,6 +383,24 @@ Several decorators are available:
     parallel with other methods decorated the same way. This is used to decorate
     methods that introduce modifications into the tree. For this reason, the
     noParallel decorator *must appear* before the updateTree one.
+
+#### Coding standards
+
+Coding standards are checked using the pylint and flake8 tools. The aim is to have no messages
+from flake8 and to keep pylint's score above 9.8.
+
+The project is written in “lower camel case” with lines of up to 100 characters. As the main
+class is split into several sub-classes that are not independent, it is normal for pylint to
+detect accesses to attributes that are not members of the classes. The pyproject.toml and
+.flake8 files have been adapted to take account of these specificities.
+
+On top of this, the code is often complex and generates multiple “too many”
+branches/statements/lines/... messages, which are ignored.
+
+From the project root, tests are launched by commands:
+  - flake8 src/pyft/ bin/pyft\_\*.py
+  - pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyft/ bin/pyft\_\*.py
+
 
 ## Examples and tests
 

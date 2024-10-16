@@ -17,6 +17,7 @@ from pyft.tree import Tree
 from pyft.util import isint, PYFTError
 from pyft import __version__
 
+
 def task(filename):
     """
     Function to use on each file
@@ -54,6 +55,7 @@ def task(filename):
         traceback.print_exception(exc, file=sys.stdout)
         sys.stdout.flush()
         return (1, filename)
+
 
 def mainParallel():
     """
@@ -112,6 +114,7 @@ def mainParallel():
                 logging.error('  - %s', error)
             raise PYFTError(f"Errors have been reported in {status} file(s).")
 
+
 def main():
     """
     Core of the pyft_tool.py command
@@ -155,6 +158,7 @@ def main():
         # 'exept' everything and re-raise error systematically
         logging.error("The following error has occurred in the file %s", args.INPUT)
         raise
+
 
 ARG_UPDATE_CNT = ('--alignContinuation', '--addBeginContinuation',
                   '--removeBeginContinuation',
@@ -819,7 +823,7 @@ def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes
         pft.convertTypesInCompute()
 
 
-def applyTransfoOpenACC(pft, arg, args, stopScopes):
+def applyTransfoOpenACC(pft, arg, args, stopScopes):  # pylint: disable=unused-argument
     """
     Apply openACC transformations on a PYFT instance
     :param pft: PYFT instance
@@ -916,7 +920,7 @@ def applyTransfoStatements(pft, arg, args, simplify):
         pft.setFalseIfStmt(args.setFalseIfStmt, **simplify)
 
 
-def applyTransfoMisc(pft, arg, args, simplify):
+def applyTransfoMisc(pft, arg, args, simplify):  # pylint: disable=unused-argument
     """
     Apply misc transformations on a PYFT instance
     :param pft: PYFT instance

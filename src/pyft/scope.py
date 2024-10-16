@@ -127,11 +127,14 @@ class ElementView():
     # WRITE METHODS
 
     @updateVarList
-    def clear(self, *args, **kwargs):
+    def clear(self):
         """
         https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.clear
         """
-        raise NotImplementedError('This method can be implemented if needed')
+        for item in self:
+            self.remove(item)
+        self.text = None
+        self.tail = None
 
     def append(self, *args, **kwargs):
         """

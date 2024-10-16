@@ -262,10 +262,11 @@ class Variables():
         Returns the varList object corresponding to the node
         """
         # Evaluate the varList object if not already done
-        if self.mainScope._varList is None:
-            self.mainScope._varList = VarList(self.mainScope)
+        if self.mainScope._varList is None:  # pylint: disable=protected-access
+            self.mainScope._varList = VarList(self.mainScope)  # pylint: disable=protected-access
 
         # Restrict the object to the current node
+        # pylint: disable-next=protected-access
         return self.mainScope._varList.restrict(self.path, self._excludeContains)
 
     # No @debugDecor for this low-level method
@@ -856,8 +857,8 @@ class Variables():
                 # For all automatic arrays, which are not argument, not allocatable,
                 # not pointer and not result
                 if var['init'] is not None:
-                    logging.warning(("An array ({name}) has an initial value, it can't be " +
-                                     "processed by modifyAutomaticArrays.)").format(name=var['n']))
+                    logging.warning("An array (%s) has an initial value, it can't be " +
+                                    "processed by modifyAutomaticArrays.)", var['n'])
                 else:
                     varListToTransform.append(var)
             # A variable can make use of the size of another variable in its declaration statement
@@ -1468,8 +1469,8 @@ class Variables():
                 for scopePathUp in self.tree.calledByScope(self.path):
                     if scopePathUp in stopScopes or self.tree.isUnderStopScopes(scopePathUp,
                                                                                 stopScopes):
-                        # We are on the path to a scope in the stopScopes list, or scopePathUp is one
-                        # of the stopScopes
+                        # We are on the path to a scope in the stopScopes list, or scopePathUp is
+                        # one of the stopScopes
                         # can be defined several times?
                         for filename in self.tree.scopeToFiles(scopePathUp):
                             if self.getFileName() == os.path.normpath(filename):

@@ -13,13 +13,14 @@ from pyft.variables import updateVarList
 from pyft import NAMESPACE
 
 
-def _loopVarPHYEX(lowerDecl, upperDecl, lowerUsed, upperUsed, name, i):
+# pylint: disable-next=unused-argument
+def _loopVarPHYEX(lowerDecl, upperDecl, lowerUsed, upperUsed, name, index):
     """
     Try to guess the name of the variable to use for looping on indexes
     :param lowerDecl, upperDecl: lower and upper bounds as defined in the declaration statement
     :param lowerUsed, upperUsed: lower and upper bounds as given in the statement
     :param name: name of the array
-    :param i: index of the rank
+    :param index: index of the rank
     :return: the variable name of False to discard this statement
     """
     if lowerUsed is not None and lowerUsed.upper() == 'IIJB' and \
