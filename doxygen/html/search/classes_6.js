@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['statements_0',['Statements',['../classpyft_1_1statements_1_1Statements.html',1,'pyft::statements']]]
+  ['tree_0',['Tree',['../classpyft_1_1tree_1_1Tree.html',1,'pyft::tree']]]
 ];

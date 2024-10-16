@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mymanager_0',['MyManager',['../classpyft__parallel__tool_1_1MyManager.html',1,'pyft_parallel_tool']]]
+  ['openacc_0',['Openacc',['../classpyft_1_1openacc_1_1Openacc.html',1,'pyft::openacc']]]
 ];

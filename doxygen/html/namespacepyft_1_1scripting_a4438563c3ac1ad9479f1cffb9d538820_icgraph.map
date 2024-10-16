@@ -1,5 +1,7 @@
 <map id="pyft.scripting.updateParserTree" name="pyft.scripting.updateParserTree">
-<area shape="rect" id="Node000001" title=" " alt="" coords="249,5,472,31"/>
-<area shape="rect" id="Node000002" href="$namespacepyft_1_1scripting.html#a267b5834ab42a147928162f9ef6e1d8f" title=" " alt="" coords="5,5,201,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,21,201,21,201,15,236,15"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="441,5,664,31"/>
+<area shape="rect" id="Node000002" href="$namespacepyft_1_1scripting.html#a267b5834ab42a147928162f9ef6e1d8f" title=" " alt="" coords="197,5,393,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="428,21,393,21,393,15,428,15"/>
+<area shape="rect" id="Node000003" href="$namespacepyft_1_1scripting.html#ae9cea8cdea255b98fdaeae1da10eda1d" title=" " alt="" coords="5,5,149,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="184,21,150,21,150,15,184,15"/>
 </map>
