@@ -8,3 +8,7 @@
 # Fxtran building
 bin/fxtran
 site/fxtran
+
+# Package building
+src/pyft.egg-info/
+dist/

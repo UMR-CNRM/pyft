@@ -3,15 +3,158 @@ This module contains functions usefull to build scripts around the pyft library
 """
 
 import sys
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, Pool
+from multiprocessing.managers import BaseManager
 import re
 import shlex
 import os
+import argparse
+import logging
+import traceback
 
 from pyft.pyft import PYFT
 from pyft.tree import Tree
-from pyft.util import isint
+from pyft.util import isint, PYFTError
 from pyft import __version__
+
+def task(filename):
+    """
+    Function to use on each file
+    :param clsPYFT: PYFT class to use
+    :param filename: file name
+    """
+    global PYFT
+    global allFileArgs
+    allArgs, orderedOptions = allFileArgs[filename]
+    try:
+        # Opening and reading of the FORTRAN file
+        pft = PYFT(filename, filename, parser=allArgs.parser,
+                   parserOptions=getParserOptions(allArgs), verbosity=allArgs.logLevel,
+                   wrapH=allArgs.wrapH,
+                   enableCache=allArgs.enableCache)
+
+        # apply the transformation in the order they were specified
+        for arg in orderedOptions:
+            logging.debug('Applying %s on %s', arg, filename)
+            applyTransfo(pft, arg, allArgs,
+                         filename if filename == allArgs.plotCentralFile else None)
+            logging.debug('  -> Done')
+
+        # Writing
+        if not allArgs.dryRun:
+            pft.write()
+
+        # Closing and reporting
+        pft.close()
+        return (0, filename)
+
+    except Exception as exc:  # pylint: disable=broad-except
+        logging.error("The following error has occurred in the file %s", filename)
+        PYFT.unlockFile(filename, silence=True)
+        traceback.print_exception(exc, file=sys.stdout)
+        sys.stdout.flush()
+        return (1, filename)
+
+def mainParallel():
+    """
+    Core of the pyft_parallel_tool.py command
+    """
+
+    class MyManager(BaseManager):
+        """
+        Custom manager to deal with Tree instances
+        """
+
+    MyManager.register('Tree', Tree)
+
+    def init(cls, afa):
+        """
+        Pool initializer
+        """
+        # After many, many attempts, it seems very difficult (if not impossible)
+        # to do without global variables
+        global PYFT  # pylint: disable=global-statement
+        global allFileArgs  # pylint: disable=global-statement
+        PYFT = cls
+        allFileArgs = afa
+
+    parser = argparse.ArgumentParser(description='Python FORTRAN tool', allow_abbrev=False,
+                                     epilog="The argument order matters.")
+
+    updateParser(parser, withInput=False, withOutput=False, withXml=False, withPlotCentralFile=True,
+                 treeIsOptional=False, nbPar=True, restrictScope=False)
+    commonArgs, getFileArgs = getArgs(parser)
+
+    # Manager to share the Tree instance
+    with MyManager() as manager:
+        # Set-up the Tree instance
+        sharedTree = getDescTree(commonArgs, manager.Tree)
+
+        # Prepare PYFT to be used in parallel
+        PYFT.setParallel(sharedTree)
+
+        # Set-up the processes
+        allFileArgs = {file: getFileArgs(file) for file in sharedTree.getFiles()}
+        logging.info('Executing in parallel on %i files with a maximum of %i processes',
+                     len(allFileArgs), commonArgs.nbPar)
+        with Pool(commonArgs.nbPar, initializer=init, initargs=(PYFT, allFileArgs)) as pool:
+            result = pool.map(task, sharedTree.getFiles())
+
+        # Writting the descTree object
+        sharedTree.toJson(commonArgs.descTree)
+
+        # General error
+        errors = [item[1] for item in result if item[0] != 0]
+        status = len(errors)
+        if status != 0:
+            logging.error('List of files with error:')
+            for error in errors:
+                logging.error('  - %s', error)
+            raise PYFTError(f"Errors have been reported in {status} file(s).")
+
+def main():
+    """
+    Core of the pyft_tool.py command
+    """
+    parser = argparse.ArgumentParser(description='Python FORTRAN tool', allow_abbrev=False,
+                                     epilog="The argument order matters.")
+
+    updateParser(parser, withInput=True, withOutput=True, withXml=True, withPlotCentralFile=False,
+                 treeIsOptional=True, nbPar=False, restrictScope=True)
+    args, orderedOptions = getArgs(parser)[1]()
+
+    parserOptions = getParserOptions(args)
+    descTree = getDescTree(args)
+
+    try:
+        # Opening and reading of the FORTRAN file
+        pft = PYFT(args.INPUT, args.OUTPUT, parser=args.parser, parserOptions=parserOptions,
+                   verbosity=args.logLevel, wrapH=args.wrapH, tree=descTree,
+                   enableCache=args.enableCache)
+        if args.restrictScope != '':
+            pft = pft.getScopeNode(args.restrictScope)
+
+        # apply the transformation in the order they were specified
+        for arg in orderedOptions:
+            logging.debug('Applying %s on %s', arg, args.INPUT)
+            applyTransfo(pft, arg, args, plotCentralFile=args.INPUT)
+            logging.debug('  -> Done')
+
+        # Writing
+        if descTree is not None:
+            descTree.toJson(args.descTree)
+        if args.xml is not None:
+            pft.mainScope.writeXML(args.xml)
+        if not args.dryRun:
+            pft.mainScope.write()
+
+        # Closing
+        pft.mainScope.close()
+
+    except:  # noqa E722
+        # 'exept' everything and re-raise error systematically
+        logging.error("The following error has occurred in the file %s", args.INPUT)
+        raise
 
 ARG_UPDATE_CNT = ('--alignContinuation', '--addBeginContinuation',
                   '--removeBeginContinuation',

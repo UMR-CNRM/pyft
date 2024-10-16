@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyft"
+authors = [
+    {name = "Quentin Rodier", email = "quentin.rodier@meteo.fr"},
+    {name = "Sébastien Riette", email = "sebastien.riette@meteo.Fr"},
+]
+description = "Python-fortran-tool"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = ["fortran", "static-analysis"]
+license = {text = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: CeCILL-C Free Software License Agreement (CECILL-C)",
+    "Operating System :: POSIX :: Linux",
+]
+dependencies = [
+    #"fxtran",
+]
+dynamic = ["version"]
+
+[project.urls]
+Repository = "https://github.com/UMR-CNRM/pyft"
+Documentation = "https://umr-cnrm.github.io/pyft"
+Issues = "https://github.com/UMR-CNRM/pyft/issues"
+
+[project.scripts]
+'pyft_tool.py' = "pyft.scripting:main"
+'pyft_parallel_tool.py' = "pyft.scripting:mainParallel"
+
+[tool.setuptools.dynamic]
+version = {attr = "pyft.__version__"}
+
+[tool.pylint.BASIC]
+function-rgx='_?_?[a-z][A-Za-z0-9]{1,30}$'
+method-rgx='_?_?[a-z][A-Za-z0-9]{1,30}_?_?$'
+attr-rgx='_?_?[a-z][A-Za-z0-9]{1,30}$'
+argument-rgx='_?[a-z][A-Za-z0-9]{1,30}$'
+variable-rgx='_?[a-z][A-Za-z0-9]{1,30}$'
+inlinevar-rgx='_?[a-z][A-Za-z0-9]{0,30}$'
+
+[tool.pylint.'MESSAGES CONTROL']
+disable='no-member'
+
+# flake8 doesn't yet support the pyproject.toml file
+# The flake8 configuration is deported to the .flake8 file.
