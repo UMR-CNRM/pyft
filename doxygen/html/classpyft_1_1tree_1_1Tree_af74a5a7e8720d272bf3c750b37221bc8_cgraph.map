@@ -1,9 +1,0 @@
-<map id="pyft.tree.Tree.neededByFile" name="pyft.tree.Tree.neededByFile">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,205,56"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1tree_1_1Tree.html#a6908c81bd6b0d787918b805762b41eb2" title=" " alt="" coords="253,5,476,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,31,239,28,240,33,206,36"/>
-<area shape="rect" id="Node000004" href="$classpyft_1_1tree_1_1Tree.html#a45a97ea898451fc6d66c638680e9d43c" title=" " alt="" coords="277,55,452,80"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="206,50,264,55,263,61,205,55"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1tree_1_1Tree.html#a81dc7d970d03e8884cd0d70f1467e5ce" title=" " alt="" coords="524,5,679,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="476,15,510,15,510,21,476,21"/>
-</map>

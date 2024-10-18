@@ -1,7 +1,5 @@
 <map id="pyft.variables.Variables" name="pyft.variables.Variables">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,180,31"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="13,79,173,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1pyft_1_1PYFT.html" title=" " alt="" coords="37,152,148,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="95,118,95,152,90,152,90,118"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,180,32"/>
+<area shape="rect" id="node2" href="$classpyft_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="13,80,173,107"/>
+<area shape="rect" id="node3" href="$classpyft_1_1pyft_1_1PYFT.html" title=" " alt="" coords="37,155,148,181"/>
 </map>

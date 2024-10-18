@@ -1,9 +1,0 @@
-<map id="pyft.statements.Statements.inline" name="pyft.statements.Statements.inline">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,249,67"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1variables_1_1Variables.html#a19da35da09289cbdd4c677fc7cf06394" title=" " alt="" coords="297,42,520,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="250,52,283,52,283,57,250,57"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="568,5,765,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="520,39,554,35,554,41,520,45"/>
-<area shape="rect" id="Node000004" href="$classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="570,70,763,95"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="520,64,557,68,556,73,520,69"/>
-</map>

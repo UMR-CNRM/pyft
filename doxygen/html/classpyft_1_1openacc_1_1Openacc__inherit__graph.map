@@ -1,7 +1,5 @@
 <map id="pyft.openacc.Openacc" name="pyft.openacc.Openacc">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,171,31"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="8,79,168,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,44,91,79,85,79,85,44"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1pyft_1_1PYFT.html" title=" " alt="" coords="33,152,143,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="91,118,91,152,85,152,85,118"/>
+<area shape="rect" id="node1" title=" " alt="" coords="5,5,171,32"/>
+<area shape="rect" id="node2" href="$classpyft_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="8,80,168,107"/>
+<area shape="rect" id="node3" href="$classpyft_1_1pyft_1_1PYFT.html" title=" " alt="" coords="33,155,143,181"/>
 </map>

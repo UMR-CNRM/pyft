@@ -1,9 +1,0 @@
-<map id="pyft.variables.Variables.findIndexArrayBounds" name="pyft.variables.Variables.findIndexArrayBounds">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,35,208,75"/>
-<area shape="rect" id="Node000002" href="$classpyft_1_1variables_1_1Variables.html#a19da35da09289cbdd4c677fc7cf06394" title=" " alt="" coords="256,42,479,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,52,242,52,242,57,208,57"/>
-<area shape="rect" id="Node000003" href="$classpyft_1_1scope_1_1PYFTscope.html#a3ed5a9d68246261fddc618f52d350b64" title=" " alt="" coords="527,5,724,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="478,39,512,35,513,41,479,45"/>
-<area shape="rect" id="Node000004" href="$classpyft_1_1scope_1_1PYFTscope.html#a7640e5da330f547caf2c034fc38139e6" title=" " alt="" coords="529,70,722,95"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="479,64,515,68,515,73,479,69"/>
-</map>
