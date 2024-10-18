@@ -11,7 +11,7 @@ from pyft.expressions import createExpr, createExprPart, createElem, simplifyExp
 from pyft.tree import updateTree
 from pyft.variables import updateVarList
 from pyft import NAMESPACE
-
+from pyft.util import tostring, tofortran, fortran2xml
 
 # pylint: disable-next=unused-argument
 def _loopVarPHYEX(lowerDecl, upperDecl, lowerUsed, upperUsed, name, index):
@@ -59,6 +59,18 @@ class Applications():
     """
     Methods for high-to-moderate level transformation
     """
+    
+    @debugDecor
+    def splitModuleRoutineFile(self):
+        """
+        Split all module and subroutine contain in a fortran file
+        Return a fortran file for each module and subroutine
+        """
+        for scope in self.getScopes(level=-1,excludeContains=False, includeItself=True):
+            if not("/" in scope.path):
+                filename=scope.path.split(":")[1].lower()+".F90"
+                with open(filename, 'w', encoding="utf-8") as file:
+                    file.write(tofortran(scope))
 
     @debugDecor
     def deleteNonColumnCallsPHYEX(self, simplify=False):
