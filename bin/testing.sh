@@ -224,7 +224,7 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
     else
       log 1 "Checkout commit ${SHA}"
       cd "${WORKDIR}/pyft"
-      git fetch "${PYFTREPOgiturl}"
+      git fetch --tags "${PYFTREPOgiturl}"
       git checkout "${SHA}"
       cd "${currentdir}"
     fi
