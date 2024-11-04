@@ -65,6 +65,7 @@ else
       set +e; make clean; set -e
       compilationNeeded=1
     fi
+    cd ..
   fi
   if [ $compilationNeeded -eq 1 ]; then
     cd fxtran

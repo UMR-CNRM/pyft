@@ -234,7 +234,7 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
         exec "${WORKDIR}/pyft/bin/testing.sh" $allargs
       fi
     fi
-    log 1 "Installing/updating PHYEX"
+    log 1 "Installing/updating pyft"
     ${WORKDIR}/pyft/bin/INSTALL.sh
   fi
   . "${WORKDIR}/pyft/bin/env.sh"
