@@ -60,17 +60,15 @@ else
     cd fxtran
     if [ $(git rev-parse HEAD^{commit}) != $(git rev-parse ${fxtran_version}^{commit}) ]; then
       rm -f $DIR/fxtran
-      make clean
+      set +e; make clean; set -e
       git checkout ${fxtran_version}
-      make clean
+      set +e; make clean; set -e
       compilationNeeded=1
     fi
   fi
   if [ $compilationNeeded -eq 1 ]; then
     cd fxtran
-    set +e
-    make all
-    set -e
+    set +e; make all; set -e
     
     if [ -f bin/fxtran ]; then
       echo ""
