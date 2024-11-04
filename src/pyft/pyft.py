@@ -39,6 +39,21 @@ def conservativePYFT(filename, parser, parserOptions, wrapH,
     return pft
 
 
+def generateEmptyPYFT(filename, fortran=None, **kwargs):
+    """
+    Generates an empty PYFT scope
+    :param filename: file name corresponding to this new PYFT scope
+    :param fortran: fortran text to include
+    :param **kwargs: other arguments for the PYFT class
+    """
+    with open(filename, 'w', encoding='utf-8') as fo:
+        fo.write('SUBROUTINE FOO\nEND' if fortran is None else fortran)
+    pft = PYFT(filename, **kwargs)
+    if fortran is None:
+        pft.remove(pft.find('.//{*}program-unit'))
+    return pft
+
+
 class PYFT(PYFTscope):
     """
     This class extends the PYFTscope one by adding file support (read/write)

@@ -546,6 +546,8 @@ def updateParserApplications(parser):
     gApplications.add_argument('--convertTypesInCompute', default=False, action='store_true',
                                help='Use single variable instead of variable contained in ' +
                                     'structure in compute statement for optimization issue ')
+    gApplications.add_argument('--buildModi', default=False, action='store_true',
+                               help='Builds the corresponding modi_ file')
 
 
 def updateParserOpenACC(parser):
@@ -821,6 +823,8 @@ def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes
         pft.mathFunctoBRFunc()
     elif arg == '--convertTypesInCompute':
         pft.convertTypesInCompute()
+    elif arg == '--buildModi':
+        pft.buildModi()
 
 
 def applyTransfoOpenACC(pft, arg, args, stopScopes):  # pylint: disable=unused-argument
