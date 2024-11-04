@@ -280,6 +280,8 @@ in compute statement for optimization issue.
 
 **--buildModi** Builds the corresponding modi_ file
 
+**--splitModuleRoutineFile** Splits a file into several ones (one file per scope)
+
 ### OpenACC
 
 **--addACCData** add !$acc data present and !$acc end data directives

@@ -141,14 +141,14 @@ class ElementView():
         https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.append
         """
         # Append after the 'END SUBROUTINE' statement
-        raise self._xml.append(*args, **kwargs)
+        return self._xml.append(*args, **kwargs)
 
     def extend(self, *args, **kwargs):
         """
         https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element.extend
         """
         # Extend after the 'END SUBROUTINE' statement
-        raise self._xml.extend(*args, **kwargs)
+        return self._xml.extend(*args, **kwargs)
 
     def _getIndex(self, index):
         """

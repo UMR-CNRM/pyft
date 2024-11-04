@@ -62,6 +62,19 @@ class Applications():
     """
 
     @debugDecor
+    def splitModuleRoutineFile(self):
+        """
+        Split all module and subroutine contain in a fortran file
+        Return a fortran file for each module and subroutine
+        """
+        for scope in self.getScopes(level=1, excludeContains=False, includeItself=True):
+            with pyft.pyft.generateEmptyPYFT(scope.path.split(":")[1].lower() + ".F90") as file:
+                file.extend(scope.findall('./{*}*'))
+                if file[-1].tail is None:
+                    file[-1].tail = '\n'
+                file.write()
+
+    @debugDecor
     def buildModi(self):
         """
         Build the modi_ file corresponding to the given scope

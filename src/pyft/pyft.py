@@ -155,6 +155,18 @@ class PYFT(PYFTscope):
                 if not silence:
                     raise
 
+    def __enter__(self):
+        """
+        Context manager
+        """
+        return self
+
+    def __exit__(self, excType, excVal, excTb):
+        """
+        Context manager
+        """
+        self.close()
+
     def close(self):
         """
         Closes the FORTRAN file

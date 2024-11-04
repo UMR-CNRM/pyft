@@ -501,6 +501,8 @@ def updateParserApplications(parser):
     gApplications.add_argument('--deleteRoutineCallsMesoNHGPU', default=False, action='store_true',
                                help='Delete parts of the code not compatible with MesoNH-OpenACC' +
                                'such as OCND2 blocks')
+    gApplications.add_argument('--splitModuleRoutineFile', default=False, action='store_true',
+                               help='Split a file')
     gApplications.add_argument('--deleteNonColumnCallsPHYEX', default=False, action='store_true',
                                help='Delete call to PHYEX routines that needs information on ' +
                                     'horizontal points (multiple column dependency')
@@ -825,6 +827,8 @@ def applyTransfoApplications(pft, arg, args, simplify, parserOptions, stopScopes
         pft.convertTypesInCompute()
     elif arg == '--buildModi':
         pft.buildModi()
+    elif arg == '--splitModuleRoutineFile':
+        pft.splitModuleRoutineFile()
 
 
 def applyTransfoOpenACC(pft, arg, args, stopScopes):  # pylint: disable=unused-argument
