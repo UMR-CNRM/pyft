@@ -56,42 +56,42 @@ The order of the arguments matters: transformation are done in that specific ord
 
 ### Parser options
 
-**\--parser=PATH** can be used to specify the full path to the fxtran executable.
+**--parser=PATH** can be used to specify the full path to the fxtran executable.
 Usefull if one wants to use a specific version.
 
-**\--parserOption=OPTIONS** the list of available options can be found in the fxtran
+**--parserOption=OPTIONS** the list of available options can be found in the fxtran
 documentation. If no option is provided, the defaults one will be used (the
 list of default options can be seen with "pyft.py -h"). In case this option
 is used, the default options will be replaced by the ones specified.
 
-**\--wrapH** Wrap .h file content into a MODULE to enable the parsing by fxtran.
+**--wrapH** Wrap .h file content into a MODULE to enable the parsing by fxtran.
 
 ### Input and output
 
-**\--renamefF** transforms in upper case the file extension.
+**--renamefF** transforms in upper case the file extension.
 
-**\--renameFf** transforms in lower case the file extension.
+**--renameFf** transforms in lower case the file extension.
 
-**\--xml=filename** writes the xml file (after transformation) in filename.
+**--xml=filename** writes the xml file (after transformation) in filename.
 
-**\--dryRun** prevents the FORTRAN writting.
+**--dryRun** prevents the FORTRAN writting.
 
 ### General options
 
-**\--simplify** some transformations may render other parts of the code useless.
+**--simplify** some transformations may render other parts of the code useless.
 If this option is set, these parts are automatically removed.
 
-**\--logLevel=LEVEL** specifies the log level to use (e.g. debug).
+**--logLevel=LEVEL** specifies the log level to use (e.g. debug).
 With the info level, execution time and number of calls are printed
 for each called functions. In addition, with the debug level, input
 and output of all the called functions are printed.
 
-**\--enableCache** activates a cache to obtain the node's parent faster.
+**--enableCache** activates a cache to obtain the node's parent faster.
 
-**\--nbPar** sets the number of parallel processes for the pyft\_parallel\tool.py
+**--nbPar** sets the number of parallel processes for the pyft\_parallel\tool.py
 tool. 0 (default) to use as many processes as the number of cores.
 
-**\--optsByEnv** Name of the environment variable containing additional arguments
+**--optsByEnv** Name of the environment variable containing additional arguments
 to use. These arguments are processed after all other arguments.  The variable can
 contain a multi-lines string. The variable is read line by line and the last
 applicable line is used. A line can take one of these two forms:
@@ -106,10 +106,10 @@ applicable line is used. A line can take one of these two forms:
 
 ### Dealing with variables
 
-**\--showVariables** displays a list of all the declared variables
+**--showVariables** displays a list of all the declared variables
 with some characteristics.
 
-**\--removeVariable SCOPEPATH VARNAME** removes the declaration of a local variable, a module variable or
+**--removeVariable SCOPEPATH VARNAME** removes the declaration of a local variable, a module variable or
 of a dummy argument. In the case of a dummy argument, it is also suppresssed
 from the argument of the subroutine. In case of a module variable, if the module
 becomes unused, the use statement is also removed.
@@ -118,7 +118,7 @@ is declared (to distinguish between several variables holding the same name
 but in different subroutines) and the second one is the variable name.
 The first argument is a scope path as described in [Concepts](#concepts).
 
-**\--addVariable SCOPEPATH VARNAME DECLARATION POSITION** adds a new variable.
+**--addVariable SCOPEPATH VARNAME DECLARATION POSITION** adds a new variable.
 The first argument describes where the variable
 must be declared (it is a scope path as described in [Concepts](#concepts)).
 The second one is the variable name, the third one is the declarative statement to insert,
@@ -130,21 +130,21 @@ argument describes where the variable must be declared (it is a scope path as
 described in [Concepts](#concepts)). The second one is the module name and
 the third one is the variable name.
 
-**\--attachArraySpecToEntity** move the array declaration attributes to the right
+**--attachArraySpecToEntity** move the array declaration attributes to the right
 part of the declaration statement (e.g. "REAL, DIMENSION(5) :: X" becomes "REAL :: X(5)")
 
-**\--showUnusedVariables** lists the unused varibales.
+**--showUnusedVariables** lists the unused varibales.
 
-**\--removeUnusedLocalVariables EXCLUDE** remove unused local variables.
+**--removeUnusedLocalVariables EXCLUDE** remove unused local variables.
 
-**\--removePHYEXUnusedLocalVariables EXCLUDE** variation aroud the \--removeUnusedLocalVariables
+**--removePHYEXUnusedLocalVariables EXCLUDE** variation aroud the --removeUnusedLocalVariables
 to deal with the variables declared in the mnh\_expand directives.
 
-**\--addExplicitArrayBounds** Adds explicit bounds to arrays that already have parentheses.
+**--addExplicitArrayBounds** Adds explicit bounds to arrays that already have parentheses.
 
-**\--addArrayParentheses** Adds parentheses to arrays.
+**--addArrayParentheses** Adds parentheses to arrays.
 
-**\--modifyAutomaticArrays DECL#START#END** modifies all automatic
+**--modifyAutomaticArrays DECL#START#END** modifies all automatic
 arrays declaration in subroutine and functions. The declaration is replaced by the DECL template,
 the START template is inserted as first executable statement and the END template as last executable
 statement. Each template can use the following place holders: "{doubledotshape}", "{shape}", "{lowUpList}",
@@ -153,9 +153,9 @@ statement. Each template can use the following place holders: "{doubledotshape}"
 "{type}, DIMENSION({doubledotshape}), ALLOCATABLE :: {name}#ALLOCATE({name}({shape}))#DEALLOCATE({name})"
 replaces automatic arrays by allocatables.
 
-**\--replaceAutomaticWithAllocatable** replace all automatic arrays with allocatables
+**--replaceAutomaticWithAllocatable** replace all automatic arrays with allocatables
 
-**\--addArgInTree** Add an argument variable recursively begining at the scope path
+**--addArgInTree** Add an argument variable recursively begining at the scope path
 defined with the --restrictScope option. The first argument is the variable name,
 the second one is the declarative statement to insert, the third one fourth is the position
 (python indexing) the new variable will have in the calling statment of the routine.
@@ -164,139 +164,141 @@ The recursive inclusion of the argument variable stops at the scopes defined by 
 
 ### Cosmetics
 
-**\--upperCase** puts the FORTRAN code into upper case letters.
+**--upperCase** puts the FORTRAN code into upper case letters.
 
-**\--lowerCase** puts the FORTRAN code into lower case letters.
+**--lowerCase** puts the FORTRAN code into lower case letters.
 
-**\--changeIfStatementsInIfConstructs** transforms one line 'IF' contructs
+**--changeIfStatementsInIfConstructs** transforms one line 'IF' contructs
 in 'IF-THEN' constructs
 
-**\--indent** correct the indentation of the source code.
+**--indent** correct the indentation of the source code.
 
-**\--removeIndent** remove the indentation
+**--removeIndent** remove the indentation
 
-**\--removeEmptyLines** remove empty lines.
+**--removeEmptyLines** remove empty lines.
 
-**\--removeComments** remove the comments.
+**--removeComments** remove the comments.
 
-**\--updateSpaces** suppress and/or add spaces. Delimiters and operators must be surrounded by spaces.
+**--updateSpaces** suppress and/or add spaces. Delimiters and operators must be surrounded by spaces.
 Commas must be followed by a space. Lines must not end with spaces. Parenthesis must not be
 surrounded by spaces...
 
-**\--alignContinuation** align the beginings of continued lines.
+**--alignContinuation** align the beginings of continued lines.
 
-**\--addBeginContinuation** add missing continuation characters ('&') at the begining of lines.
+**--addBeginContinuation** add missing continuation characters ('&') at the begining of lines.
 
-**\--removeBeginContinuation** remove continuation characters ('&') at the begining of lines.
+**--removeBeginContinuation** remove continuation characters ('&') at the begining of lines.
 
-**\--removeALLContinuation** remove all continuation characters('&').
+**--removeALLContinuation** remove all continuation characters('&').
 
-**\--pretify** equivalent to --indent --upperCase --removeEmptyLines --updateSpaces
+**--pretify** equivalent to --indent --upperCase --removeEmptyLines --updateSpaces
 --addBeginContinuation --alignContinuation
 
-**\--minify** equivalent to --removeIndent --upperCase --removeEmptyLines --removeComments
+**--minify** equivalent to --removeIndent --upperCase --removeEmptyLines --removeComments
 --updateSpaces --removeALLContinuation
 
-**\--removeEmptyCONTAINS** removes CONTAINS statement when the section is empty
+**--removeEmptyCONTAINS** removes CONTAINS statement when the section is empty
 
 ### Checks
 
-**\--checkIMPLICIT=Warn\|Err** if the 'IMPLICIT NONE' statment is missing,
+**--checkIMPLICIT=Warn\|Err** if the 'IMPLICIT NONE' statment is missing,
 issue a warning if option is 'Warn'; otherwise issue an error message and
 raise an exception.
 
-**\--checkINTENT=Warn\|Err** if an INTENT attribute is missing for a
+**--checkINTENT=Warn\|Err** if an INTENT attribute is missing for a
 dummy argument, issue a warning if option is 'Warn'; otherwise issue
 an error message and raise an exception.
 
-**\--checkOpInCall=Warn\|Err** if a call argument is an operation, issue a warning
+**--checkOpInCall=Warn\|Err** if a call argument is an operation, issue a warning
 if option is 'Warn'; otherwise issue an error message and raise an exception.
 
 ### Dealing with statements
 
-**\--removeCall CALLNAME** removes call statements. The argument is the subprogram name.
+**--removeCall CALLNAME** removes call statements. The argument is the subprogram name.
 
-**\--removePrints** removes print statements. The argument describes from where the
+**--removePrints** removes print statements. The argument describes from where the
 call statements must be suppressed (it is a scope path as described in [Concepts](#concepts)).
 
-**\--inlineContainedSubroutines** inline containted subroutines in main routine.
+**--inlineContainedSubroutines** inline containted subroutines in main routine.
 
-**\--setFalseIfStmt VAR** replace VAR by .FALSE. in if statements.
+**--setFalseIfStmt VAR** replace VAR by .FALSE. in if statements.
 
 ### Miscellaneous
 
-**\--showScopes** print the different scopes found in the source code.
+**--showScopes** print the different scopes found in the source code.
 
-**\--empty** empty the different scopes found in the source code.
+**--empty** empty the different scopes found in the source code.
 
 ### Applications
 
-**\--deleteDrHook** removes DrHook statements.
+**--deleteDrHook** removes DrHook statements.
 
-**\--addDrHook** adds DrHook statements.
+**--addDrHook** adds DrHook statements.
 
-**\--deleteBudgetDDH** delete Budget/DDH use.
+**--deleteBudgetDDH** delete Budget/DDH use.
 
 **--deleteRoutineCallsMesoNHGPU** Delete parts of the code not compatible with MesoNH-OpenACC
 such as OCND2 blocks.
 
-**\--deleteNonColumnCallsPHYEX** delete call to PHYEX routines that needs information on horizontal
+**--deleteNonColumnCallsPHYEX** delete call to PHYEX routines that needs information on horizontal
 points (multiple column dependency).
 
-**\--removeIJDim** remove DO I and J dimensions (1, KLON).
+**--removeIJDim** remove DO I and J dimensions (1, KLON).
 
-**\--expandAllArraysPHYEX** expand all array syntax (computing and where block)
+**--expandAllArraysPHYEX** expand all array syntax (computing and where block)
 in DO loops using PHYEX conventions.
 
-**\--expandAllArraysPHYEXConcurrent** expand all array syntax (computing and where block) 
+**--expandAllArraysPHYEXConcurrent** expand all array syntax (computing and where block) 
 in DO CONCURRENT loops using PHYEX conventions.
 
-**\--expandAllArrays** expand all array syntax (computing and where block) in DO loops.
+**--expandAllArrays** expand all array syntax (computing and where block) in DO loops.
 
-**\--expandAllArraysConcurrent** expand all array syntax (computing and where block) in DO CONCURRENT loops.
+**--expandAllArraysConcurrent** expand all array syntax (computing and where block) in DO CONCURRENT loops.
 
-**\--inlineContainedSubroutinesPHYEX** inline containted subroutines in main routine using PHYEX conventions.
+**--inlineContainedSubroutinesPHYEX** inline containted subroutines in main routine using PHYEX conventions.
 
-**\--addStack MODEL** add local automatic arrays to the stack. The argument is the
+**--addStack MODEL** add local automatic arrays to the stack. The argument is the
 the model name in which stack must be added ("AROME" or "MESONH"). Needs the --stopScopes argument
 for the "AROME" case.
 
-**\--addIncludes** add .h includes in the file and remove the INCLUDE statement.
+**--addIncludes** add .h includes in the file and remove the INCLUDE statement.
 
-**\--mnhExpand** apply the mnh\_expand directives using DO loops.
+**--mnhExpand** apply the mnh\_expand directives using DO loops.
 
-**\--mnhExpandConcurrent** apply the mnh\_expand directives using DO CONCURRENT loops.
+**--mnhExpandConcurrent** apply the mnh\_expand directives using DO CONCURRENT loops.
 
-**\--addMPPDB_CHECKS** Add MPPDB\_CHEKS bit-repro checking routines of MesoNH for all in and
+**--addMPPDB_CHECKS** Add MPPDB\_CHEKS bit-repro checking routines of MesoNH for all in and
 inout arrays in subroutines.
 
-**\--shumanFUNCtoCALL** Transform shuman functions to call statements.
+**--shumanFUNCtoCALL** Transform shuman functions to call statements.
 
-**\--mathFunctoBRFunc** Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP,
+**--mathFunctoBRFunc** Convert intrinsic math functions **, LOG, ATAN, **2, **3, **4, EXP,
 COS, SIN, ATAN2 into a self defined function BR_ for MesoNH bit-repro.
 
 **--convertTypesInCompute** Use single variable instead of variable contained in structure
 in compute statement for optimization issue.
 
+**--buildModi** Builds the corresponding modi_ file
+
 ### OpenACC
 
-**\--addACCData** add !$acc data present and !$acc end data directives
+**--addACCData** add !$acc data present and !$acc end data directives
 
-**\--addACCRoutineSeq** add "!$acc routine seq" to routines called directly or indirectly
+**--addACCRoutineSeq** add "!$acc routine seq" to routines called directly or indirectly
 by scopes defined by the --stopScopes option.
 
-**\--buildACCTypeHelpers** build module files containing helpers to copy user type structures.
+**--buildACCTypeHelpers** build module files containing helpers to copy user type structures.
 
 **--craybyPassDOCONCURRENT** remove acc loop independant collapse for BR_ fonctions and
 mnh\_undef(OPENACC) macro use DO CONCURRENT with mnh\_undef(LOOP)
 
-**\--removeACC** remove ACC directives
+**--removeACC** remove ACC directives
 
 **--removebyPassDOCONCURRENT** remove macro !$mnh\_(un)def(OPENACC) and !$mnh\_(un)def(LOOP) directives
 
 ### Preprocessor
 
-**\--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys.
+**--applyCPPifdef** This option is followed by the list of defined or undefined CPP keys.
 All #ifdef and #ifndef concerning these keys are evaluated. Undefined keys are preceded by
 a percentage sign '%' (e.g. if we use '--applyCPPifdef K', '#ifdef K' is evaluated to True;
 whereas if we use '--applyCPPifdef %K', '#ifdef K' is evaluated to False.
@@ -304,24 +306,24 @@ But the method does not evaluate more complicated cpp directives such as '#if de
 
 ### Tree
 
-**\--tree** Directories where source code must be searched for.
+**--tree** Directories where source code must be searched for.
 
-**\--descTree** File name where the description of the tree is stored. If the file doesn't
-exist, it will be created using the \--tree option.
+**--descTree** File name where the description of the tree is stored. If the file doesn't
+exist, it will be created using the --tree option.
 
-**\--plotCompilTree** File name for compilation dependency graph (.dot or image extension).
-If \--descTree is used, the descTree file will be used, otherwise the tree (provided
-with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower options.
+**--plotCompilTree** File name for compilation dependency graph (.dot or image extension).
+If --descTree is used, the descTree file will be used, otherwise the tree (provided
+with the --tree option) is explored. See --plotMaxUpper and --plotMaxLower options.
 
-**\--plotExecTree** File name for the calling graph (.dot or image extension).
-If \--descTree is used, the descTree file will be used, otherwise the tree (provided
-with the \--tree option) is explored. See \--plotMaxUpper and \--plotMaxLower options.
+**--plotExecTree** File name for the calling graph (.dot or image extension).
+If --descTree is used, the descTree file will be used, otherwise the tree (provided
+with the --tree option) is explored. See --plotMaxUpper and --plotMaxLower options.
 
-**\--plotMaxUpper** Maximum number of elements to plot, upper than the central element.
+**--plotMaxUpper** Maximum number of elements to plot, upper than the central element.
 
-**\--plotMaxLower** Maximum number of elements to plot, lower than the central element.
+**--plotMaxLower** Maximum number of elements to plot, lower than the central element.
 
-**\--stopScopes** #-separated list of scopes where the recursive inclusion of an
+**--stopScopes** #-separated list of scopes where the recursive inclusion of an
 argument variable must stop (needed for some transformations)
 
 ## Python module

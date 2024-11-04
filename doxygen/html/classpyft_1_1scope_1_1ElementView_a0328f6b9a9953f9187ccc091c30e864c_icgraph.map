@@ -1,15 +1,16 @@
 <map id="pyft.scope.ElementView.find" name="pyft.scope.ElementView.find">
-<area shape="rect" id="node1" title=" " alt="" coords="593,181,800,208"/>
-<area shape="rect" id="node2" href="$classpyft_1_1scope_1_1ElementView.html#ab059cc4f24d81281c50d76fbdffcf34e" title=" " alt="" coords="331,57,514,98"/>
-<area shape="rect" id="node3" href="$classpyft_1_1scope_1_1ElementView.html#a101e4179cab537a7a2f4e5f6d7c6c36e" title=" " alt="" coords="309,123,536,149"/>
-<area shape="rect" id="node5" href="$classpyft_1_1scope_1_1PYFTscope.html#a35457cdadc646ad67c87b65cef907c6e" title=" " alt="" coords="330,174,515,215"/>
-<area shape="rect" id="node11" href="$classpyft_1_1statements_1_1Statements.html#ae1159ecf8c39ecc77e7b88e8fe424697" title=" " alt="" coords="300,239,545,281"/>
-<area shape="rect" id="node12" href="$classpyft_1_1cosmetics_1_1Cosmetics.html#a1cd7f66c25620a636540d6c90b69bd72" title=" " alt="" coords="301,326,544,367"/>
-<area shape="rect" id="node4" href="$classpyft_1_1pyft_1_1PYFT.html#a1ea7b4cc58b85c08cf5ab45597d18735" title=" " alt="" coords="47,5,210,32"/>
-<area shape="rect" id="node6" href="$classpyft_1_1variables_1_1Variables.html#aef5ec5abddd5638f5140d34bccab1938" title=" " alt="" coords="27,57,230,98"/>
-<area shape="rect" id="node7" href="$classpyft_1_1cpp_1_1Cpp.html#a9b517c32e9fd601aa27f2d114a0bc342" title=" " alt="" coords="29,123,228,149"/>
-<area shape="rect" id="node8" href="$classpyft_1_1variables_1_1Variables.html#a4eba0fb5c8658c4384c6d382db9f6dc5" title=" " alt="" coords="20,174,237,215"/>
-<area shape="rect" id="node9" href="$classpyft_1_1statements_1_1Statements.html#ac26ffc0680353c0ab63d0928cb5f3629" title=" " alt="" coords="5,239,252,281"/>
-<area shape="rect" id="node10" href="$classpyft_1_1pyft_1_1PYFT.html#aa689ba13c6c6ab956395b860dae5c7dd" title=" " alt="" coords="55,305,203,332"/>
-<area shape="rect" id="node13" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ab94982468e36fe8eae61f0b7237b2c" title=" " alt="" coords="25,356,232,383"/>
+<area shape="rect" id="node1" title=" " alt="" coords="629,203,836,229"/>
+<area shape="rect" id="node2" href="$classpyft_1_1scope_1_1ElementView.html#ab059cc4f24d81281c50d76fbdffcf34e" title=" " alt="" coords="367,78,550,119"/>
+<area shape="rect" id="node3" href="$classpyft_1_1scope_1_1ElementView.html#a101e4179cab537a7a2f4e5f6d7c6c36e" title=" " alt="" coords="345,144,572,171"/>
+<area shape="rect" id="node5" href="$classpyft_1_1scope_1_1PYFTscope.html#a35457cdadc646ad67c87b65cef907c6e" title=" " alt="" coords="366,195,551,237"/>
+<area shape="rect" id="node12" href="$classpyft_1_1statements_1_1Statements.html#ae1159ecf8c39ecc77e7b88e8fe424697" title=" " alt="" coords="336,261,581,302"/>
+<area shape="rect" id="node13" href="$classpyft_1_1cosmetics_1_1Cosmetics.html#a1cd7f66c25620a636540d6c90b69bd72" title=" " alt="" coords="337,347,580,389"/>
+<area shape="rect" id="node4" href="$classpyft_1_1pyft_1_1PYFT.html#a1ea7b4cc58b85c08cf5ab45597d18735" title=" " alt="" coords="65,5,228,32"/>
+<area shape="rect" id="node6" href="$classpyft_1_1variables_1_1Variables.html#aef5ec5abddd5638f5140d34bccab1938" title=" " alt="" coords="45,57,248,98"/>
+<area shape="rect" id="node7" href="$classpyft_1_1cpp_1_1Cpp.html#a9b517c32e9fd601aa27f2d114a0bc342" title=" " alt="" coords="47,123,246,149"/>
+<area shape="rect" id="node8" href="$classpyft_1_1applications_1_1Applications.html#a0c6341c7f473710cd9f741c4c95bb74d" title=" " alt="" coords="5,173,288,200"/>
+<area shape="rect" id="node9" href="$classpyft_1_1variables_1_1Variables.html#a4eba0fb5c8658c4384c6d382db9f6dc5" title=" " alt="" coords="38,225,255,266"/>
+<area shape="rect" id="node10" href="$classpyft_1_1statements_1_1Statements.html#ac26ffc0680353c0ab63d0928cb5f3629" title=" " alt="" coords="23,290,270,331"/>
+<area shape="rect" id="node11" href="$classpyft_1_1pyft_1_1PYFT.html#aa689ba13c6c6ab956395b860dae5c7dd" title=" " alt="" coords="73,356,221,383"/>
+<area shape="rect" id="node14" href="$classpyft_1_1scope_1_1PYFTscope.html#a5ab94982468e36fe8eae61f0b7237b2c" title=" " alt="" coords="43,407,250,433"/>
 </map>
