@@ -145,10 +145,10 @@ class Applications():
         def convertOneType(component, newVarList, scope):
             # 1) Build the name of the new variable
             objType = scope.getParent(component, 2)  # The object STR%VAR
-            objTypeStr = alltext(objType)
+            objTypeStr = alltext(objType).upper()
             namedENn = objType.find('.//{*}N/{*}n')
             structure = namedENn.text
-            variable = component.find('.//{*}ct').text
+            variable = component.find('.//{*}ct').text.upper()
             # If the variable is an array with index selection
             # such as ICED%XRTMIN(1:KRR)
             arrayIndices = ''
@@ -165,6 +165,7 @@ class Applications():
                 for elem in objType.findall('.//{*}element'):
                     arrayIndices = arrayIndices + alltext(elem)
             newName = variable[0] + structure + variable[1:] + arrayIndices
+            newName = newName.upper()
 
             # 2) Replace the namedE>N>n by the newName and delete R-LT
             # except for array with index selection (R-LT is moved)
