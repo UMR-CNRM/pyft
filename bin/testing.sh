@@ -271,7 +271,7 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
   log 1 "Check pylint"
   set +e
   score=$(pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 \
-          --persistent=n -f parseable bin/*.py src/pyfortool/ | \
+          --persistent=n -f parseable bin/pyfortool* src/pyfortool/ | \
           grep 'Your code has been rated at' | cut -d\  -f 7 | cut -d/ -f 1)
   set -e
   if [ $(python3 -c "print(0 if ${score} >= 9.8 else 1)") -ne 0 ]; then
