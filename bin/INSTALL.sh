@@ -76,7 +76,7 @@ else
       echo "Don't be afraid if you see some errors; on some systems the build step is known to produce errors."
       echo "In your case everything seems to have gone smoothly, as the executable file exists."
       echo ""
-      echo "To use pyft independently, you need to source the '$DIR/env.sh' file."
+      echo "To use PyForTool independently, you need to source the '$DIR/env.sh' file."
       cd $DIR
       ln -s $DIR/../site/fxtran/bin/fxtran .
       exit 0

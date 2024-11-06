@@ -1,8 +1,8 @@
 #!/bin/bash
 
-which pyft_tool.py 2>&1 >/dev/null
+which pyfortool 2>&1 >/dev/null
 if [ $? -ne 0 ]; then
-  echo "pyft_tool.py not found!"
+  echo "pyfortool not found!"
   exit 3
 fi
 
@@ -66,7 +66,7 @@ for file in $tests; do
   if [ "$transfo" == "" ]; then
     ERROR+=" $name"
   else
-    output=$(pyft_tool.py --wrapH --tree . --descTree ${jsonpath}desctree.json --logLevel error \
+    output=$(pyfortool --wrapH --tree . --descTree ${jsonpath}desctree.json --logLevel error \
              $file $trans $transfo 2>&1)
     res=$?
     if [[ $file == *_before.F90 ]]; then

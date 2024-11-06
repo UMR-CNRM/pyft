@@ -324,7 +324,7 @@ END IF
 !  using a Boussinesq hypothesis to remove the z dependance of rhod_ref
 !  (div u = 0)
 !
-! ZDZZ(:,:,:) = MXM(PDZZ(:,:,IKB:IKB+2)) ! case not handled yet by pyft --expandAllArraysConcurrent and shumanFUNCtoCALL
+! ZDZZ(:,:,:) = MXM(PDZZ(:,:,IKB:IKB+2)) ! case not handled yet by pyfortool --expandAllArraysConcurrent and shumanFUNCtoCALL
 CALL MXM2D_PHY(D, PDZZ(:,:,IKB), ZMXM2D_WORK1)
 !$acc kernels
 !$mnh_expand_array(JI=1:IIT,JJ=1:IJT)

@@ -6,10 +6,10 @@ These functions are independent of the PYFT and PYFTscope objects
 import re
 from functools import lru_cache
 import copy
-
 import xml.etree.ElementTree as ET
-from pyft.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
-from pyft import NAMESPACE
+
+from pyfortool.util import debugDecor, isint, isfloat, fortran2xml, PYFTError
+from pyfortool import NAMESPACE
 
 
 def createElem(tagName, text=None, tail=None):

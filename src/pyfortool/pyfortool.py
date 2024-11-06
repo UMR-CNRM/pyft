@@ -9,10 +9,10 @@ import os
 import sys
 from multiprocessing import Lock, RLock
 
-from pyft.scope import PYFTscope
-from pyft.tree import Tree, updateTree
-from pyft.util import (debugDecor, tostring, tofortran, fortran2xml,
-                       setVerbosity, printInfos, PYFTError)
+from pyfortool.scope import PYFTscope
+from pyfortool.tree import Tree, updateTree
+from pyfortool.util import (debugDecor, tostring, tofortran, fortran2xml,
+                            setVerbosity, printInfos, PYFTError)
 
 
 @debugDecor
@@ -21,7 +21,7 @@ def conservativePYFT(filename, parser, parserOptions, wrapH,
     """
     Return a conservative PYFT object usable for tree manipulation
     :param filename: name of the file to open
-    :param parser, parserOptions, wrapH: see the pyft class
+    :param parser, parserOptions, wrapH: see the PYFT class
     :param tree: Tree instance or None
     :param verbosity: if not None, sets the verbosity level
     :param clsPYFT: PYFT class to use
@@ -83,7 +83,7 @@ class PYFT(PYFTscope):
         if not sys.version_info >= (3, 8):
             # At least version 3.7 for ordered dictionary
             # At least verison 3.8 for namsepace wildcard (use of '{*}' in find or findall)
-            raise PYFTError("pyft needs at least version 3.8 of python")
+            raise PYFTError("PyForTool needs at least version 3.8 of python")
         self._filename = filename
         self._originalName = filename
         assert os.path.exists(filename), 'Input filename must exist'

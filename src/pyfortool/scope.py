@@ -7,15 +7,15 @@ This module implements the scope stuff
 import copy
 import os
 
-from pyft.variables import Variables, updateVarList
-from pyft.cosmetics import Cosmetics
-from pyft.applications import Applications
-from pyft.statements import Statements
-from pyft.cpp import Cpp
-from pyft.openacc import Openacc
-from pyft.util import PYFTError, debugDecor, n2name, tag
-from pyft.tree import Tree, updateTree
-from pyft.expressions import createElem, createExpr
+from pyfortool.variables import Variables, updateVarList
+from pyfortool.cosmetics import Cosmetics
+from pyfortool.applications import Applications
+from pyfortool.statements import Statements
+from pyfortool.cpp import Cpp
+from pyfortool.openacc import Openacc
+from pyfortool.util import PYFTError, debugDecor, n2name, tag
+from pyfortool.tree import Tree, updateTree
+from pyfortool.expressions import createElem, createExpr
 
 
 class ElementView():

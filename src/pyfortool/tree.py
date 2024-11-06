@@ -10,9 +10,9 @@ import subprocess
 import re
 from functools import wraps
 
-from pyft.util import debugDecor, n2name
-import pyft.scope
-import pyft.pyft
+from pyfortool.util import debugDecor, n2name
+import pyfortool.scope
+import pyfortool.pyfortool
 
 
 def updateTree(method='file'):
@@ -55,7 +55,7 @@ class Tree():
         """
         :param tree: list of directories composing the tree or None
         :param descTreeFile: filename where the description of the tree will be stored
-        :param parser, parserOptions, wrapH: see the pyft class
+        :param parser, parserOptions, wrapH: see the PYFT class
         :param verbosity: if not None, sets the verbosity level
         """
         # Options
@@ -450,14 +450,14 @@ class Tree():
             return text
 
         # Loop on directory and files
-        if isinstance(file, pyft.scope.PYFTscope) or os.path.isfile(file):
-            if isinstance(file, pyft.scope.PYFTscope):
+        if isinstance(file, pyfortool.scope.PYFTscope) or os.path.isfile(file):
+            if isinstance(file, pyfortool.scope.PYFTscope):
                 pft = file.mainScope
                 filename = pft.getFileName()
                 mustClose = False
             else:
-                pft = pyft.pyft.conservativePYFT(file, self._parser, self._parserOptions,
-                                                 self._wrapH, verbosity=self._verbosity)
+                pft = pyfortool.pyfortool.conservativePYFT(file, self._parser, self._parserOptions,
+                                                           self._wrapH, verbosity=self._verbosity)
                 filename = file
                 mustClose = True
             filename = filename[2:] if filename.startswith('./') else filename

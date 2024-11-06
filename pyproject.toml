@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pyft"
+name = "pyfortool"
 authors = [
     {name = "Quentin Rodier", email = "quentin.rodier@meteo.fr"},
     {name = "Sébastien Riette", email = "sebastien.riette@meteo.Fr"},
@@ -24,16 +24,16 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Repository = "https://github.com/UMR-CNRM/pyft"
-Documentation = "https://umr-cnrm.github.io/pyft"
-Issues = "https://github.com/UMR-CNRM/pyft/issues"
+Repository = "https://github.com/UMR-CNRM/pyfortool"
+Documentation = "https://umr-cnrm.github.io/pyfortool"
+Issues = "https://github.com/UMR-CNRM/pyfortool/issues"
 
 [project.scripts]
-'pyft_tool.py' = "pyft.scripting:main"
-'pyft_parallel_tool.py' = "pyft.scripting:mainParallel"
+'pyfortool' = "pyfortool.scripting:main"
+'pyfortool_parallel' = "pyfortool.scripting:mainParallel"
 
 [tool.setuptools.dynamic]
-version = {attr = "pyft.__version__"}
+version = {attr = "pyfortool.__version__"}
 
 [tool.pylint.BASIC]
 function-rgx='_?_?[a-z][A-Za-z0-9]{1,30}$'

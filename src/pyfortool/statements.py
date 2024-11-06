@@ -5,11 +5,11 @@ This module includes the Statements class containing methods to act on statement
 import re
 import logging
 import copy
-from pyft.util import n2name, nonCode, debugDecor, alltext, PYFTError, tag, noParallel
-from pyft.expressions import createExprPart, createArrayBounds, createElem
-from pyft.tree import updateTree
-from pyft.variables import updateVarList
-from pyft import NAMESPACE
+from pyfortool.util import n2name, nonCode, debugDecor, alltext, PYFTError, tag, noParallel
+from pyfortool.expressions import createExprPart, createArrayBounds, createElem
+from pyfortool.tree import updateTree
+from pyfortool.variables import updateVarList
+from pyfortool import NAMESPACE
 
 
 def _nodesInIf(ifNode):

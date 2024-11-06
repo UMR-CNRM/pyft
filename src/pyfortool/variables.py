@@ -8,10 +8,11 @@ import re
 from functools import wraps
 import os
 
-from pyft.util import PYFTError, debugDecor, alltext, isExecutable, n2name, tag, noParallel
-from pyft.expressions import createArrayBounds, simplifyExpr, createExprPart, createExpr, createElem
-from pyft.tree import updateTree
-import pyft.pyft
+from pyfortool.util import PYFTError, debugDecor, alltext, isExecutable, n2name, tag, noParallel
+from pyfortool.expressions import (createArrayBounds, simplifyExpr, createExprPart,
+                                   createExpr, createElem)
+from pyfortool.tree import updateTree
+import pyfortool.pyfortool
 
 
 # No @debugDecor for this low-level method
@@ -1372,7 +1373,7 @@ class Variables():
                               use moduleVarList to not add module variables
         :param otherNames: None or list of other variable names that can be used
                            These variables are used first
-        :param parser, parserOptions, wrapH: see the pyft class
+        :param parser, parserOptions, wrapH: see the PYFT class
 
         Argument is inserted only on paths leading to one of scopes listed in stopScopes
         """
@@ -1446,9 +1447,9 @@ class Variables():
                             xml = self.mainScope
                             pft = None
                         else:
-                            pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
-                                                             wrapH, tree=self.tree,
-                                                             clsPYFT=self._mainScope.__class__)
+                            pft = pyfortool.pyfortoolconservativePYFT(filename, parser, parserOptions,
+                                                                      wrapH, tree=self.tree,
+                                                                      clsPYFT=self._mainScope.__class__)
                             xml = pft
                         scopeInterface = xml.getScopeNode(scopePathInterface)
                         varInterface = scopeInterface.varList.findVar(varName, exactScope=True)
@@ -1478,9 +1479,9 @@ class Variables():
                                 xml = self.mainScope
                                 pft = None
                             else:
-                                pft = pyft.pyft.conservativePYFT(filename, parser, parserOptions,
-                                                                 wrapH, tree=self.tree,
-                                                                 clsPYFT=self._mainScope.__class__)
+                                pft = pyfortool.pyfortool.conservativePYFT(filename, parser, parserOptions,
+                                                                           wrapH, tree=self.tree,
+                                                                           clsPYFT=self._mainScope.__class__)
                                 xml = pft
                             scopeUp = xml.getScopeNode(scopePathUp)
                             # Add the argument and propagate upward

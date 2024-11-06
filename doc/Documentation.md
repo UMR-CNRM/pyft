@@ -2,10 +2,10 @@
 
 ## Introduction
 
-This package contains two python script, pyft\_tool.py and pyft\_parallel\_tool.py,
+This package contains two python script, pyfortool and pyfortool\_parallel,
 that read FORTRAN codes, parse them in xml, perform some manipulation, revert them
 in FORTRAN and write them back on disk.
-pyft\_tool.py performs these tasks on a per file basis whereas pyft\_parallel\_tool.py
+pyfortoo performs these tasks on a per file basis whereas pyfortool\_parallel
 perform the transformations in parallel on all files found in a tree.
 In addition, the package can be used for scripting applicative transformations.
 
@@ -17,7 +17,7 @@ the same as the INPUT source code if no manipulation is performed.
 DEPENDENCIES:
 
  - [fxtran](https://github.com/pmarguinaud/fxtran) must be installed.
- - pyft needs, at least, version 3.8 of python
+ - PyForTool needs, at least, version 3.8 of python
 
 LIMITATIONS:
 
@@ -61,7 +61,7 @@ Usefull if one wants to use a specific version.
 
 **--parserOption=OPTIONS** the list of available options can be found in the fxtran
 documentation. If no option is provided, the defaults one will be used (the
-list of default options can be seen with "pyft.py -h"). In case this option
+list of default options can be seen with "pyfortool -h"). In case this option
 is used, the default options will be replaced by the ones specified.
 
 **--wrapH** Wrap .h file content into a MODULE to enable the parsing by fxtran.
@@ -88,7 +88,7 @@ and output of all the called functions are printed.
 
 **--enableCache** activates a cache to obtain the node's parent faster.
 
-**--nbPar** sets the number of parallel processes for the pyft\_parallel\tool.py
+**--nbPar** sets the number of parallel processes for the pyfortool\_parallel
 tool. 0 (default) to use as many processes as the number of cores.
 
 **--optsByEnv** Name of the environment variable containing additional arguments
@@ -355,8 +355,8 @@ can be explored and/or plotted through methods of this object.
 
 Another class, VarList, represents the list of variables defined in a scope.
 
-In addition to these four classes, the module contains some functions in pyft.util and
-pyft.expressions.
+In addition to these four classes, the module contains some functions in pyfortool.util and
+pyfortool.expressions.
 
 ### The developer's point of view
 
@@ -402,8 +402,8 @@ On top of this, the code is often complex and generates multiple “too many”
 branches/statements/lines/... messages, which are ignored.
 
 From the project root, tests are launched by commands:
-  - flake8 src/pyft/ bin/pyft\_\*.py
-  - pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyft/ bin/pyft\_\*.py
+  - flake8 src/pyfortool/ bin/pyfortool\_\*
+  - pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyfortool/ bin/pyfortool\_\*
 
 
 ## Examples and tests

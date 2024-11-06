@@ -10,10 +10,10 @@ function usage {
   echo "               [--only-model MODEL] [--no-enable-gh-pages] [--perf PERF] [--no-doc-gen]"
   echo "               [--hostname HOSTNAME] [--mail MAIL]"
   echo "--repo-user USER"
-  echo "                user hosting the pyft repository on github,"
+  echo "                user hosting the pyfortool repository on github,"
   echo "                defaults to the env variable PYFTREPOuser (=$PYFTREPOuser)"
   echo "--repo-protocol PROTOCOL"
-  echo "                protocol (https or ssh) to reach the pyft repository on github,"
+  echo "                protocol (https or ssh) to reach the pyfortool repository on github,"
   echo "                defaults to the env variable PYFTREPOprotocol (=$PYFTREPOprotocol)"
   echo "--repo-repo REPO"
   echo "                repository name defaults to the env variable PYFTREPOrepo (=$PYFTREPOrepo)"
@@ -29,9 +29,9 @@ function usage {
   echo "--mail MAIL     comma-separated list of e-mail addresses (no spaces); if not provided, mail is not sent"
   echo ""
   echo "This script provides functionality for automated tests."
-  echo "It can be run with cron to periodically test the last commit on the pyft repository"
-  echo "(eg '00 22 * * * bash -l -c \"SHELL=/bin/bash PYFTWORKDIR=~/PYFTTESTING ~/PYFTTESTING/pyft/bin/testing.sh \\"
-  echo "                             --repo-user UMR-CNRM --repo-protocol ssh --repo-repo pyft user@domain\"')"
+  echo "It can be run with cron to periodically test the last commit on the pyfortool repository"
+  echo "(eg '00 22 * * * bash -l -c \"SHELL=/bin/bash PYFTWORKDIR=~/PYFTTESTING ~/PYFTTESTING/pyfortool/bin/testing.sh \\"
+  echo "                             --repo-user UMR-CNRM --repo-protocol ssh --repo-repo pyfortool user@domain\"')"
   echo "The repository must be hosted on github as it relies on github project pages and github statuses."
   echo "A github token must be set in the .netrc file."
   echo ""
@@ -40,7 +40,7 @@ function usage {
 
 MAIL=""
 PYFTREPOuser=${PYFTREPOuser:=UMR-CNRM}
-PYFTREPOrepo=${PYFTREPOrepo:=pyft}
+PYFTREPOrepo=${PYFTREPOrepo:=pyfortool}
 PYFTREPOprotocol=${PYFTREPOprotocol:=ssh}
 REF="refs/heads/main"
 WORKDIR=${PYFTWORKDIR:=${HOME}/PYFTTESTING}
@@ -218,26 +218,26 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
   currentdir="${PWD}"
   if [ ${update} -eq 1 ]; then
     currentMD5=$(md5sum "${BASH_SOURCE[0]}"  | cut -d\  -f1)
-    if [ ! -d "${WORKDIR}/pyft" ]; then
-      log 1 "Clonig pyft in ${WORKDIR}/pyft"
-      git clone "${PYFTREPOgiturl}" "${WORKDIR}/pyft"
+    if [ ! -d "${WORKDIR}/pyfortool" ]; then
+      log 1 "Clonig pyfortool in ${WORKDIR}/pyfortool"
+      git clone "${PYFTREPOgiturl}" "${WORKDIR}/pyfortool"
     else
       log 1 "Checkout commit ${SHA}"
-      cd "${WORKDIR}/pyft"
+      cd "${WORKDIR}/pyfortool"
       git fetch --tags "${PYFTREPOgiturl}"
       git checkout "${SHA}"
       cd "${currentdir}"
     fi
-    if [ -f "${WORKDIR}/pyft/bin/testing.sh" ]; then
-      if [ "${currentMD5}" != $(md5sum "${WORKDIR}/pyft/bin/testing.sh" | cut -d\  -f1) ]; then
+    if [ -f "${WORKDIR}/pyfortool/bin/testing.sh" ]; then
+      if [ "${currentMD5}" != $(md5sum "${WORKDIR}/pyfortool/bin/testing.sh" | cut -d\  -f1) ]; then
         log 1 "Script has changed, running the new version" #This log and the previous ones are lost
-        exec "${WORKDIR}/pyft/bin/testing.sh" $allargs
+        exec "${WORKDIR}/pyfortool/bin/testing.sh" $allargs
       fi
     fi
-    log 1 "Installing/updating pyft"
-    ${WORKDIR}/pyft/bin/INSTALL.sh
+    log 1 "Installing/updating pyfortool"
+    ${WORKDIR}/pyfortool/bin/INSTALL.sh
   fi
-  . "${WORKDIR}/pyft/bin/env.sh"
+  . "${WORKDIR}/pyfortool/bin/env.sh"
 
   #Enable the gihub project pages
   if [ $enableghpages -eq 1 ]; then
@@ -245,12 +245,12 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
     enable_gh_pages
   fi
 
-  cd "${WORKDIR}/pyft"
+  cd "${WORKDIR}/pyfortool"
 
   #Check 'version' consistency
   log 1 "Check 'version' consistency"
   set +e
-  vinit=$(python3 -c "$(grep __version__ src/pyft/__init__.py); print(__version__)")
+  vinit=$(python3 -c "$(grep __version__ src/pyfortool/__init__.py); print(__version__)")
   retval1=$?
   vtag=$(git describe --abbrev=0)
   retval2=$?
@@ -271,7 +271,7 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
   log 1 "Check pylint"
   set +e
   score=$(pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 \
-          --persistent=n -f parseable bin/*.py src/pyft/ | \
+          --persistent=n -f parseable bin/*.py src/pyfortool/ | \
           grep 'Your code has been rated at' | cut -d\  -f 7 | cut -d/ -f 1)
   set -e
   if [ $(python3 -c "print(0 if ${score} >= 9.8 else 1)") -ne 0 ]; then
@@ -284,7 +284,7 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
   #Check flake8
   log 1 "Check flake8"
   set +e
-  score=$(flake8 bin/*.py src/pyft/ | wc -l)
+  score=$(flake8 bin/*.py src/pyfortool/ | wc -l)
   retval=$?
   set -e
   if [ $retval -ne 0 ]; then
@@ -303,12 +303,12 @@ if [ ${force} -eq 1 -o $(get_statuses "${SHA}" | grep -w "${context}" | wc -l) -
   cd examples
   log 1 "Test examples"
   set +e
-  if [ "$(stat -L -c %d:%i $(which pyft_tool.py))" != "$(stat -L -c %d:%i ../bin/pyft_tool.py)" ]; then
+  if [ "$(stat -L -c %d:%i $(which pyfortool))" != "$(stat -L -c %d:%i ../bin/pyfortool)" ]; then
     ret=1
     log 0 "  test examples: ERROR (PATH not correctly set)"
   else
-    if [ "$(stat -L -c %d:%i $(python3 -c 'import pyft; print(pyft.__file__)'))" != \
-         "$(stat -L -c %d:%i ../src/pyft/__init__.py)" ]; then
+    if [ "$(stat -L -c %d:%i $(python3 -c 'import pyfortool; print(pyfortool.__file__)'))" != \
+         "$(stat -L -c %d:%i ../src/pyfortool/__init__.py)" ]; then
       ret=1
       log 0 "  test examples: ERROR (PYTHONPATH not correctly set)"
     else

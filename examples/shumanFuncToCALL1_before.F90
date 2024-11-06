@@ -273,7 +273,7 @@ END IF
 !  using a Boussinesq hypothesis to remove the z dependance of rhod_ref
 !  (div u = 0)
 !
-! ZDZZ(:,:,:) = MXM(PDZZ(:,:,IKB:IKB+2)) ! case not handled yet by pyft --expandAllArraysConcurrent and shumanFUNCtoCALL
+! ZDZZ(:,:,:) = MXM(PDZZ(:,:,IKB:IKB+2)) ! case not handled yet by pyfortool --expandAllArraysConcurrent and shumanFUNCtoCALL
 ZDZZ(:,:,IKB) = MXM(PDZZ(:,:,IKB))
 ZDZZ(:,:,IKB+1) = MXM(PDZZ(:,:,IKB+1))
 ZDZZ(:,:,IKB+2) = MXM(PDZZ(:,:,IKB+2))

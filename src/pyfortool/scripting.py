@@ -1,5 +1,5 @@
 """
-This module contains functions usefull to build scripts around the pyft library
+This module contains functions usefull to build scripts around the pyfortool library
 """
 
 import sys
@@ -12,10 +12,10 @@ import argparse
 import logging
 import traceback
 
-from pyft.pyft import PYFT
-from pyft.tree import Tree
-from pyft.util import isint, PYFTError
-from pyft import __version__
+from pyfortool.pyfortool import PYFT
+from pyfortool.tree import Tree
+from pyfortool.util import isint, PYFTError
+from pyfortool import __version__
 
 
 def task(filename):
@@ -59,7 +59,7 @@ def task(filename):
 
 def mainParallel():
     """
-    Core of the pyft_parallel_tool.py command
+    Core of the pyfortool_parallel.py command
     """
 
     class MyManager(BaseManager):
@@ -117,7 +117,7 @@ def mainParallel():
 
 def main():
     """
-    Core of the pyft_tool.py command
+    Core of the pyfortool.py command
     """
     parser = argparse.ArgumentParser(description='Python FORTRAN tool', allow_abbrev=False,
                                      epilog="The argument order matters.")

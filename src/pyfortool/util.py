@@ -11,7 +11,7 @@ import subprocess
 import time
 import re
 
-from pyft import NAMESPACE
+from pyfortool import NAMESPACE
 
 ################################################################################
 # Verbosity, decorators and Exception
@@ -77,7 +77,7 @@ def noParallel(func):
             # Acquire lock, if any
             with self.NO_PARALLEL_LOCK:
                 # We cannot use directly the shared version because the update
-                # tries to send a whole pyft object to the Manager and there are
+                # tries to send a whole PYFT object to the Manager and there are
                 # issues with that (at least about the locks attached to the instance)
                 # The code here allows to synchronize when there is a lock mechanism.
                 # All the routines updating the tree must be decorated by noParallel
@@ -145,8 +145,8 @@ def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)
 
     # Default options
     if parserOptions is None:
-        import pyft
-        parserOptions = pyft.PYFT.DEFAULT_FXTRAN_OPTIONS
+        import pyfortool
+        parserOptions = pyfortool.PYFT.DEFAULT_FXTRAN_OPTIONS
 
     # Call to fxtran
     renamed = False

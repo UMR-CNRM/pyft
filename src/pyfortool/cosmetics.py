@@ -3,9 +3,9 @@ This module implements the Cosmetics class containg methods to deal with cosmeti
 """
 
 import re
-from pyft.util import debugDecor, nonCode, tag
-from pyft.expressions import createElem
-from pyft import NAMESPACE
+from pyfortool.util import debugDecor, nonCode, tag
+from pyfortool.expressions import createElem
+from pyfortool import NAMESPACE
 
 
 class Cosmetics():

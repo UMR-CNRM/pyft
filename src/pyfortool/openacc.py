@@ -4,8 +4,8 @@ This module implements the Openacc class containing the methods relative to open
 
 import re
 
-from pyft.util import debugDecor, n2name, alltext, tag
-from pyft.expressions import createElem, createExpr
+from pyfortool.util import debugDecor, n2name, alltext, tag
+from pyfortool.expressions import createElem, createExpr
 
 
 class Openacc():
