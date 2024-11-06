@@ -3,7 +3,7 @@ PyForTool is a python package, built on top of the fxtran tool, to manipulate
 FORTRAN files to apply source-to-source transformations.
 """
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 # NAMESPACE should be defined first
 NAMESPACE = 'http://fxtran.net/#syntax'
