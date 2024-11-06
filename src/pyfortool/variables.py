@@ -1447,9 +1447,9 @@ class Variables():
                             xml = self.mainScope
                             pft = None
                         else:
-                            pft = pyfortool.pyfortoolconservativePYFT(filename, parser, parserOptions,
-                                                                      wrapH, tree=self.tree,
-                                                                      clsPYFT=self._mainScope.__class__)
+                            pft = pyfortool.pyfortoolconservativePYFT(
+                                      filename, parser, parserOptions, wrapH, tree=self.tree,
+                                      clsPYFT=self._mainScope.__class__)
                             xml = pft
                         scopeInterface = xml.getScopeNode(scopePathInterface)
                         varInterface = scopeInterface.varList.findVar(varName, exactScope=True)
@@ -1479,9 +1479,9 @@ class Variables():
                                 xml = self.mainScope
                                 pft = None
                             else:
-                                pft = pyfortool.pyfortool.conservativePYFT(filename, parser, parserOptions,
-                                                                           wrapH, tree=self.tree,
-                                                                           clsPYFT=self._mainScope.__class__)
+                                pft = pyfortool.pyfortool.conservativePYFT(
+                                          filename, parser, parserOptions, wrapH, tree=self.tree,
+                                          clsPYFT=self._mainScope.__class__)
                                 xml = pft
                             scopeUp = xml.getScopeNode(scopePathUp)
                             # Add the argument and propagate upward
