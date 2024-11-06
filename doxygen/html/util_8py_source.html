@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: /home/runner/work/pyft/pyft/src/pyft/util.py Source File</title>
+<title>PyForTool: /home/runner/work/pyft/pyft/src/pyfortool/util.py Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_ec8d446e0c5afb88c50dd0948d8a042e.html">pyft</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_69a38fea1e4413ac60f151dc357637ec.html">pyfortool</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,7 +70,7 @@ $(function() {
 <div class="title">util.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="stringliteral">This module implements some tools to manipulate the xml</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
@@ -83,14 +83,14 @@ $(function() {
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">import</span> time</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">import</span> re</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">from</span> pyft <span class="keyword">import</span> NAMESPACE</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="keyword">from</span> pyfortool <span class="keyword">import</span> NAMESPACE</div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#ababc5d7073edbcd2540f8cd9d9ead791">   19</a></span>&#160;debugStats = {}</div>
+<div class="line"><a name="l00019"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a2b5fe9592b51b5ba529101ff18e9f32f">   19</a></span>&#160;debugStats = {}</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#ae31aa73873f2a451bd4d35811e449d75">   22</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#ae31aa73873f2a451bd4d35811e449d75">debugDecor</a>(func):</div>
+<div class="line"><a name="l00022"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a3924771376686a6507114f6acc766605">   22</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a3924771376686a6507114f6acc766605">debugDecor</a>(func):</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;<span class="stringliteral">    Defines a decorator to trace all function calling with arguments and results</span></div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="stringliteral">    and count number of calls and time spent</span></div>
@@ -138,7 +138,7 @@ $(function() {
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    <span class="keywordflow">return</span> wrapper</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160; </div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
-<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a7ce88ce7d9dcfd188bf4f8686d655ec3">   70</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a7ce88ce7d9dcfd188bf4f8686d655ec3">noParallel</a>(func):</div>
+<div class="line"><a name="l00070"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#ae5aaf0dca8ebd78034c8bf5b20bb883a">   70</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#ae5aaf0dca8ebd78034c8bf5b20bb883a">noParallel</a>(func):</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;<span class="stringliteral">    Defines a decorator that prevent this method to be executed in parallel on several files</span></div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
@@ -148,7 +148,7 @@ $(function() {
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;            <span class="comment"># Acquire lock, if any</span></div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;            <span class="keyword">with</span> self.NO_PARALLEL_LOCK:</div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;                <span class="comment"># We cannot use directly the shared version because the update</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                <span class="comment"># tries to send a whole pyft object to the Manager and there are</span></div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;                <span class="comment"># tries to send a whole PYFT object to the Manager and there are</span></div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;                <span class="comment"># issues with that (at least about the locks attached to the instance)</span></div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;                <span class="comment"># The code here allows to synchronize when there is a lock mechanism.</span></div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;                <span class="comment"># All the routines updating the tree must be decorated by noParallel</span></div>
@@ -163,7 +163,7 @@ $(function() {
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordflow">return</span> wrapper</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160; </div>
-<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a5a7ecb9b1474169f49d8d16d20323157">   95</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a5a7ecb9b1474169f49d8d16d20323157">setVerbosity</a>(level):</div>
+<div class="line"><a name="l00095"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a4ea759820cd388eaf7e11a79f7a87c65">   95</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a4ea759820cd388eaf7e11a79f7a87c65">setVerbosity</a>(level):</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="stringliteral">    Set the verbosity level</span></div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="stringliteral">    :param level: verbosity level used to set the logging module</span></div>
@@ -175,7 +175,7 @@ $(function() {
 <div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        logger.setLevel(level=level)</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
-<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a40dce444eb46ff461a5797cddf4b0234">  107</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a40dce444eb46ff461a5797cddf4b0234">printInfos</a>():</div>
+<div class="line"><a name="l00107"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a5bf2096ca03224be7469dc6dc14b5f20">  107</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a5bf2096ca03224be7469dc6dc14b5f20">printInfos</a>():</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;<span class="stringliteral">    Print statistics on methods and function usage</span></div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
@@ -190,7 +190,7 @@ $(function() {
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;            _print(funcName, values[<span class="stringliteral">&#39;nb&#39;</span>], values[<span class="stringliteral">&#39;min&#39;</span>], values[<span class="stringliteral">&#39;max&#39;</span>], values[<span class="stringliteral">&#39;totalTime&#39;</span>])</div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160; </div>
 <div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160; </div>
-<div class="line"><a name="l00122"></a><span class="lineno"><a class="line" href="classpyft_1_1util_1_1PYFTError.html">  122</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyft_1_1util_1_1PYFTError.html">PYFTError</a>(Exception):</div>
+<div class="line"><a name="l00122"></a><span class="lineno"><a class="line" href="classpyfortool_1_1util_1_1PYFTError.html">  122</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyfortool_1_1util_1_1PYFTError.html">PYFTError</a>(Exception):</div>
 <div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;<span class="stringliteral">    Exceptions for PYFT</span></div>
 <div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
@@ -198,7 +198,7 @@ $(function() {
 <div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160; </div>
 <div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160; </div>
-<div class="line"><a name="l00131"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#ad28c6c93eb58756e92ab32f248b79fa8">  131</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#ad28c6c93eb58756e92ab32f248b79fa8">fortran2xml</a>(fortranSource, parser=&#39;fxtran&#39;, parserOptions=None, wrapH=False):</div>
+<div class="line"><a name="l00131"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a2095f5544d21172dc18e4e7ffebab95f">  131</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a2095f5544d21172dc18e4e7ffebab95f">fortran2xml</a>(fortranSource, parser=&#39;fxtran&#39;, parserOptions=None, wrapH=False):</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;<span class="stringliteral">    :param fortranSource: a string containing a fortran source code</span></div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;<span class="stringliteral">                          or a filename</span></div>
@@ -215,8 +215,8 @@ $(function() {
 <div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160; </div>
 <div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="comment"># Default options</span></div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <span class="keywordflow">if</span> parserOptions <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;        <span class="keyword">import</span> pyft</div>
-<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        parserOptions = pyft.PYFT.DEFAULT_FXTRAN_OPTIONS</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;        <span class="keyword">import</span> pyfortool</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;        parserOptions = pyfortool.PYFT.DEFAULT_FXTRAN_OPTIONS</div>
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160; </div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160;    <span class="comment"># Call to fxtran</span></div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    renamed = <span class="keyword">False</span></div>
@@ -291,7 +291,7 @@ $(function() {
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;    <span class="keywordflow">return</span> includesDone, xml</div>
 <div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160; </div>
 <div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160; </div>
-<div class="line"><a name="l00224"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#aa184f9e4f0d6fd77454b5c9c2621d10d">  224</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#aa184f9e4f0d6fd77454b5c9c2621d10d">tostring</a>(doc):</div>
+<div class="line"><a name="l00224"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a3f7888d5dd79a91c4d1c9ec5394b96c7">  224</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a3f7888d5dd79a91c4d1c9ec5394b96c7">tostring</a>(doc):</div>
 <div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;<span class="stringliteral">    :param doc: an ET object</span></div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;<span class="stringliteral">    :return: xml as a string</span></div>
@@ -299,7 +299,7 @@ $(function() {
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;    <span class="keywordflow">return</span> ET.tostring(doc, method=<span class="stringliteral">&#39;xml&#39;</span>, encoding=<span class="stringliteral">&#39;UTF-8&#39;</span>).decode(<span class="stringliteral">&#39;UTF-8&#39;</span>)</div>
 <div class="line"><a name="l00230"></a><span class="lineno">  230</span>&#160; </div>
 <div class="line"><a name="l00231"></a><span class="lineno">  231</span>&#160; </div>
-<div class="line"><a name="l00232"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a7faea120f81393463fefbfea517edae5">  232</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a7faea120f81393463fefbfea517edae5">tofortran</a>(doc):</div>
+<div class="line"><a name="l00232"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a82154ee7c74abe2b69c8085d6a5aecc8">  232</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a82154ee7c74abe2b69c8085d6a5aecc8">tofortran</a>(doc):</div>
 <div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;<span class="stringliteral">    :param doc: an ET object</span></div>
 <div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;<span class="stringliteral">    :return: a string representing the FORTRAN source code</span></div>
@@ -319,7 +319,7 @@ $(function() {
 <div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160; </div>
 <div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160; </div>
 <div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160; </div>
-<div class="line"><a name="l00253"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a9028cf77c65bc07bdfb64a7c5e64e0b4">  253</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a9028cf77c65bc07bdfb64a7c5e64e0b4">isint</a>(string):</div>
+<div class="line"><a name="l00253"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#aab1d5fba6db81d8f29f9fff127469be0">  253</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#aab1d5fba6db81d8f29f9fff127469be0">isint</a>(string):</div>
 <div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;<span class="stringliteral">    :param string: string to test for intergerness</span></div>
 <div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="stringliteral">    :return: True if s represent an int</span></div>
@@ -332,7 +332,7 @@ $(function() {
 <div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">True</span></div>
 <div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160; </div>
 <div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160; </div>
-<div class="line"><a name="l00266"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a45d58bf006e1944502b51a3e4927b242">  266</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a45d58bf006e1944502b51a3e4927b242">isfloat</a>(string):</div>
+<div class="line"><a name="l00266"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#acea69799bd4cb0ca07d566d365fd8568">  266</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#acea69799bd4cb0ca07d566d365fd8568">isfloat</a>(string):</div>
 <div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;<span class="stringliteral">    :param string: string to test for intergerness</span></div>
 <div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;<span class="stringliteral">    :return: True if s represent a real</span></div>
@@ -347,7 +347,7 @@ $(function() {
 <div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160; </div>
 <div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160; </div>
 <div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160; </div>
-<div class="line"><a name="l00282"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">  282</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">tag</a>(elem):</div>
+<div class="line"><a name="l00282"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">  282</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">tag</a>(elem):</div>
 <div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;<span class="stringliteral">    :param elem: ET Element</span></div>
 <div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;<span class="stringliteral">    :return: the tag without the namespace</span></div>
@@ -355,14 +355,14 @@ $(function() {
 <div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="keywordflow">return</span> elem.tag.split(<span class="stringliteral">&#39;}&#39;</span>)[1]</div>
 <div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160; </div>
 <div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160; </div>
-<div class="line"><a name="l00290"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a05a5150e40be5e7f8f1a37d71a79ac9b">  290</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a05a5150e40be5e7f8f1a37d71a79ac9b">n2name</a>(nodeN):</div>
+<div class="line"><a name="l00290"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#ad66281a21154cf857501e0fb420545fb">  290</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#ad66281a21154cf857501e0fb420545fb">n2name</a>(nodeN):</div>
 <div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;<span class="stringliteral">    Helper function which returns the entity name enclosed in a N tag</span></div>
 <div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&#39;&#39;</span>.join([e.text <span class="keywordflow">for</span> e <span class="keywordflow">in</span> nodeN.findall(<span class="stringliteral">&#39;./{*}n&#39;</span>)])</div>
 <div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160; </div>
 <div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160; </div>
-<div class="line"><a name="l00297"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a5a76217450a50114c56fcbaa85b69004">  297</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a5a76217450a50114c56fcbaa85b69004">alltext</a>(doc):</div>
+<div class="line"><a name="l00297"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a3ca7accfeebc6993803b8d0487d619f2">  297</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a3ca7accfeebc6993803b8d0487d619f2">alltext</a>(doc):</div>
 <div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="stringliteral">    Helper function to iterate on all text fragment and join them</span></div>
 <div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="stringliteral">    :param doc: xml fragment</span></div>
@@ -370,21 +370,21 @@ $(function() {
 <div class="line"><a name="l00302"></a><span class="lineno">  302</span>&#160;    <span class="keywordflow">return</span> <span class="stringliteral">&#39;&#39;</span>.join(doc.itertext())</div>
 <div class="line"><a name="l00303"></a><span class="lineno">  303</span>&#160; </div>
 <div class="line"><a name="l00304"></a><span class="lineno">  304</span>&#160; </div>
-<div class="line"><a name="l00305"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a1a117dfdaa38d41a4694e431ef007520">  305</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a1a117dfdaa38d41a4694e431ef007520">nonCode</a>(elem):</div>
+<div class="line"><a name="l00305"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a188a16370f5854f7be0598e2d271bcb7">  305</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a188a16370f5854f7be0598e2d271bcb7">nonCode</a>(elem):</div>
 <div class="line"><a name="l00306"></a><span class="lineno">  306</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00307"></a><span class="lineno">  307</span>&#160;<span class="stringliteral">    :param e: element</span></div>
 <div class="line"><a name="l00308"></a><span class="lineno">  308</span>&#160;<span class="stringliteral">    :return: True if e is non code (comment, text...)</span></div>
 <div class="line"><a name="l00309"></a><span class="lineno">  309</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
-<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">tag</a>(elem) <span class="keywordflow">in</span> {<span class="stringliteral">&#39;cnt&#39;</span>, <span class="stringliteral">&#39;C&#39;</span>, <span class="stringliteral">&#39;cpp&#39;</span>}</div>
+<div class="line"><a name="l00310"></a><span class="lineno">  310</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">tag</a>(elem) <span class="keywordflow">in</span> {<span class="stringliteral">&#39;cnt&#39;</span>, <span class="stringliteral">&#39;C&#39;</span>, <span class="stringliteral">&#39;cpp&#39;</span>}</div>
 <div class="line"><a name="l00311"></a><span class="lineno">  311</span>&#160; </div>
 <div class="line"><a name="l00312"></a><span class="lineno">  312</span>&#160; </div>
-<div class="line"><a name="l00313"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a62b9a68826491b957393a4bd14d4437f">  313</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a62b9a68826491b957393a4bd14d4437f">isExecutable</a>(elem):</div>
+<div class="line"><a name="l00313"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#adbc93db434e4fcd428c63a41208a4072">  313</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#adbc93db434e4fcd428c63a41208a4072">isExecutable</a>(elem):</div>
 <div class="line"><a name="l00314"></a><span class="lineno">  314</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00315"></a><span class="lineno">  315</span>&#160;<span class="stringliteral">    :param e: element</span></div>
 <div class="line"><a name="l00316"></a><span class="lineno">  316</span>&#160;<span class="stringliteral">    :return: True if element is executable</span></div>
 <div class="line"><a name="l00317"></a><span class="lineno">  317</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
-<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keywordflow">return</span> ((<a class="code" href="namespacepyft_1_1util.html#a54413a54b63cb6612018dcb1fc9975ad">isStmt</a>(elem) <span class="keywordflow">or</span> <a class="code" href="namespacepyft_1_1util.html#a5b3f48fded90573c174de31309072b96">isConstruct</a>(elem)) <span class="keywordflow">and</span></div>
-<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;            <a class="code" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">tag</a>(elem) <span class="keywordflow">not</span> <span class="keywordflow">in</span> (<span class="stringliteral">&#39;subroutine-stmt&#39;</span>, <span class="stringliteral">&#39;end-subroutine-stmt&#39;</span>,</div>
+<div class="line"><a name="l00318"></a><span class="lineno">  318</span>&#160;    <span class="keywordflow">return</span> ((<a class="code" href="namespacepyfortool_1_1util.html#a168cc4e7375eff97bbe2652f4aa11a98">isStmt</a>(elem) <span class="keywordflow">or</span> <a class="code" href="namespacepyfortool_1_1util.html#a61111f089ea05098f700bc8eefaec8b6">isConstruct</a>(elem)) <span class="keywordflow">and</span></div>
+<div class="line"><a name="l00319"></a><span class="lineno">  319</span>&#160;            <a class="code" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">tag</a>(elem) <span class="keywordflow">not</span> <span class="keywordflow">in</span> (<span class="stringliteral">&#39;subroutine-stmt&#39;</span>, <span class="stringliteral">&#39;end-subroutine-stmt&#39;</span>,</div>
 <div class="line"><a name="l00320"></a><span class="lineno">  320</span>&#160;                              <span class="stringliteral">&#39;function-stmt&#39;</span>, <span class="stringliteral">&#39;end-function-stmt&#39;</span>,</div>
 <div class="line"><a name="l00321"></a><span class="lineno">  321</span>&#160;                              <span class="stringliteral">&#39;use-stmt&#39;</span>, <span class="stringliteral">&#39;T-decl-stmt&#39;</span>, <span class="stringliteral">&#39;component-decl-stmt&#39;</span>,</div>
 <div class="line"><a name="l00322"></a><span class="lineno">  322</span>&#160;                              <span class="stringliteral">&#39;T-stmt&#39;</span>, <span class="stringliteral">&#39;end-T-stmt&#39;</span>,</div>
@@ -392,37 +392,37 @@ $(function() {
 <div class="line"><a name="l00324"></a><span class="lineno">  324</span>&#160;                              <span class="stringliteral">&#39;implicit-none-stmt&#39;</span>))</div>
 <div class="line"><a name="l00325"></a><span class="lineno">  325</span>&#160; </div>
 <div class="line"><a name="l00326"></a><span class="lineno">  326</span>&#160; </div>
-<div class="line"><a name="l00327"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a5b3f48fded90573c174de31309072b96">  327</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a5b3f48fded90573c174de31309072b96">isConstruct</a>(elem):</div>
+<div class="line"><a name="l00327"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a61111f089ea05098f700bc8eefaec8b6">  327</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a61111f089ea05098f700bc8eefaec8b6">isConstruct</a>(elem):</div>
 <div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;<span class="stringliteral">    :param elem: element</span></div>
 <div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;<span class="stringliteral">    :return: True if element is a construct</span></div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
-<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">tag</a>(elem).endswith(<span class="stringliteral">&#39;-construct&#39;</span>)</div>
+<div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">tag</a>(elem).endswith(<span class="stringliteral">&#39;-construct&#39;</span>)</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160; </div>
 <div class="line"><a name="l00334"></a><span class="lineno">  334</span>&#160; </div>
-<div class="line"><a name="l00335"></a><span class="lineno"><a class="line" href="namespacepyft_1_1util.html#a54413a54b63cb6612018dcb1fc9975ad">  335</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1util.html#a54413a54b63cb6612018dcb1fc9975ad">isStmt</a>(elem):</div>
+<div class="line"><a name="l00335"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1util.html#a168cc4e7375eff97bbe2652f4aa11a98">  335</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1util.html#a168cc4e7375eff97bbe2652f4aa11a98">isStmt</a>(elem):</div>
 <div class="line"><a name="l00336"></a><span class="lineno">  336</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00337"></a><span class="lineno">  337</span>&#160;<span class="stringliteral">    :param elem: element</span></div>
 <div class="line"><a name="l00338"></a><span class="lineno">  338</span>&#160;<span class="stringliteral">    :return: True if element is a statement</span></div>
 <div class="line"><a name="l00339"></a><span class="lineno">  339</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
-<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">tag</a>(elem).endswith(<span class="stringliteral">&#39;-stmt&#39;</span>)</div>
-<div class="ttc" id="aclasspyft_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyft_1_1util_1_1PYFTError.html">pyft.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a05a5150e40be5e7f8f1a37d71a79ac9b"><div class="ttname"><a href="namespacepyft_1_1util.html#a05a5150e40be5e7f8f1a37d71a79ac9b">pyft.util.n2name</a></div><div class="ttdeci">def n2name(nodeN)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00290">util.py:290</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a1a117dfdaa38d41a4694e431ef007520"><div class="ttname"><a href="namespacepyft_1_1util.html#a1a117dfdaa38d41a4694e431ef007520">pyft.util.nonCode</a></div><div class="ttdeci">def nonCode(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00305">util.py:305</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a40dce444eb46ff461a5797cddf4b0234"><div class="ttname"><a href="namespacepyft_1_1util.html#a40dce444eb46ff461a5797cddf4b0234">pyft.util.printInfos</a></div><div class="ttdeci">def printInfos()</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00107">util.py:107</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a45d58bf006e1944502b51a3e4927b242"><div class="ttname"><a href="namespacepyft_1_1util.html#a45d58bf006e1944502b51a3e4927b242">pyft.util.isfloat</a></div><div class="ttdeci">def isfloat(string)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00266">util.py:266</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a54413a54b63cb6612018dcb1fc9975ad"><div class="ttname"><a href="namespacepyft_1_1util.html#a54413a54b63cb6612018dcb1fc9975ad">pyft.util.isStmt</a></div><div class="ttdeci">def isStmt(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00335">util.py:335</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a5a76217450a50114c56fcbaa85b69004"><div class="ttname"><a href="namespacepyft_1_1util.html#a5a76217450a50114c56fcbaa85b69004">pyft.util.alltext</a></div><div class="ttdeci">def alltext(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00297">util.py:297</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a5a7ecb9b1474169f49d8d16d20323157"><div class="ttname"><a href="namespacepyft_1_1util.html#a5a7ecb9b1474169f49d8d16d20323157">pyft.util.setVerbosity</a></div><div class="ttdeci">def setVerbosity(level)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00095">util.py:95</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a5b3f48fded90573c174de31309072b96"><div class="ttname"><a href="namespacepyft_1_1util.html#a5b3f48fded90573c174de31309072b96">pyft.util.isConstruct</a></div><div class="ttdeci">def isConstruct(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00327">util.py:327</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a62b9a68826491b957393a4bd14d4437f"><div class="ttname"><a href="namespacepyft_1_1util.html#a62b9a68826491b957393a4bd14d4437f">pyft.util.isExecutable</a></div><div class="ttdeci">def isExecutable(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00313">util.py:313</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a7ce88ce7d9dcfd188bf4f8686d655ec3"><div class="ttname"><a href="namespacepyft_1_1util.html#a7ce88ce7d9dcfd188bf4f8686d655ec3">pyft.util.noParallel</a></div><div class="ttdeci">def noParallel(func)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00070">util.py:70</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a7faea120f81393463fefbfea517edae5"><div class="ttname"><a href="namespacepyft_1_1util.html#a7faea120f81393463fefbfea517edae5">pyft.util.tofortran</a></div><div class="ttdeci">def tofortran(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00232">util.py:232</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_a9028cf77c65bc07bdfb64a7c5e64e0b4"><div class="ttname"><a href="namespacepyft_1_1util.html#a9028cf77c65bc07bdfb64a7c5e64e0b4">pyft.util.isint</a></div><div class="ttdeci">def isint(string)</div><div class="ttdoc">Other.</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00253">util.py:253</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_aa184f9e4f0d6fd77454b5c9c2621d10d"><div class="ttname"><a href="namespacepyft_1_1util.html#aa184f9e4f0d6fd77454b5c9c2621d10d">pyft.util.tostring</a></div><div class="ttdeci">def tostring(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00224">util.py:224</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_ad28c6c93eb58756e92ab32f248b79fa8"><div class="ttname"><a href="namespacepyft_1_1util.html#ad28c6c93eb58756e92ab32f248b79fa8">pyft.util.fortran2xml</a></div><div class="ttdeci">def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00131">util.py:131</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_add9f40bba9bf91fa2f98efa7a6cc7226"><div class="ttname"><a href="namespacepyft_1_1util.html#add9f40bba9bf91fa2f98efa7a6cc7226">pyft.util.tag</a></div><div class="ttdeci">def tag(elem)</div><div class="ttdoc">Helper functions acting on the xml.</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00282">util.py:282</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html_ae31aa73873f2a451bd4d35811e449d75"><div class="ttname"><a href="namespacepyft_1_1util.html#ae31aa73873f2a451bd4d35811e449d75">pyft.util.debugDecor</a></div><div class="ttdeci">def debugDecor(func)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00022">util.py:22</a></div></div>
+<div class="line"><a name="l00340"></a><span class="lineno">  340</span>&#160;    <span class="keywordflow">return</span> <a class="code" href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">tag</a>(elem).endswith(<span class="stringliteral">&#39;-stmt&#39;</span>)</div>
+<div class="ttc" id="aclasspyfortool_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyfortool_1_1util_1_1PYFTError.html">pyfortool.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a168cc4e7375eff97bbe2652f4aa11a98"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a168cc4e7375eff97bbe2652f4aa11a98">pyfortool.util.isStmt</a></div><div class="ttdeci">def isStmt(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00335">util.py:335</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a188a16370f5854f7be0598e2d271bcb7"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a188a16370f5854f7be0598e2d271bcb7">pyfortool.util.nonCode</a></div><div class="ttdeci">def nonCode(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00305">util.py:305</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a2095f5544d21172dc18e4e7ffebab95f"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a2095f5544d21172dc18e4e7ffebab95f">pyfortool.util.fortran2xml</a></div><div class="ttdeci">def fortran2xml(fortranSource, parser='fxtran', parserOptions=None, wrapH=False)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00131">util.py:131</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a3924771376686a6507114f6acc766605"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a3924771376686a6507114f6acc766605">pyfortool.util.debugDecor</a></div><div class="ttdeci">def debugDecor(func)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00022">util.py:22</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a3ca7accfeebc6993803b8d0487d619f2"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a3ca7accfeebc6993803b8d0487d619f2">pyfortool.util.alltext</a></div><div class="ttdeci">def alltext(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00297">util.py:297</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a3f7888d5dd79a91c4d1c9ec5394b96c7"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a3f7888d5dd79a91c4d1c9ec5394b96c7">pyfortool.util.tostring</a></div><div class="ttdeci">def tostring(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00224">util.py:224</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a404c8d6ffb65b1c9b371dde8af1e9f8e"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a404c8d6ffb65b1c9b371dde8af1e9f8e">pyfortool.util.tag</a></div><div class="ttdeci">def tag(elem)</div><div class="ttdoc">Helper functions acting on the xml.</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00282">util.py:282</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a4ea759820cd388eaf7e11a79f7a87c65"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a4ea759820cd388eaf7e11a79f7a87c65">pyfortool.util.setVerbosity</a></div><div class="ttdeci">def setVerbosity(level)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00095">util.py:95</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a5bf2096ca03224be7469dc6dc14b5f20"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a5bf2096ca03224be7469dc6dc14b5f20">pyfortool.util.printInfos</a></div><div class="ttdeci">def printInfos()</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00107">util.py:107</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a61111f089ea05098f700bc8eefaec8b6"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a61111f089ea05098f700bc8eefaec8b6">pyfortool.util.isConstruct</a></div><div class="ttdeci">def isConstruct(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00327">util.py:327</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_a82154ee7c74abe2b69c8085d6a5aecc8"><div class="ttname"><a href="namespacepyfortool_1_1util.html#a82154ee7c74abe2b69c8085d6a5aecc8">pyfortool.util.tofortran</a></div><div class="ttdeci">def tofortran(doc)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00232">util.py:232</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_aab1d5fba6db81d8f29f9fff127469be0"><div class="ttname"><a href="namespacepyfortool_1_1util.html#aab1d5fba6db81d8f29f9fff127469be0">pyfortool.util.isint</a></div><div class="ttdeci">def isint(string)</div><div class="ttdoc">Other.</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00253">util.py:253</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_acea69799bd4cb0ca07d566d365fd8568"><div class="ttname"><a href="namespacepyfortool_1_1util.html#acea69799bd4cb0ca07d566d365fd8568">pyfortool.util.isfloat</a></div><div class="ttdeci">def isfloat(string)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00266">util.py:266</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_ad66281a21154cf857501e0fb420545fb"><div class="ttname"><a href="namespacepyfortool_1_1util.html#ad66281a21154cf857501e0fb420545fb">pyfortool.util.n2name</a></div><div class="ttdeci">def n2name(nodeN)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00290">util.py:290</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_adbc93db434e4fcd428c63a41208a4072"><div class="ttname"><a href="namespacepyfortool_1_1util.html#adbc93db434e4fcd428c63a41208a4072">pyfortool.util.isExecutable</a></div><div class="ttdeci">def isExecutable(elem)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00313">util.py:313</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html_ae5aaf0dca8ebd78034c8bf5b20bb883a"><div class="ttname"><a href="namespacepyfortool_1_1util.html#ae5aaf0dca8ebd78034c8bf5b20bb883a">pyfortool.util.noParallel</a></div><div class="ttdeci">def noParallel(func)</div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00070">util.py:70</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

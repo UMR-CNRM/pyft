@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: User&#39;s guide</title>
+<title>PyForTool: User&#39;s guide</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -68,12 +68,12 @@ $(function() {
 <div class="contents">
 <div class="textblock"><h1><a class="anchor" id="autotoc_md1"></a>
 Introduction</h1>
-<p>This package contains two python script, <a class="el" href="pyft__tool_8py_source.html">pyft_tool.py</a> and <a class="el" href="pyft__parallel__tool_8py_source.html">pyft_parallel_tool.py</a>, that read FORTRAN codes, parse them in xml, perform some manipulation, revert them in FORTRAN and write them back on disk. <a class="el" href="pyft__tool_8py_source.html">pyft_tool.py</a> performs these tasks on a per file basis whereas <a class="el" href="pyft__parallel__tool_8py_source.html">pyft_parallel_tool.py</a> perform the transformations in parallel on all files found in a tree. In addition, the package can be used for scripting applicative transformations.</p>
+<p>This package contains two python script, pyfortool and pyfortool_parallel, that read FORTRAN codes, parse them in xml, perform some manipulation, revert them in FORTRAN and write them back on disk. pyfortoo performs these tasks on a per file basis whereas pyfortool_parallel perform the transformations in parallel on all files found in a tree. In addition, the package can be used for scripting applicative transformations.</p>
 <p>This package supposes that the original source code is written using UTF-8 encoding. If not, some special characters could be altered by the double conversion. Apart from this, the resulting FORTRAN source code is exactly the same as the INPUT source code if no manipulation is performed.</p>
 <p>DEPENDENCIES:</p>
 <ul>
 <li><a href="https://github.com/pmarguinaud/fxtran">fxtran</a> must be installed.</li>
-<li>pyft needs, at least, version 3.8 of python</li>
+<li>PyForTool needs, at least, version 3.8 of python</li>
 </ul>
 <p>LIMITATIONS:</p>
 <ul>
@@ -103,7 +103,7 @@ Tool options</h1>
 <h2><a class="anchor" id="autotoc_md4"></a>
 Parser options</h2>
 <p><b>&ndash;parser=PATH</b> can be used to specify the full path to the fxtran executable. Usefull if one wants to use a specific version.</p>
-<p><b>&ndash;parserOption=OPTIONS</b> the list of available options can be found in the fxtran documentation. If no option is provided, the defaults one will be used (the list of default options can be seen with "pyft.py -h"). In case this option is used, the default options will be replaced by the ones specified.</p>
+<p><b>&ndash;parserOption=OPTIONS</b> the list of available options can be found in the fxtran documentation. If no option is provided, the defaults one will be used (the list of default options can be seen with "pyfortool -h"). In case this option is used, the default options will be replaced by the ones specified.</p>
 <p><b>&ndash;wrapH</b> Wrap .h file content into a MODULE to enable the parsing by fxtran.</p>
 <h2><a class="anchor" id="autotoc_md5"></a>
 Input and output</h2>
@@ -116,7 +116,7 @@ General options</h2>
 <p><b>&ndash;simplify</b> some transformations may render other parts of the code useless. If this option is set, these parts are automatically removed.</p>
 <p><b>&ndash;logLevel=LEVEL</b> specifies the log level to use (e.g. debug). With the info level, execution time and number of calls are printed for each called functions. In addition, with the debug level, input and output of all the called functions are printed.</p>
 <p><b>&ndash;enableCache</b> activates a cache to obtain the node's parent faster.</p>
-<p><b>&ndash;nbPar</b> sets the number of parallel processes for the pyft_parallel\tool.py tool. 0 (default) to use as many processes as the number of cores.</p>
+<p><b>&ndash;nbPar</b> sets the number of parallel processes for the pyfortool_parallel tool. 0 (default) to use as many processes as the number of cores.</p>
 <p><b>&ndash;optsByEnv</b> Name of the environment variable containing additional arguments to use. These arguments are processed after all other arguments. The variable can contain a multi-lines string. The variable is read line by line and the last applicable line is used. A line can take one of these two forms:</p>
 <ul>
 <li>"FILE_DESCRIPTOR:=:OPTIONS": where FILE_DESCRIPTOR is a regular expression to test against the filename. If there is a match, the OPTIONS can be used for the file.</li>
@@ -222,7 +222,7 @@ Module overview</h2>
 <p>An instance of PYFT represents the entire file and can contain several FORTRAN scopes. If p is an instance of PYFT, p.getScopes() returns a list of PYFTscope instances, each one representing a specific FORTRAN scope.</p>
 <p>In order to deal with complex operations involving several source code files, a Tree object can be created. This object analizes all the source code files present in the specified directories to build a compilation tree and an execution tree. These trees can be explored and/or plotted through methods of this object.</p>
 <p>Another class, VarList, represents the list of variables defined in a scope.</p>
-<p>In addition to these four classes, the module contains some functions in <a class="el" href="namespacepyft_1_1util.html">pyft.util</a> and <a class="el" href="namespacepyft_1_1expressions.html">pyft.expressions</a>.</p>
+<p>In addition to these four classes, the module contains some functions in <a class="el" href="namespacepyfortool_1_1util.html">pyfortool.util</a> and <a class="el" href="namespacepyfortool_1_1expressions.html">pyfortool.expressions</a>.</p>
 <h2><a class="anchor" id="autotoc_md18"></a>
 The developer's point of view</h2>
 <h3><a class="anchor" id="autotoc_md19"></a>
@@ -246,8 +246,8 @@ Coding standards</h3>
 <p>The project is written in “lower camel case” with lines of up to 100 characters. As the main class is split into several sub-classes that are not independent, it is normal for pylint to detect accesses to attributes that are not members of the classes. The pyproject.toml and .flake8 files have been adapted to take account of these specificities.</p>
 <p>On top of this, the code is often complex and generates multiple “too many” branches/statements/lines/... messages, which are ignored.</p>
 <p>From the project root, tests are launched by commands:</p><ul>
-<li>flake8 src/pyft/ bin/pyft_*.py</li>
-<li>pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyft/ bin/pyft_*.py</li>
+<li>flake8 src/pyfortool/ bin/pyfortool_*</li>
+<li>pylint -d R0912,C0209,R0915,R1702,C0302,R0913,R0914,W1202,R0904,R0902 src/pyfortool/ bin/pyfortool_*</li>
 </ul>
 <h1><a class="anchor" id="autotoc_md21"></a>
 Examples and tests</h1>

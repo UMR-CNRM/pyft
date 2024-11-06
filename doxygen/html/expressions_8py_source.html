@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: /home/runner/work/pyft/pyft/src/pyft/expressions.py Source File</title>
+<title>PyForTool: /home/runner/work/pyft/pyft/src/pyfortool/expressions.py Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_ec8d446e0c5afb88c50dd0948d8a042e.html">pyft</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_69a38fea1e4413ac60f151dc357637ec.html">pyfortool</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,7 +70,7 @@ $(function() {
 <div class="title">expressions.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="stringliteral">This module includes functions to deal with expressions</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="stringliteral">These functions are independent of the PYFT and PYFTscope objects</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
@@ -78,13 +78,13 @@ $(function() {
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">import</span> re</div>
 <div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> functools <span class="keyword">import</span> lru_cache</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">import</span> copy</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;<span class="keyword">import</span> xml.etree.ElementTree <span class="keyword">as</span> ET</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1util.html">pyft.util</a> <span class="keyword">import</span> debugDecor, isint, isfloat, fortran2xml, PYFTError</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">from</span> pyft <span class="keyword">import</span> NAMESPACE</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">import</span> xml.etree.ElementTree <span class="keyword">as</span> ET</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1util.html">pyfortool.util</a> <span class="keyword">import</span> debugDecor, isint, isfloat, fortran2xml, PYFTError</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="keyword">from</span> pyfortool <span class="keyword">import</span> NAMESPACE</div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">   15</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(tagName, text=None, tail=None):</div>
+<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">   15</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(tagName, text=None, tail=None):</div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="stringliteral">    :param tagName: tag of the element to create</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="stringliteral">    :param text: None or text of the element</span></div>
@@ -120,26 +120,26 @@ $(function() {
 <div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    allowed += allowed.upper() + <span class="stringliteral">&#39;0123456789_&#39;</span></div>
 <div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160; </div>
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;    <span class="keywordflow">if</span> isint(value) <span class="keywordflow">or</span> isfloat(value) <span class="keywordflow">or</span> value.upper() <span class="keywordflow">in</span> (<span class="stringliteral">&#39;.TRUE.&#39;</span>, <span class="stringliteral">&#39;.FALSE.&#39;</span>):</div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        node = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;literal-E&#39;</span>)</div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        node.append(<a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;l&#39;</span>, text=str(value)))</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;        node = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;literal-E&#39;</span>)</div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;        node.append(<a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;l&#39;</span>, text=str(value)))</div>
 <div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;    <span class="keywordflow">elif</span> <span class="stringliteral">&quot;&#39;&quot;</span> <span class="keywordflow">in</span> value <span class="keywordflow">or</span> <span class="stringliteral">&#39;&quot;&#39;</span> <span class="keywordflow">in</span> value:</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        node = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;string-E&#39;</span>)</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        node.append(<a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;S&#39;</span>, text=value))</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;        node = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;string-E&#39;</span>)</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;        node.append(<a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;S&#39;</span>, text=value))</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <span class="keywordflow">elif</span> all(c <span class="keywordflow">in</span> allowed <span class="keywordflow">for</span> c <span class="keywordflow">in</span> value):</div>
-<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        nodeN = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;N&#39;</span>)</div>
-<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        nodeN.append(<a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;n&#39;</span>, text=value))</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        node = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;named-E&#39;</span>)</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        nodeN = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;N&#39;</span>)</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;        nodeN.append(<a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;n&#39;</span>, text=value))</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        node = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;named-E&#39;</span>)</div>
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;        node.append(nodeN)</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="keywordflow">elif</span> re.match(<span class="stringliteral">r&#39;[a-zA-Z_][a-zA-Z0-9_]*%[a-zA-Z_][a-zA-Z0-9_]*$&#39;</span>, value):</div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;        <span class="comment"># A%B</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        nodeN = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;N&#39;</span>)</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        nodeN.append(<a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;n&#39;</span>, text=value.split(<span class="stringliteral">&#39;%&#39;</span>)[0]))</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        ct = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;ct&#39;</span>, text=value.split(<span class="stringliteral">&#39;%&#39;</span>)[1])</div>
-<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        componentR = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;component-R&#39;</span>, text=<span class="stringliteral">&#39;%&#39;</span>)</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;        nodeN = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;N&#39;</span>)</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;        nodeN.append(<a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;n&#39;</span>, text=value.split(<span class="stringliteral">&#39;%&#39;</span>)[0]))</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;        ct = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;ct&#39;</span>, text=value.split(<span class="stringliteral">&#39;%&#39;</span>)[1])</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        componentR = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;component-R&#39;</span>, text=<span class="stringliteral">&#39;%&#39;</span>)</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        componentR.append(ct)</div>
-<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        nodeRLT = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;R-LT&#39;</span>)</div>
+<div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;        nodeRLT = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;R-LT&#39;</span>)</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;        nodeRLT.append(componentR)</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        node = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;named-E&#39;</span>)</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;        node = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;named-E&#39;</span>)</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;        node.append(nodeN)</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;        node.append(nodeRLT)</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    <span class="keywordflow">else</span>:</div>
@@ -149,7 +149,7 @@ $(function() {
 <div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160; </div>
 <div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160; </div>
 <div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html#a1e30496398564442f54be51cf03cd5ca">   80</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1expressions.html#a1e30496398564442f54be51cf03cd5ca">createExprPart</a>(value):</div>
+<div class="line"><a name="l00080"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html#a9a8be0178dfe66381f0c5633245a6fb9">   80</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1expressions.html#a9a8be0178dfe66381f0c5633245a6fb9">createExprPart</a>(value):</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;<span class="stringliteral">    :param value: expression part to put in a *-E node</span></div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="stringliteral"></span> </div>
@@ -177,7 +177,7 @@ $(function() {
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160; </div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160; </div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;<span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00108"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html#a5e451f850fddbb7d28d5f9fb2461a2d8">  108</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1expressions.html#a5e451f850fddbb7d28d5f9fb2461a2d8">createExpr</a>(value):</div>
+<div class="line"><a name="l00108"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html#a75347c7b66bf5341f3242006aeb3f304">  108</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1expressions.html#a75347c7b66bf5341f3242006aeb3f304">createExpr</a>(value):</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;<span class="stringliteral">    :param value: statements to convert into xml</span></div>
 <div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;<span class="stringliteral">    :return: the xml fragment corresponding to value (list of nodes)</span></div>
@@ -186,7 +186,7 @@ $(function() {
 <div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160; </div>
 <div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160; </div>
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;<span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html#a565ae5f3da86b678b9a280de0cb9908f">  117</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1expressions.html#a565ae5f3da86b678b9a280de0cb9908f">simplifyExpr</a>(expr, add=None, sub=None):</div>
+<div class="line"><a name="l00117"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html#a1f49cbcecba113c31c133014fbf64369">  117</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1expressions.html#a1f49cbcecba113c31c133014fbf64369">simplifyExpr</a>(expr, add=None, sub=None):</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;<span class="stringliteral">    :param expr: string containing an expression to simplify</span></div>
 <div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;<span class="stringliteral">    :param add: string containing an expression to add</span></div>
@@ -253,7 +253,7 @@ $(function() {
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160; </div>
 <div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160; </div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;<span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00184"></a><span class="lineno"><a class="line" href="namespacepyft_1_1expressions.html#a60355e6ccf9c9a3d13105a65d5996509">  184</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyft_1_1expressions.html#a60355e6ccf9c9a3d13105a65d5996509">createArrayBounds</a>(lowerBoundstr, upperBoundstr, context):</div>
+<div class="line"><a name="l00184"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1expressions.html#a60203f1aaa7c8860d5032c1381f9e3d4">  184</a></span>&#160;<span class="keyword">def </span><a class="code" href="namespacepyfortool_1_1expressions.html#a60203f1aaa7c8860d5032c1381f9e3d4">createArrayBounds</a>(lowerBoundstr, upperBoundstr, context):</div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;<span class="stringliteral">    Return a lower-bound and upper-bound node</span></div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;<span class="stringliteral">    :param lowerBoundstr: string for the fortran lower bound of an array</span></div>
@@ -262,24 +262,24 @@ $(function() {
 <div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;<span class="stringliteral">                    &#39;DOCONCURRENT&#39; for DO CONCURRENT loops</span></div>
 <div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;<span class="stringliteral">                    &#39;ARRAY&#39; for arrays</span></div>
 <div class="line"><a name="l00192"></a><span class="lineno">  192</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
-<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    lowerBound = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;lower-bound&#39;</span>)</div>
-<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    lowerBound.insert(0, <a class="code" href="namespacepyft_1_1expressions.html#a1e30496398564442f54be51cf03cd5ca">createExprPart</a>(lowerBoundstr))</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    upperBound = <a class="code" href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">createElem</a>(<span class="stringliteral">&#39;upper-bound&#39;</span>)</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    upperBound.insert(0, <a class="code" href="namespacepyft_1_1expressions.html#a1e30496398564442f54be51cf03cd5ca">createExprPart</a>(upperBoundstr))</div>
+<div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;    lowerBound = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;lower-bound&#39;</span>)</div>
+<div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;    lowerBound.insert(0, <a class="code" href="namespacepyfortool_1_1expressions.html#a9a8be0178dfe66381f0c5633245a6fb9">createExprPart</a>(lowerBoundstr))</div>
+<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    upperBound = <a class="code" href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">createElem</a>(<span class="stringliteral">&#39;upper-bound&#39;</span>)</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    upperBound.insert(0, <a class="code" href="namespacepyfortool_1_1expressions.html#a9a8be0178dfe66381f0c5633245a6fb9">createExprPart</a>(upperBoundstr))</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;    <span class="keywordflow">if</span> context == <span class="stringliteral">&#39;DO&#39;</span>:</div>
 <div class="line"><a name="l00198"></a><span class="lineno">  198</span>&#160;        lowerBound.tail = <span class="stringliteral">&#39;, &#39;</span></div>
 <div class="line"><a name="l00199"></a><span class="lineno">  199</span>&#160;    <span class="keywordflow">elif</span> context <span class="keywordflow">in</span> (<span class="stringliteral">&#39;DOCONCURRENT&#39;</span>, <span class="stringliteral">&#39;ARRAY&#39;</span>):</div>
 <div class="line"><a name="l00200"></a><span class="lineno">  200</span>&#160;        lowerBound.tail = <span class="stringliteral">&#39;:&#39;</span></div>
 <div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        <span class="keywordflow">raise</span> <a class="code" href="classpyft_1_1util_1_1PYFTError.html">PYFTError</a>(f<span class="stringliteral">&#39;Context unknown in createArrayBounds: {context}&#39;</span>)</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;        <span class="keywordflow">raise</span> <a class="code" href="classpyfortool_1_1util_1_1PYFTError.html">PYFTError</a>(f<span class="stringliteral">&#39;Context unknown in createArrayBounds: {context}&#39;</span>)</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordflow">return</span> lowerBound, upperBound</div>
-<div class="ttc" id="aclasspyft_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyft_1_1util_1_1PYFTError.html">pyft.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html_a1e30496398564442f54be51cf03cd5ca"><div class="ttname"><a href="namespacepyft_1_1expressions.html#a1e30496398564442f54be51cf03cd5ca">pyft.expressions.createExprPart</a></div><div class="ttdeci">def createExprPart(value)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00080">expressions.py:80</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html_a565ae5f3da86b678b9a280de0cb9908f"><div class="ttname"><a href="namespacepyft_1_1expressions.html#a565ae5f3da86b678b9a280de0cb9908f">pyft.expressions.simplifyExpr</a></div><div class="ttdeci">def simplifyExpr(expr, add=None, sub=None)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00117">expressions.py:117</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html_a5e451f850fddbb7d28d5f9fb2461a2d8"><div class="ttname"><a href="namespacepyft_1_1expressions.html#a5e451f850fddbb7d28d5f9fb2461a2d8">pyft.expressions.createExpr</a></div><div class="ttdeci">def createExpr(value)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00108">expressions.py:108</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html_a60355e6ccf9c9a3d13105a65d5996509"><div class="ttname"><a href="namespacepyft_1_1expressions.html#a60355e6ccf9c9a3d13105a65d5996509">pyft.expressions.createArrayBounds</a></div><div class="ttdeci">def createArrayBounds(lowerBoundstr, upperBoundstr, context)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00184">expressions.py:184</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html_aba924b0e91b31c0813544af39a5ec4eb"><div class="ttname"><a href="namespacepyft_1_1expressions.html#aba924b0e91b31c0813544af39a5ec4eb">pyft.expressions.createElem</a></div><div class="ttdeci">def createElem(tagName, text=None, tail=None)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00015">expressions.py:15</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html"><div class="ttname"><a href="namespacepyft_1_1util.html">pyft.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyfortool_1_1util_1_1PYFTError.html">pyfortool.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html_a1f49cbcecba113c31c133014fbf64369"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html#a1f49cbcecba113c31c133014fbf64369">pyfortool.expressions.simplifyExpr</a></div><div class="ttdeci">def simplifyExpr(expr, add=None, sub=None)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00117">expressions.py:117</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html_a512ad428d8956dd7f508769ece8b6b59"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html#a512ad428d8956dd7f508769ece8b6b59">pyfortool.expressions.createElem</a></div><div class="ttdeci">def createElem(tagName, text=None, tail=None)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00015">expressions.py:15</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html_a60203f1aaa7c8860d5032c1381f9e3d4"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html#a60203f1aaa7c8860d5032c1381f9e3d4">pyfortool.expressions.createArrayBounds</a></div><div class="ttdeci">def createArrayBounds(lowerBoundstr, upperBoundstr, context)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00184">expressions.py:184</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html_a75347c7b66bf5341f3242006aeb3f304"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html#a75347c7b66bf5341f3242006aeb3f304">pyfortool.expressions.createExpr</a></div><div class="ttdeci">def createExpr(value)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00108">expressions.py:108</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html_a9a8be0178dfe66381f0c5633245a6fb9"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html#a9a8be0178dfe66381f0c5633245a6fb9">pyfortool.expressions.createExprPart</a></div><div class="ttdeci">def createExprPart(value)</div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00080">expressions.py:80</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html"><div class="ttname"><a href="namespacepyfortool_1_1util.html">pyfortool.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

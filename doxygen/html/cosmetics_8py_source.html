@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: /home/runner/work/pyft/pyft/src/pyft/cosmetics.py Source File</title>
+<title>PyForTool: /home/runner/work/pyft/pyft/src/pyfortool/cosmetics.py Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_ec8d446e0c5afb88c50dd0948d8a042e.html">pyft</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_69a38fea1e4413ac60f151dc357637ec.html">pyfortool</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,22 +70,22 @@ $(function() {
 <div class="title">cosmetics.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyft_1_1cosmetics.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1cosmetics.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="stringliteral">This module implements the Cosmetics class containg methods to deal with cosmetics</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">import</span> re</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1util.html">pyft.util</a> <span class="keyword">import</span> debugDecor, nonCode, tag</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1expressions.html">pyft.expressions</a> <span class="keyword">import</span> createElem</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">from</span> pyft <span class="keyword">import</span> NAMESPACE</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1util.html">pyfortool.util</a> <span class="keyword">import</span> debugDecor, nonCode, tag</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1expressions.html">pyfortool.expressions</a> <span class="keyword">import</span> createElem</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">from</span> pyfortool <span class="keyword">import</span> NAMESPACE</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html">Cosmetics</a>():</div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html">Cosmetics</a>():</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="stringliteral">    Methods to deal with cosmetics</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae153e43c44d23ee55a22173a3f1e9f60">   16</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae153e43c44d23ee55a22173a3f1e9f60">upperCase</a>(self):</div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a2e0f9770fccc39a795aad260803ab6a0">   16</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a2e0f9770fccc39a795aad260803ab6a0">upperCase</a>(self):</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="stringliteral">        :return: same object but with upper case letters for FORTRAN code</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="stringliteral">        &quot;&quot;&quot;</span></div>
@@ -94,7 +94,7 @@ $(function() {
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;                elem.text = elem.text.upper()</div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160; </div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a5010b78035ddff2c3d1f6a881d4bdb90">   25</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a5010b78035ddff2c3d1f6a881d4bdb90">lowerCase</a>(self):</div>
+<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a4b69bc97536221037a82dc216df32206">   25</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a4b69bc97536221037a82dc216df32206">lowerCase</a>(self):</div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="stringliteral">        :return: same objetc but with lower case letters for FORTRAN code</span></div>
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;<span class="stringliteral">        &quot;&quot;&quot;</span></div>
@@ -103,7 +103,7 @@ $(function() {
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;                elem.text = elem.text.lower()</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160; </div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a2cac0c3e243f2fe33d4decd2f6042eb4">   34</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a2cac0c3e243f2fe33d4decd2f6042eb4">indent</a>(self, nodeToUpdate=None, indentProgramunit=0, indentBranch=2,</div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a6aac7c5c3221fbace6e3789aac98489f">   34</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a6aac7c5c3221fbace6e3789aac98489f">indent</a>(self, nodeToUpdate=None, indentProgramunit=0, indentBranch=2,</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;               exclDirectives=None):</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="stringliteral">        :param nodeToUpdate: if None, the entire object is indented</span></div>
@@ -222,7 +222,7 @@ $(function() {
 <div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;        <span class="keywordflow">return</span> nodeToUpdate</div>
 <div class="line"><a name="l00151"></a><span class="lineno">  151</span>&#160; </div>
 <div class="line"><a name="l00152"></a><span class="lineno">  152</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00153"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a1cd7f66c25620a636540d6c90b69bd72">  153</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a1cd7f66c25620a636540d6c90b69bd72">removeEmptyLines</a>(self):</div>
+<div class="line"><a name="l00153"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#af3125e92d3751cbcabe7592d2b6a533c">  153</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#af3125e92d3751cbcabe7592d2b6a533c">removeEmptyLines</a>(self):</div>
 <div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;<span class="stringliteral">        Remove empty lines</span></div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;<span class="stringliteral">        &quot;&quot;&quot;</span></div>
@@ -235,7 +235,7 @@ $(function() {
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;                elem.tail = re.sub(<span class="stringliteral">r&quot;\n[  \n]*\n&quot;</span>, <span class="stringliteral">r&quot;\n&quot;</span>, elem.tail)</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160; </div>
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00166"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a09a9a826d27d8d48d9a949fbcdfa8101">  166</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a09a9a826d27d8d48d9a949fbcdfa8101">removeComments</a>(self, exclDirectives=None, pattern=None):</div>
+<div class="line"><a name="l00166"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#ac14cd204b29b3e510c933d389ea98e63">  166</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#ac14cd204b29b3e510c933d389ea98e63">removeComments</a>(self, exclDirectives=None, pattern=None):</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;<span class="stringliteral">        :param exclDirectives: some lines are directives and must stay unindented. The cpp</span></div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;<span class="stringliteral">                               directives are automatically recognized by fxtran but others</span></div>
@@ -285,7 +285,7 @@ $(function() {
 <div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;        recur(self)</div>
 <div class="line"><a name="l00214"></a><span class="lineno">  214</span>&#160; </div>
 <div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00216"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ad27f5ce2ca8278d4539af2cba8dde6e6">  216</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ad27f5ce2ca8278d4539af2cba8dde6e6">updateContinuation</a>(self, nodeToUpdate=None, align=True,</div>
+<div class="line"><a name="l00216"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a5d7fb3fcc46b9efb73a42c4dc65206c9">  216</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a5d7fb3fcc46b9efb73a42c4dc65206c9">updateContinuation</a>(self, nodeToUpdate=None, align=True,</div>
 <div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;                           removeALL=False, addBegin=True, removeBegin=False):</div>
 <div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;<span class="stringliteral">        :param nodeToUpdate: if None, the entire xml is updated</span></div>
@@ -489,7 +489,7 @@ $(function() {
 <div class="line"><a name="l00417"></a><span class="lineno">  417</span>&#160;    __NO_VALUE__ = <span class="stringliteral">&#39;__NO_VALUE__&#39;</span></div>
 <div class="line"><a name="l00418"></a><span class="lineno">  418</span>&#160; </div>
 <div class="line"><a name="l00419"></a><span class="lineno">  419</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00420"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#aeb2a0f70001639d5057cc2cc186759ba">  420</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#aeb2a0f70001639d5057cc2cc186759ba">updateSpaces</a>(self, beforeOp=1, afterOp=1, inOperator=True,</div>
+<div class="line"><a name="l00420"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a77ebddfdc79957d8dc5df8ffa7ab203b">  420</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a77ebddfdc79957d8dc5df8ffa7ab203b">updateSpaces</a>(self, beforeOp=1, afterOp=1, inOperator=True,</div>
 <div class="line"><a name="l00421"></a><span class="lineno">  421</span>&#160;                     beforeComma=0, afterComma=1,</div>
 <div class="line"><a name="l00422"></a><span class="lineno">  422</span>&#160;                     beforeParenthesis=0, afterParenthesis=0,</div>
 <div class="line"><a name="l00423"></a><span class="lineno">  423</span>&#160;                     beforeAffectation=1, afterAffectation=1, inAffectation=True,</div>
@@ -641,20 +641,20 @@ $(function() {
 <div class="line"><a name="l00569"></a><span class="lineno">  569</span>&#160;          <span class="stringliteral">&#39;save&#39;</span>: 1,</div>
 <div class="line"><a name="l00570"></a><span class="lineno">  570</span>&#160;        }</div>
 <div class="line"><a name="l00571"></a><span class="lineno">  571</span>&#160; </div>
-<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;        <span class="keyword">assert</span> adjacentKeywords <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">or</span> adjacentKeywords == self.<a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a71b2545d87a08edf7e9dccc3a1f4db53">__NO_VALUE__</a>__NO_VALUE__ <span class="keywordflow">or</span> \</div>
+<div class="line"><a name="l00572"></a><span class="lineno">  572</span>&#160;        <span class="keyword">assert</span> adjacentKeywords <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">or</span> adjacentKeywords == self.<a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a451c94fe990071958d1ef87b93702265">__NO_VALUE__</a>__NO_VALUE__ <span class="keywordflow">or</span> \</div>
 <div class="line"><a name="l00573"></a><span class="lineno">  573</span>&#160;               all(k <span class="keywordflow">in</span> adjaKeyDesc</div>
 <div class="line"><a name="l00574"></a><span class="lineno">  574</span>&#160;                   <span class="keywordflow">for</span> k <span class="keywordflow">in</span> adjacentKeywords), <span class="stringliteral">&quot;Unknown key in **adjacentKeywords&quot;</span></div>
 <div class="line"><a name="l00575"></a><span class="lineno">  575</span>&#160; </div>
 <div class="line"><a name="l00576"></a><span class="lineno">  576</span>&#160;        <span class="keyword">def </span>getvalAdja(key):</div>
 <div class="line"><a name="l00577"></a><span class="lineno">  577</span>&#160;            <span class="keywordflow">if</span> adjacentKeywords <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
 <div class="line"><a name="l00578"></a><span class="lineno">  578</span>&#160;                <span class="keywordflow">return</span> <span class="keywordtype">None</span></div>
-<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;            <span class="keywordflow">if</span> adjacentKeywords == self.<a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a71b2545d87a08edf7e9dccc3a1f4db53">__NO_VALUE__</a>__NO_VALUE__:</div>
+<div class="line"><a name="l00579"></a><span class="lineno">  579</span>&#160;            <span class="keywordflow">if</span> adjacentKeywords == self.<a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a451c94fe990071958d1ef87b93702265">__NO_VALUE__</a>__NO_VALUE__:</div>
 <div class="line"><a name="l00580"></a><span class="lineno">  580</span>&#160;                <span class="keywordflow">return</span> adjaKeyDesc[key][0]</div>
 <div class="line"><a name="l00581"></a><span class="lineno">  581</span>&#160;            <span class="keywordflow">return</span> adjacentKeywords.get(key, adjaKeyDesc[key][0])</div>
 <div class="line"><a name="l00582"></a><span class="lineno">  582</span>&#160; </div>
 <div class="line"><a name="l00583"></a><span class="lineno">  583</span>&#160;        <span class="keyword">def </span>getvalAfter(key):</div>
 <div class="line"><a name="l00584"></a><span class="lineno">  584</span>&#160;            key = key[:-5]</div>
-<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;            <span class="keywordflow">if</span> afterKeywords != self.<a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a71b2545d87a08edf7e9dccc3a1f4db53">__NO_VALUE__</a>__NO_VALUE__:</div>
+<div class="line"><a name="l00585"></a><span class="lineno">  585</span>&#160;            <span class="keywordflow">if</span> afterKeywords != self.<a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a451c94fe990071958d1ef87b93702265">__NO_VALUE__</a>__NO_VALUE__:</div>
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;                num = afterKeywords.get(key, afterKey.get(key, <span class="keywordtype">None</span>))</div>
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;            <span class="keywordflow">else</span>:</div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;                num = afterKey.get(key, <span class="keywordtype">None</span>)</div>
@@ -922,7 +922,7 @@ $(function() {
 <div class="line"><a name="l00850"></a><span class="lineno">  850</span>&#160;                    node.text = re.sub(lf, repl, node.text, flags=re.IGNORECASE)</div>
 <div class="line"><a name="l00851"></a><span class="lineno">  851</span>&#160; </div>
 <div class="line"><a name="l00852"></a><span class="lineno">  852</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00853"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae16f31878075102da0f6c298c4466957">  853</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae16f31878075102da0f6c298c4466957">changeIfStatementsInIfConstructs</a>(self, singleItem=None):</div>
+<div class="line"><a name="l00853"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a80ee68d7ac50eb5dfa1a72455488c9e7">  853</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a80ee68d7ac50eb5dfa1a72455488c9e7">changeIfStatementsInIfConstructs</a>(self, singleItem=None):</div>
 <div class="line"><a name="l00854"></a><span class="lineno">  854</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00855"></a><span class="lineno">  855</span>&#160;<span class="stringliteral">        Convert if-stmt to if-then-stmt. If singleItem is not filled, conversion to entire</span></div>
 <div class="line"><a name="l00856"></a><span class="lineno">  856</span>&#160;<span class="stringliteral">        object is performed.</span></div>
@@ -991,7 +991,7 @@ $(function() {
 <div class="line"><a name="l00919"></a><span class="lineno">  919</span>&#160;                    item.remove(cnt)</div>
 <div class="line"><a name="l00920"></a><span class="lineno">  920</span>&#160; </div>
 <div class="line"><a name="l00921"></a><span class="lineno">  921</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00922"></a><span class="lineno"><a class="line" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a6e7640beb428fa5ab4936a4a8b9a91d4">  922</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cosmetics_1_1Cosmetics.html#a6e7640beb428fa5ab4936a4a8b9a91d4">removeEmptyCONTAINS</a>(self):</div>
+<div class="line"><a name="l00922"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a573bee4c16f981dfc2e015c22c900973">  922</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a573bee4c16f981dfc2e015c22c900973">removeEmptyCONTAINS</a>(self):</div>
 <div class="line"><a name="l00923"></a><span class="lineno">  923</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00924"></a><span class="lineno">  924</span>&#160;<span class="stringliteral">        Remove the CONTAINS statement if this section is empty</span></div>
 <div class="line"><a name="l00925"></a><span class="lineno">  925</span>&#160;<span class="stringliteral">        &quot;&quot;&quot;</span></div>
@@ -1005,19 +1005,19 @@ $(function() {
 <div class="line"><a name="l00933"></a><span class="lineno">  933</span>&#160;                                      <span class="stringliteral">&#39;end-module-stmt&#39;</span>):</div>
 <div class="line"><a name="l00934"></a><span class="lineno">  934</span>&#160;                <span class="comment"># CONTAINS bloc is empty</span></div>
 <div class="line"><a name="l00935"></a><span class="lineno">  935</span>&#160;                par.remove(contains)</div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html">pyft.cosmetics.Cosmetics</a></div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00011">cosmetics.py:11</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a09a9a826d27d8d48d9a949fbcdfa8101"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a09a9a826d27d8d48d9a949fbcdfa8101">pyft.cosmetics.Cosmetics.removeComments</a></div><div class="ttdeci">def removeComments(self, exclDirectives=None, pattern=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00166">cosmetics.py:166</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a1cd7f66c25620a636540d6c90b69bd72"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a1cd7f66c25620a636540d6c90b69bd72">pyft.cosmetics.Cosmetics.removeEmptyLines</a></div><div class="ttdeci">def removeEmptyLines(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00153">cosmetics.py:153</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a2cac0c3e243f2fe33d4decd2f6042eb4"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a2cac0c3e243f2fe33d4decd2f6042eb4">pyft.cosmetics.Cosmetics.indent</a></div><div class="ttdeci">def indent(self, nodeToUpdate=None, indentProgramunit=0, indentBranch=2, exclDirectives=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00034">cosmetics.py:35</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a5010b78035ddff2c3d1f6a881d4bdb90"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a5010b78035ddff2c3d1f6a881d4bdb90">pyft.cosmetics.Cosmetics.lowerCase</a></div><div class="ttdeci">def lowerCase(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00025">cosmetics.py:25</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a6e7640beb428fa5ab4936a4a8b9a91d4"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a6e7640beb428fa5ab4936a4a8b9a91d4">pyft.cosmetics.Cosmetics.removeEmptyCONTAINS</a></div><div class="ttdeci">def removeEmptyCONTAINS(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00922">cosmetics.py:922</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_a71b2545d87a08edf7e9dccc3a1f4db53"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#a71b2545d87a08edf7e9dccc3a1f4db53">pyft.cosmetics.Cosmetics.__NO_VALUE__</a></div><div class="ttdeci">string __NO_VALUE__</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00417">cosmetics.py:417</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ad27f5ce2ca8278d4539af2cba8dde6e6"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ad27f5ce2ca8278d4539af2cba8dde6e6">pyft.cosmetics.Cosmetics.updateContinuation</a></div><div class="ttdeci">def updateContinuation(self, nodeToUpdate=None, align=True, removeALL=False, addBegin=True, removeBegin=False)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00216">cosmetics.py:217</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ae153e43c44d23ee55a22173a3f1e9f60"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae153e43c44d23ee55a22173a3f1e9f60">pyft.cosmetics.Cosmetics.upperCase</a></div><div class="ttdeci">def upperCase(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00016">cosmetics.py:16</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_ae16f31878075102da0f6c298c4466957"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#ae16f31878075102da0f6c298c4466957">pyft.cosmetics.Cosmetics.changeIfStatementsInIfConstructs</a></div><div class="ttdeci">def changeIfStatementsInIfConstructs(self, singleItem=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00853">cosmetics.py:853</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cosmetics_1_1Cosmetics_html_aeb2a0f70001639d5057cc2cc186759ba"><div class="ttname"><a href="classpyft_1_1cosmetics_1_1Cosmetics.html#aeb2a0f70001639d5057cc2cc186759ba">pyft.cosmetics.Cosmetics.updateSpaces</a></div><div class="ttdeci">def updateSpaces(self, beforeOp=1, afterOp=1, inOperator=True, beforeComma=0, afterComma=1, beforeParenthesis=0, afterParenthesis=0, beforeAffectation=1, afterAffectation=1, inAffectation=True, beforeRangeDelim=0, afterRangeDelim=0, beforeUseDelim=0, afterUseDelim=1, beforeDeclDelim=1, afterDeclDelim=1, inDeclDelim=True, afterTypeDecl=1, beforeEqDo=0, afterEqDo=0, beforeEqCall=0, afterEqCall=0, beforeEqInit=0, afterEqInit=0, beforeEndcnt=1, afterBegincnt=1, afterIfwherecase=1, beforeThen=1, beforeIfaction=1, afterProgunit=1, endOfLine=True, afterName=0, inName=True, beforeCmdsep=0, afterCmdsep=1, adjacentKeywords=__NO_VALUE__, afterKeywords=__NO_VALUE__)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00420">cosmetics.py:436</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html"><div class="ttname"><a href="namespacepyft_1_1expressions.html">pyft.expressions</a></div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00001">expressions.py:1</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html"><div class="ttname"><a href="namespacepyft_1_1util.html">pyft.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html">pyfortool.cosmetics.Cosmetics</a></div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00011">cosmetics.py:11</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a2e0f9770fccc39a795aad260803ab6a0"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a2e0f9770fccc39a795aad260803ab6a0">pyfortool.cosmetics.Cosmetics.upperCase</a></div><div class="ttdeci">def upperCase(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00016">cosmetics.py:16</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a451c94fe990071958d1ef87b93702265"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a451c94fe990071958d1ef87b93702265">pyfortool.cosmetics.Cosmetics.__NO_VALUE__</a></div><div class="ttdeci">string __NO_VALUE__</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00417">cosmetics.py:417</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a4b69bc97536221037a82dc216df32206"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a4b69bc97536221037a82dc216df32206">pyfortool.cosmetics.Cosmetics.lowerCase</a></div><div class="ttdeci">def lowerCase(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00025">cosmetics.py:25</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a573bee4c16f981dfc2e015c22c900973"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a573bee4c16f981dfc2e015c22c900973">pyfortool.cosmetics.Cosmetics.removeEmptyCONTAINS</a></div><div class="ttdeci">def removeEmptyCONTAINS(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00922">cosmetics.py:922</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a5d7fb3fcc46b9efb73a42c4dc65206c9"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a5d7fb3fcc46b9efb73a42c4dc65206c9">pyfortool.cosmetics.Cosmetics.updateContinuation</a></div><div class="ttdeci">def updateContinuation(self, nodeToUpdate=None, align=True, removeALL=False, addBegin=True, removeBegin=False)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00216">cosmetics.py:217</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a6aac7c5c3221fbace6e3789aac98489f"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a6aac7c5c3221fbace6e3789aac98489f">pyfortool.cosmetics.Cosmetics.indent</a></div><div class="ttdeci">def indent(self, nodeToUpdate=None, indentProgramunit=0, indentBranch=2, exclDirectives=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00034">cosmetics.py:35</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a77ebddfdc79957d8dc5df8ffa7ab203b"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a77ebddfdc79957d8dc5df8ffa7ab203b">pyfortool.cosmetics.Cosmetics.updateSpaces</a></div><div class="ttdeci">def updateSpaces(self, beforeOp=1, afterOp=1, inOperator=True, beforeComma=0, afterComma=1, beforeParenthesis=0, afterParenthesis=0, beforeAffectation=1, afterAffectation=1, inAffectation=True, beforeRangeDelim=0, afterRangeDelim=0, beforeUseDelim=0, afterUseDelim=1, beforeDeclDelim=1, afterDeclDelim=1, inDeclDelim=True, afterTypeDecl=1, beforeEqDo=0, afterEqDo=0, beforeEqCall=0, afterEqCall=0, beforeEqInit=0, afterEqInit=0, beforeEndcnt=1, afterBegincnt=1, afterIfwherecase=1, beforeThen=1, beforeIfaction=1, afterProgunit=1, endOfLine=True, afterName=0, inName=True, beforeCmdsep=0, afterCmdsep=1, adjacentKeywords=__NO_VALUE__, afterKeywords=__NO_VALUE__)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00420">cosmetics.py:436</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_a80ee68d7ac50eb5dfa1a72455488c9e7"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#a80ee68d7ac50eb5dfa1a72455488c9e7">pyfortool.cosmetics.Cosmetics.changeIfStatementsInIfConstructs</a></div><div class="ttdeci">def changeIfStatementsInIfConstructs(self, singleItem=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00853">cosmetics.py:853</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_ac14cd204b29b3e510c933d389ea98e63"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#ac14cd204b29b3e510c933d389ea98e63">pyfortool.cosmetics.Cosmetics.removeComments</a></div><div class="ttdeci">def removeComments(self, exclDirectives=None, pattern=None)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00166">cosmetics.py:166</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cosmetics_1_1Cosmetics_html_af3125e92d3751cbcabe7592d2b6a533c"><div class="ttname"><a href="classpyfortool_1_1cosmetics_1_1Cosmetics.html#af3125e92d3751cbcabe7592d2b6a533c">pyfortool.cosmetics.Cosmetics.removeEmptyLines</a></div><div class="ttdeci">def removeEmptyLines(self)</div><div class="ttdef"><b>Definition:</b> <a href="cosmetics_8py_source.html#l00153">cosmetics.py:153</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html">pyfortool.expressions</a></div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00001">expressions.py:1</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html"><div class="ttname"><a href="namespacepyfortool_1_1util.html">pyfortool.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

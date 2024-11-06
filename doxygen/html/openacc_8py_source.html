@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: /home/runner/work/pyft/pyft/src/pyft/openacc.py Source File</title>
+<title>PyForTool: /home/runner/work/pyft/pyft/src/pyfortool/openacc.py Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_ec8d446e0c5afb88c50dd0948d8a042e.html">pyft</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_69a38fea1e4413ac60f151dc357637ec.html">pyfortool</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,22 +70,22 @@ $(function() {
 <div class="title">openacc.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyft_1_1openacc.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1openacc.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="stringliteral">This module implements the Openacc class containing the methods relative to openacc</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">import</span> re</div>
 <div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1util.html">pyft.util</a> <span class="keyword">import</span> debugDecor, n2name, alltext, tag</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1expressions.html">pyft.expressions</a> <span class="keyword">import</span> createElem, createExpr</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1util.html">pyfortool.util</a> <span class="keyword">import</span> debugDecor, n2name, alltext, tag</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1expressions.html">pyfortool.expressions</a> <span class="keyword">import</span> createElem, createExpr</div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
 <div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html">Openacc</a>():</div>
+<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html">Openacc</a>():</div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="stringliteral">    Methods relative to openacc</span></div>
 <div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html#a4bcd4dcb916a3e4659f47e4608baf09f">   16</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html#a4bcd4dcb916a3e4659f47e4608baf09f">removeACC</a>(self):</div>
+<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html#ad4bbc90128217ea14760245382857d7e">   16</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html#ad4bbc90128217ea14760245382857d7e">removeACC</a>(self):</div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;<span class="stringliteral">        Remove openACC directives</span></div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="stringliteral">        &quot;&quot;&quot;</span></div>
@@ -93,7 +93,7 @@ $(function() {
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;                            pattern=re.compile(<span class="stringliteral">r&#39;^\!\$ACC &#39;</span>, re.IGNORECASE))</div>
 <div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html#a71501a0e6294c28e67826ee843164f7b">   24</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html#a71501a0e6294c28e67826ee843164f7b">removebyPassDOCONCURRENT</a>(self):</div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html#a20cb292f3c252318f634e60c2cab8e4c">   24</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html#a20cb292f3c252318f634e60c2cab8e4c">removebyPassDOCONCURRENT</a>(self):</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;<span class="stringliteral">        Remove macro !$mnh_(un)def(OPENACC) and !$mnh_(un)def(LOOP) directives</span></div>
 <div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="stringliteral">        for other compiler than Cray</span></div>
@@ -109,7 +109,7 @@ $(function() {
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;                            pattern=re.compile(<span class="stringliteral">r&#39;^\!\$mnh_define\&zwj;(OPENACC\&zwj;)&#39;</span>))</div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160; </div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html#af6427b3a88a49dea9fb00f67a576e1f7">   40</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html#af6427b3a88a49dea9fb00f67a576e1f7">craybyPassDOCONCURRENT</a>(self):</div>
+<div class="line"><a name="l00040"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html#a697466ed59cc28d0e451ee6defe735ae">   40</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html#a697466ed59cc28d0e451ee6defe735ae">craybyPassDOCONCURRENT</a>(self):</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="stringliteral">        By pass a bug of the CRAY compiler in which the vectorisation is not done with</span></div>
 <div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="stringliteral">        BR_ fonctions use or locally.</span></div>
@@ -202,7 +202,7 @@ $(function() {
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;            parent.remove(elem)</div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160; </div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00133"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html#a4d8636f18b21239a09bafeda6cbefdad">  133</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html#a4d8636f18b21239a09bafeda6cbefdad">addACCData</a>(self):</div>
+<div class="line"><a name="l00133"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html#af4580595cfa505fc901f095494f5fae7">  133</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html#af4580595cfa505fc901f095494f5fae7">addACCData</a>(self):</div>
 <div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;<span class="stringliteral">        1) Add after declaration:</span></div>
 <div class="line"><a name="l00136"></a><span class="lineno">  136</span>&#160;<span class="stringliteral">        !$acc data present ( list of intent arrays)</span></div>
@@ -251,7 +251,7 @@ $(function() {
 <div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;                scope.insertStatement(scope.indent(comment), first=<span class="keyword">False</span>)</div>
 <div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160; </div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <span class="preprocessor">@debugDecor</span></div>
-<div class="line"><a name="l00182"></a><span class="lineno"><a class="line" href="classpyft_1_1openacc_1_1Openacc.html#a75c2004b4abe892dbf83a750292f9e45">  182</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1openacc_1_1Openacc.html#a75c2004b4abe892dbf83a750292f9e45">addACCRoutineSeq</a>(self, stopScopes):</div>
+<div class="line"><a name="l00182"></a><span class="lineno"><a class="line" href="classpyfortool_1_1openacc_1_1Openacc.html#aa019a777cd0a196f60fdacf54cefef49">  182</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1openacc_1_1Openacc.html#aa019a777cd0a196f60fdacf54cefef49">addACCRoutineSeq</a>(self, stopScopes):</div>
 <div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00184"></a><span class="lineno">  184</span>&#160;<span class="stringliteral">        Adds the &#39;!$acc routine (&lt;name&gt;) seq&#39; directive</span></div>
 <div class="line"><a name="l00185"></a><span class="lineno">  185</span>&#160;<span class="stringliteral">        :param stopScopes: scope paths where we stop to add the directive</span></div>
@@ -265,14 +265,14 @@ $(function() {
 <div class="line"><a name="l00193"></a><span class="lineno">  193</span>&#160;                                 tail=scope[0].tail)</div>
 <div class="line"><a name="l00194"></a><span class="lineno">  194</span>&#160;                scope[0].tail = <span class="stringliteral">&#39;\n&#39;</span></div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;                scope.insert(1, acc)</div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html">pyft.openacc.Openacc</a></div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00011">openacc.py:11</a></div></div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html_a4bcd4dcb916a3e4659f47e4608baf09f"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html#a4bcd4dcb916a3e4659f47e4608baf09f">pyft.openacc.Openacc.removeACC</a></div><div class="ttdeci">def removeACC(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00016">openacc.py:16</a></div></div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html_a4d8636f18b21239a09bafeda6cbefdad"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html#a4d8636f18b21239a09bafeda6cbefdad">pyft.openacc.Openacc.addACCData</a></div><div class="ttdeci">def addACCData(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00133">openacc.py:133</a></div></div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html_a71501a0e6294c28e67826ee843164f7b"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html#a71501a0e6294c28e67826ee843164f7b">pyft.openacc.Openacc.removebyPassDOCONCURRENT</a></div><div class="ttdeci">def removebyPassDOCONCURRENT(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00024">openacc.py:24</a></div></div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html_a75c2004b4abe892dbf83a750292f9e45"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html#a75c2004b4abe892dbf83a750292f9e45">pyft.openacc.Openacc.addACCRoutineSeq</a></div><div class="ttdeci">def addACCRoutineSeq(self, stopScopes)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00182">openacc.py:182</a></div></div>
-<div class="ttc" id="aclasspyft_1_1openacc_1_1Openacc_html_af6427b3a88a49dea9fb00f67a576e1f7"><div class="ttname"><a href="classpyft_1_1openacc_1_1Openacc.html#af6427b3a88a49dea9fb00f67a576e1f7">pyft.openacc.Openacc.craybyPassDOCONCURRENT</a></div><div class="ttdeci">def craybyPassDOCONCURRENT(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00040">openacc.py:40</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1expressions_html"><div class="ttname"><a href="namespacepyft_1_1expressions.html">pyft.expressions</a></div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00001">expressions.py:1</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html"><div class="ttname"><a href="namespacepyft_1_1util.html">pyft.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html">pyfortool.openacc.Openacc</a></div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00011">openacc.py:11</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html_a20cb292f3c252318f634e60c2cab8e4c"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html#a20cb292f3c252318f634e60c2cab8e4c">pyfortool.openacc.Openacc.removebyPassDOCONCURRENT</a></div><div class="ttdeci">def removebyPassDOCONCURRENT(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00024">openacc.py:24</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html_a697466ed59cc28d0e451ee6defe735ae"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html#a697466ed59cc28d0e451ee6defe735ae">pyfortool.openacc.Openacc.craybyPassDOCONCURRENT</a></div><div class="ttdeci">def craybyPassDOCONCURRENT(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00040">openacc.py:40</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html_aa019a777cd0a196f60fdacf54cefef49"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html#aa019a777cd0a196f60fdacf54cefef49">pyfortool.openacc.Openacc.addACCRoutineSeq</a></div><div class="ttdeci">def addACCRoutineSeq(self, stopScopes)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00182">openacc.py:182</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html_ad4bbc90128217ea14760245382857d7e"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html#ad4bbc90128217ea14760245382857d7e">pyfortool.openacc.Openacc.removeACC</a></div><div class="ttdeci">def removeACC(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00016">openacc.py:16</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1openacc_1_1Openacc_html_af4580595cfa505fc901f095494f5fae7"><div class="ttname"><a href="classpyfortool_1_1openacc_1_1Openacc.html#af4580595cfa505fc901f095494f5fae7">pyfortool.openacc.Openacc.addACCData</a></div><div class="ttdeci">def addACCData(self)</div><div class="ttdef"><b>Definition:</b> <a href="openacc_8py_source.html#l00133">openacc.py:133</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1expressions_html"><div class="ttname"><a href="namespacepyfortool_1_1expressions.html">pyfortool.expressions</a></div><div class="ttdef"><b>Definition:</b> <a href="expressions_8py_source.html#l00001">expressions.py:1</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html"><div class="ttname"><a href="namespacepyfortool_1_1util.html">pyfortool.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

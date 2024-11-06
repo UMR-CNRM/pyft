@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pyft: /home/runner/work/pyft/pyft/src/pyft/cpp.py Source File</title>
+<title>PyForTool: /home/runner/work/pyft/pyft/src/pyfortool/cpp.py Source File</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">pyft
+   <div id="projectname">PyForTool
    </div>
    <div id="projectbrief">Python-fortran-tool</div>
   </td>
@@ -62,7 +62,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_ec8d446e0c5afb88c50dd0948d8a042e.html">pyft</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_69a38fea1e4413ac60f151dc357637ec.html">pyfortool</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -70,16 +70,16 @@ $(function() {
 <div class="title">cpp.py</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyft_1_1cpp.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="namespacepyfortool_1_1cpp.html">    1</a></span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="stringliteral">This module implements the Cpp class containing the methods for dealing with cpp directives</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160; </div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1util.html">pyft.util</a> <span class="keyword">import</span> debugDecor, alltext, PYFTError, tag, noParallel</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1tree.html">pyft.tree</a> <span class="keyword">import</span> updateTree</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyft_1_1variables.html">pyft.variables</a> <span class="keyword">import</span> updateVarList</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1util.html">pyfortool.util</a> <span class="keyword">import</span> debugDecor, alltext, PYFTError, tag, noParallel</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1tree.html">pyfortool.tree</a> <span class="keyword">import</span> updateTree</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">from</span> <a class="code" href="namespacepyfortool_1_1variables.html">pyfortool.variables</a> <span class="keyword">import</span> updateVarList</div>
 <div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
 <div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
-<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classpyft_1_1cpp_1_1Cpp.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyft_1_1cpp_1_1Cpp.html">Cpp</a>:</div>
+<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cpp_1_1Cpp.html">   10</a></span>&#160;<span class="keyword">class </span><a class="code" href="classpyfortool_1_1cpp_1_1Cpp.html">Cpp</a>:</div>
 <div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="stringliteral">    Methods to deal with cpp directives</span></div>
 <div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;<span class="stringliteral">    &quot;&quot;&quot;</span></div>
@@ -87,7 +87,7 @@ $(function() {
 <div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="preprocessor">@noParallel</span></div>
 <div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <span class="preprocessor">@updateVarList</span></div>
 <div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <span class="preprocessor">@updateTree(&#39;signal&#39;)</span></div>
-<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classpyft_1_1cpp_1_1Cpp.html#a9b517c32e9fd601aa27f2d114a0bc342">   18</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyft_1_1cpp_1_1Cpp.html#a9b517c32e9fd601aa27f2d114a0bc342">applyCPPifdef</a>(self, keys):</div>
+<div class="line"><a name="l00018"></a><span class="lineno"><a class="line" href="classpyfortool_1_1cpp_1_1Cpp.html#adea0500be5d2fcde96b135a810bd3b70">   18</a></span>&#160;    <span class="keyword">def </span><a class="code" href="classpyfortool_1_1cpp_1_1Cpp.html#adea0500be5d2fcde96b135a810bd3b70">applyCPPifdef</a>(self, keys):</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;        <span class="stringliteral">&quot;&quot;&quot;</span></div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="stringliteral">        Apply #ifdef / #ifndef only on some keys</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;<span class="stringliteral">        :param keys: list of defined and undefined keys. The latter are preceded by a</span></div>
@@ -173,7 +173,7 @@ $(function() {
 <div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;                        toRemove.append((node, par))</div>
 <div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;            <span class="keywordflow">if</span> len(keep) != 1:</div>
 <div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;                <span class="comment"># We check the hypothesis done at the beginning</span></div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                <span class="keywordflow">raise</span> <a class="code" href="classpyft_1_1util_1_1PYFTError.html">PYFTError</a>(<span class="stringliteral">&quot;#else or #endif hasn&#39;t the same parent as #ifdef &quot;</span> +</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                <span class="keywordflow">raise</span> <a class="code" href="classpyfortool_1_1util_1_1PYFTError.html">PYFTError</a>(<span class="stringliteral">&quot;#else or #endif hasn&#39;t the same parent as #ifdef &quot;</span> +</div>
 <div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                                <span class="stringliteral">&quot;or #ifndef in {f}&quot;</span>.format(f=self.getFileName()))</div>
 <div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;        <span class="comment"># Suppress node in reverse order to attach tail to previous node</span></div>
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;        <span class="keywordflow">if</span> len(toRemove) != 0:</div>
@@ -188,12 +188,12 @@ $(function() {
 <div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;                    par[index - 1].tail += (node.tail.count(<span class="stringliteral">&#39;\n&#39;</span>) * <span class="stringliteral">&#39;\n&#39;</span> +</div>
 <div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;                                            (len(node.tail) - len(node.tail.rstrip(<span class="stringliteral">&#39; &#39;</span>))) * <span class="stringliteral">&#39; &#39;</span>)</div>
 <div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;            par.remove(node)</div>
-<div class="ttc" id="aclasspyft_1_1cpp_1_1Cpp_html"><div class="ttname"><a href="classpyft_1_1cpp_1_1Cpp.html">pyft.cpp.Cpp</a></div><div class="ttdef"><b>Definition:</b> <a href="cpp_8py_source.html#l00010">cpp.py:10</a></div></div>
-<div class="ttc" id="aclasspyft_1_1cpp_1_1Cpp_html_a9b517c32e9fd601aa27f2d114a0bc342"><div class="ttname"><a href="classpyft_1_1cpp_1_1Cpp.html#a9b517c32e9fd601aa27f2d114a0bc342">pyft.cpp.Cpp.applyCPPifdef</a></div><div class="ttdeci">def applyCPPifdef(self, keys)</div><div class="ttdef"><b>Definition:</b> <a href="cpp_8py_source.html#l00018">cpp.py:18</a></div></div>
-<div class="ttc" id="aclasspyft_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyft_1_1util_1_1PYFTError.html">pyft.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1tree_html"><div class="ttname"><a href="namespacepyft_1_1tree.html">pyft.tree</a></div><div class="ttdef"><b>Definition:</b> <a href="tree_8py_source.html#l00001">tree.py:1</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1util_html"><div class="ttname"><a href="namespacepyft_1_1util.html">pyft.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
-<div class="ttc" id="anamespacepyft_1_1variables_html"><div class="ttname"><a href="namespacepyft_1_1variables.html">pyft.variables</a></div><div class="ttdef"><b>Definition:</b> <a href="variables_8py_source.html#l00001">variables.py:1</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cpp_1_1Cpp_html"><div class="ttname"><a href="classpyfortool_1_1cpp_1_1Cpp.html">pyfortool.cpp.Cpp</a></div><div class="ttdef"><b>Definition:</b> <a href="cpp_8py_source.html#l00010">cpp.py:10</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1cpp_1_1Cpp_html_adea0500be5d2fcde96b135a810bd3b70"><div class="ttname"><a href="classpyfortool_1_1cpp_1_1Cpp.html#adea0500be5d2fcde96b135a810bd3b70">pyfortool.cpp.Cpp.applyCPPifdef</a></div><div class="ttdeci">def applyCPPifdef(self, keys)</div><div class="ttdef"><b>Definition:</b> <a href="cpp_8py_source.html#l00018">cpp.py:18</a></div></div>
+<div class="ttc" id="aclasspyfortool_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyfortool_1_1util_1_1PYFTError.html">pyfortool.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1tree_html"><div class="ttname"><a href="namespacepyfortool_1_1tree.html">pyfortool.tree</a></div><div class="ttdef"><b>Definition:</b> <a href="tree_8py_source.html#l00001">tree.py:1</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1util_html"><div class="ttname"><a href="namespacepyfortool_1_1util.html">pyfortool.util</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00001">util.py:1</a></div></div>
+<div class="ttc" id="anamespacepyfortool_1_1variables_html"><div class="ttname"><a href="namespacepyfortool_1_1variables.html">pyfortool.variables</a></div><div class="ttdef"><b>Definition:</b> <a href="variables_8py_source.html#l00001">variables.py:1</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
