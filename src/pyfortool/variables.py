@@ -1442,27 +1442,32 @@ class Variables():
                 if len(self.path.split('/')) == 1:
                     filename, scopePathInterface = self.tree.findScopeInterface(self.path)
                     if filename is not None:
-                        if self.getFileName() == os.path.normpath(filename):
-                            # interface declared in same file
-                            xml = self.mainScope
-                            pft = None
-                        else:
-                            pft = pyfortool.pyfortoolconservativePYFT(
-                                      filename, parser, parserOptions, wrapH, tree=self.tree,
-                                      clsPYFT=self._mainScope.__class__)
-                            xml = pft
-                        scopeInterface = xml.getScopeNode(scopePathInterface)
-                        varInterface = scopeInterface.varList.findVar(varName, exactScope=True)
-                        if varInterface is None:
-                            scopeInterface.addVar([[scopePathInterface, varName, declStmt, pos]])
-                            if moduleVarList is not None:
-                                # Module variables must be added when var is added
-                                xml.addModuleVar([(scopePathInterface, moduleName, moduleVarNames)
-                                                  for (moduleName,
-                                                       moduleVarNames) in moduleVarList])
-                        if pft is not None:
-                            pft.write()
-                            pft.close()
+                        pft = None
+                        try:
+                            if self.getFileName() == os.path.normpath(filename):
+                                # interface declared in same file
+                                xml = self.mainScope
+                                pft = None
+                            else:
+                                pft = pyfortool.pyfortool.conservativePYFT(
+                                          filename, parser, parserOptions, wrapH, tree=self.tree,
+                                          clsPYFT=self._mainScope.__class__)
+                                xml = pft
+                            scopeInterface = xml.getScopeNode(scopePathInterface)
+                            varInterface = scopeInterface.varList.findVar(varName, exactScope=True)
+                            if varInterface is None:
+                                scopeInterface.addVar([[scopePathInterface, varName,
+                                                        declStmt, pos]])
+                                if moduleVarList is not None:
+                                    # Module variables must be added when var is added
+                                    xml.addModuleVar(
+                                        [(scopePathInterface, moduleName, moduleVarNames)
+                                         for (moduleName, moduleVarNames) in moduleVarList])
+                            if pft is not None:
+                                pft.write()
+                        finally:
+                            if pft is not None:
+                                pft.close()
 
             if var is None and self.path not in stopScopes:
                 # We must propagates upward
@@ -1474,52 +1479,57 @@ class Variables():
                         # one of the stopScopes
                         # can be defined several times?
                         for filename in self.tree.scopeToFiles(scopePathUp):
-                            if self.getFileName() == os.path.normpath(filename):
-                                # Upper scope is in the same file
-                                xml = self.mainScope
-                                pft = None
-                            else:
-                                pft = pyfortool.pyfortool.conservativePYFT(
-                                          filename, parser, parserOptions, wrapH, tree=self.tree,
-                                          clsPYFT=self._mainScope.__class__)
-                                xml = pft
-                            scopeUp = xml.getScopeNode(scopePathUp)
-                            # Add the argument and propagate upward
-                            scopeUp.addArgInTree(
-                                varName, declStmt, pos,
-                                stopScopes, moduleVarList, otherNames,
-                                parser=parser, parserOptions=parserOptions,
-                                wrapH=wrapH)
-                            # Add the argument to calls (subroutine or function)
-                            name = self.path.split('/')[-1].split(':')[1].upper()
-                            isCalled = False
-                            varNameToUse = varName
-                            if otherNames is not None:
-                                vOther = [scopeUp.varList.findVar(v, exactScope=True)
-                                          for v in otherNames]
-                                vOther = [v for v in vOther if v is not None]
-                                if len(vOther) > 0:
-                                    varNameToUse = vOther[-1]['n']
-                            if self.path.split('/')[-1].split(':')[0] == 'sub':
-                                # We look for call statements
-                                for callStmt in scopeUp.findall('.//{*}call-stmt'):
-                                    callName = n2name(callStmt.find('./{*}procedure-designator/' +
-                                                                    '{*}named-E/{*}N')).upper()
-                                    if callName == name:
-                                        insertInArgList(varName, varNameToUse, pos, callStmt)
-                                        isCalled = True
-                            else:
-                                # We look for function use
-                                for funcCall in scopeUp.findall(
-                                                './/{*}named-E/{*}R-LT/{*}parens-R/' +
-                                                '{*}element-LT/../../..'):
-                                    funcName = n2name(funcCall.find('./{*}N')).upper()
-                                    if funcName == name:
-                                        insertInArgList(varName, varNameToUse, pos, funcCall)
-                                        isCalled = True
-                            if pft is not None:
-                                pft.write()
-                                pft.close()
+                            pft = None
+                            try:
+                                if self.getFileName() == os.path.normpath(filename):
+                                    # Upper scope is in the same file
+                                    xml = self.mainScope
+                                    pft = None
+                                else:
+                                    pft = pyfortool.pyfortool.conservativePYFT(
+                                              filename, parser, parserOptions, wrapH,
+                                              tree=self.tree,
+                                              clsPYFT=self._mainScope.__class__)
+                                    xml = pft
+                                scopeUp = xml.getScopeNode(scopePathUp)
+                                # Add the argument and propagate upward
+                                scopeUp.addArgInTree(
+                                    varName, declStmt, pos,
+                                    stopScopes, moduleVarList, otherNames,
+                                    parser=parser, parserOptions=parserOptions,
+                                    wrapH=wrapH)
+                                # Add the argument to calls (subroutine or function)
+                                name = self.path.split('/')[-1].split(':')[1].upper()
+                                isCalled = False
+                                varNameToUse = varName
+                                if otherNames is not None:
+                                    vOther = [scopeUp.varList.findVar(v, exactScope=True)
+                                              for v in otherNames]
+                                    vOther = [v for v in vOther if v is not None]
+                                    if len(vOther) > 0:
+                                        varNameToUse = vOther[-1]['n']
+                                if self.path.split('/')[-1].split(':')[0] == 'sub':
+                                    # We look for call statements
+                                    for callStmt in scopeUp.findall('.//{*}call-stmt'):
+                                        callName = n2name(callStmt.find(
+                                            './{*}procedure-designator/{*}named-E/{*}N')).upper()
+                                        if callName == name:
+                                            insertInArgList(varName, varNameToUse, pos, callStmt)
+                                            isCalled = True
+                                else:
+                                    # We look for function use
+                                    for funcCall in scopeUp.findall(
+                                                    './/{*}named-E/{*}R-LT/{*}parens-R/' +
+                                                    '{*}element-LT/../../..'):
+                                        funcName = n2name(funcCall.find('./{*}N')).upper()
+                                        if funcName == name:
+                                            insertInArgList(varName, varNameToUse, pos, funcCall)
+                                            isCalled = True
+                                if pft is not None:
+                                    pft.write()
+                            finally:
+                                if pft is not None:
+                                    pft.close()
 
                             if isCalled:
                                 # We must check in the scope (or upper scopes) if an interface

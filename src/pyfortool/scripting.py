@@ -29,29 +29,27 @@ def task(filename):
     allArgs, orderedOptions = allFileArgs[filename]
     try:
         # Opening and reading of the FORTRAN file
-        pft = PYFT(filename, filename, parser=allArgs.parser,
-                   parserOptions=getParserOptions(allArgs), verbosity=allArgs.logLevel,
-                   wrapH=allArgs.wrapH,
-                   enableCache=allArgs.enableCache)
+        with PYFT(filename, filename, parser=allArgs.parser,
+                  parserOptions=getParserOptions(allArgs), verbosity=allArgs.logLevel,
+                  wrapH=allArgs.wrapH,
+                  enableCache=allArgs.enableCache) as pft:
 
-        # apply the transformation in the order they were specified
-        for arg in orderedOptions:
-            logging.debug('Applying %s on %s', arg, filename)
-            applyTransfo(pft, arg, allArgs,
-                         filename if filename == allArgs.plotCentralFile else None)
-            logging.debug('  -> Done')
+            # apply the transformation in the order they were specified
+            for arg in orderedOptions:
+                logging.debug('Applying %s on %s', arg, filename)
+                applyTransfo(pft, arg, allArgs,
+                             filename if filename == allArgs.plotCentralFile else None)
+                logging.debug('  -> Done')
 
-        # Writing
-        if not allArgs.dryRun:
-            pft.write()
+            # Writing
+            if not allArgs.dryRun:
+                pft.write()
 
-        # Closing and reporting
-        pft.close()
+        # Reporting
         return (0, filename)
 
     except Exception as exc:  # pylint: disable=broad-except
         logging.error("The following error has occurred in the file %s", filename)
-        PYFT.unlockFile(filename, silence=True)
         traceback.print_exception(exc, file=sys.stdout)
         sys.stdout.flush()
         return (1, filename)
