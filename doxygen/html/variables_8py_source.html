@@ -1514,96 +1514,106 @@ $(function() {
 <div class="line"><a name="l01442"></a><span class="lineno"> 1442</span>&#160;                <span class="keywordflow">if</span> len(self.path.split(<span class="stringliteral">&#39;/&#39;</span>)) == 1:</div>
 <div class="line"><a name="l01443"></a><span class="lineno"> 1443</span>&#160;                    filename, scopePathInterface = self.tree.findScopeInterface(self.path)</div>
 <div class="line"><a name="l01444"></a><span class="lineno"> 1444</span>&#160;                    <span class="keywordflow">if</span> filename <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01445"></a><span class="lineno"> 1445</span>&#160;                        <span class="keywordflow">if</span> self.getFileName() == os.path.normpath(filename):</div>
-<div class="line"><a name="l01446"></a><span class="lineno"> 1446</span>&#160;                            <span class="comment"># interface declared in same file</span></div>
-<div class="line"><a name="l01447"></a><span class="lineno"> 1447</span>&#160;                            xml = self.mainScope</div>
-<div class="line"><a name="l01448"></a><span class="lineno"> 1448</span>&#160;                            pft = <span class="keywordtype">None</span></div>
-<div class="line"><a name="l01449"></a><span class="lineno"> 1449</span>&#160;                        <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l01450"></a><span class="lineno"> 1450</span>&#160;                            pft = pyfortool.pyfortoolconservativePYFT(</div>
-<div class="line"><a name="l01451"></a><span class="lineno"> 1451</span>&#160;                                      filename, parser, parserOptions, wrapH, tree=self.tree,</div>
-<div class="line"><a name="l01452"></a><span class="lineno"> 1452</span>&#160;                                      clsPYFT=self._mainScope.__class__)</div>
-<div class="line"><a name="l01453"></a><span class="lineno"> 1453</span>&#160;                            xml = pft</div>
-<div class="line"><a name="l01454"></a><span class="lineno"> 1454</span>&#160;                        scopeInterface = xml.getScopeNode(scopePathInterface)</div>
-<div class="line"><a name="l01455"></a><span class="lineno"> 1455</span>&#160;                        varInterface = scopeInterface.varList.findVar(varName, exactScope=<span class="keyword">True</span>)</div>
-<div class="line"><a name="l01456"></a><span class="lineno"> 1456</span>&#160;                        <span class="keywordflow">if</span> varInterface <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01457"></a><span class="lineno"> 1457</span>&#160;                            scopeInterface.addVar([[scopePathInterface, varName, declStmt, pos]])</div>
-<div class="line"><a name="l01458"></a><span class="lineno"> 1458</span>&#160;                            <span class="keywordflow">if</span> moduleVarList <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01459"></a><span class="lineno"> 1459</span>&#160;                                <span class="comment"># Module variables must be added when var is added</span></div>
-<div class="line"><a name="l01460"></a><span class="lineno"> 1460</span>&#160;                                xml.addModuleVar([(scopePathInterface, moduleName, moduleVarNames)</div>
-<div class="line"><a name="l01461"></a><span class="lineno"> 1461</span>&#160;                                                  <span class="keywordflow">for</span> (moduleName,</div>
-<div class="line"><a name="l01462"></a><span class="lineno"> 1462</span>&#160;                                                       moduleVarNames) <span class="keywordflow">in</span> moduleVarList])</div>
-<div class="line"><a name="l01463"></a><span class="lineno"> 1463</span>&#160;                        <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01464"></a><span class="lineno"> 1464</span>&#160;                            pft.write()</div>
-<div class="line"><a name="l01465"></a><span class="lineno"> 1465</span>&#160;                            pft.close()</div>
-<div class="line"><a name="l01466"></a><span class="lineno"> 1466</span>&#160; </div>
-<div class="line"><a name="l01467"></a><span class="lineno"> 1467</span>&#160;            <span class="keywordflow">if</span> var <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> self.path <span class="keywordflow">not</span> <span class="keywordflow">in</span> stopScopes:</div>
-<div class="line"><a name="l01468"></a><span class="lineno"> 1468</span>&#160;                <span class="comment"># We must propagates upward</span></div>
-<div class="line"><a name="l01469"></a><span class="lineno"> 1469</span>&#160;                <span class="comment"># scopes calling the current scope</span></div>
-<div class="line"><a name="l01470"></a><span class="lineno"> 1470</span>&#160;                <span class="keywordflow">for</span> scopePathUp <span class="keywordflow">in</span> self.tree.calledByScope(self.path):</div>
-<div class="line"><a name="l01471"></a><span class="lineno"> 1471</span>&#160;                    <span class="keywordflow">if</span> scopePathUp <span class="keywordflow">in</span> stopScopes <span class="keywordflow">or</span> self.tree.isUnderStopScopes(scopePathUp,</div>
-<div class="line"><a name="l01472"></a><span class="lineno"> 1472</span>&#160;                                                                                stopScopes):</div>
-<div class="line"><a name="l01473"></a><span class="lineno"> 1473</span>&#160;                        <span class="comment"># We are on the path to a scope in the stopScopes list, or scopePathUp is</span></div>
-<div class="line"><a name="l01474"></a><span class="lineno"> 1474</span>&#160;                        <span class="comment"># one of the stopScopes</span></div>
-<div class="line"><a name="l01475"></a><span class="lineno"> 1475</span>&#160;                        <span class="comment"># can be defined several times?</span></div>
-<div class="line"><a name="l01476"></a><span class="lineno"> 1476</span>&#160;                        <span class="keywordflow">for</span> filename <span class="keywordflow">in</span> self.tree.scopeToFiles(scopePathUp):</div>
-<div class="line"><a name="l01477"></a><span class="lineno"> 1477</span>&#160;                            <span class="keywordflow">if</span> self.getFileName() == os.path.normpath(filename):</div>
-<div class="line"><a name="l01478"></a><span class="lineno"> 1478</span>&#160;                                <span class="comment"># Upper scope is in the same file</span></div>
-<div class="line"><a name="l01479"></a><span class="lineno"> 1479</span>&#160;                                xml = self.mainScope</div>
-<div class="line"><a name="l01480"></a><span class="lineno"> 1480</span>&#160;                                pft = <span class="keywordtype">None</span></div>
-<div class="line"><a name="l01481"></a><span class="lineno"> 1481</span>&#160;                            <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l01482"></a><span class="lineno"> 1482</span>&#160;                                pft = <a class="code" href="namespacepyfortool_1_1pyfortool.html#a7d3c957a9fe78161c4db729a401618a0">pyfortool.pyfortool.conservativePYFT</a>(</div>
-<div class="line"><a name="l01483"></a><span class="lineno"> 1483</span>&#160;                                          filename, parser, parserOptions, wrapH, tree=self.tree,</div>
-<div class="line"><a name="l01484"></a><span class="lineno"> 1484</span>&#160;                                          clsPYFT=self._mainScope.__class__)</div>
-<div class="line"><a name="l01485"></a><span class="lineno"> 1485</span>&#160;                                xml = pft</div>
-<div class="line"><a name="l01486"></a><span class="lineno"> 1486</span>&#160;                            scopeUp = xml.getScopeNode(scopePathUp)</div>
-<div class="line"><a name="l01487"></a><span class="lineno"> 1487</span>&#160;                            <span class="comment"># Add the argument and propagate upward</span></div>
-<div class="line"><a name="l01488"></a><span class="lineno"> 1488</span>&#160;                            scopeUp.addArgInTree(</div>
-<div class="line"><a name="l01489"></a><span class="lineno"> 1489</span>&#160;                                varName, declStmt, pos,</div>
-<div class="line"><a name="l01490"></a><span class="lineno"> 1490</span>&#160;                                stopScopes, moduleVarList, otherNames,</div>
-<div class="line"><a name="l01491"></a><span class="lineno"> 1491</span>&#160;                                parser=parser, parserOptions=parserOptions,</div>
-<div class="line"><a name="l01492"></a><span class="lineno"> 1492</span>&#160;                                wrapH=wrapH)</div>
-<div class="line"><a name="l01493"></a><span class="lineno"> 1493</span>&#160;                            <span class="comment"># Add the argument to calls (subroutine or function)</span></div>
-<div class="line"><a name="l01494"></a><span class="lineno"> 1494</span>&#160;                            name = self.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[1].upper()</div>
-<div class="line"><a name="l01495"></a><span class="lineno"> 1495</span>&#160;                            isCalled = <span class="keyword">False</span></div>
-<div class="line"><a name="l01496"></a><span class="lineno"> 1496</span>&#160;                            varNameToUse = varName</div>
-<div class="line"><a name="l01497"></a><span class="lineno"> 1497</span>&#160;                            <span class="keywordflow">if</span> otherNames <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01498"></a><span class="lineno"> 1498</span>&#160;                                vOther = [scopeUp.varList.findVar(v, exactScope=<span class="keyword">True</span>)</div>
-<div class="line"><a name="l01499"></a><span class="lineno"> 1499</span>&#160;                                          <span class="keywordflow">for</span> v <span class="keywordflow">in</span> otherNames]</div>
-<div class="line"><a name="l01500"></a><span class="lineno"> 1500</span>&#160;                                vOther = [v <span class="keywordflow">for</span> v <span class="keywordflow">in</span> vOther <span class="keywordflow">if</span> v <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>]</div>
-<div class="line"><a name="l01501"></a><span class="lineno"> 1501</span>&#160;                                <span class="keywordflow">if</span> len(vOther) &gt; 0:</div>
-<div class="line"><a name="l01502"></a><span class="lineno"> 1502</span>&#160;                                    varNameToUse = vOther[-1][<span class="stringliteral">&#39;n&#39;</span>]</div>
-<div class="line"><a name="l01503"></a><span class="lineno"> 1503</span>&#160;                            <span class="keywordflow">if</span> self.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[0] == <span class="stringliteral">&#39;sub&#39;</span>:</div>
-<div class="line"><a name="l01504"></a><span class="lineno"> 1504</span>&#160;                                <span class="comment"># We look for call statements</span></div>
-<div class="line"><a name="l01505"></a><span class="lineno"> 1505</span>&#160;                                <span class="keywordflow">for</span> callStmt <span class="keywordflow">in</span> scopeUp.findall(<span class="stringliteral">&#39;.//{*}call-stmt&#39;</span>):</div>
-<div class="line"><a name="l01506"></a><span class="lineno"> 1506</span>&#160;                                    callName = n2name(callStmt.find(<span class="stringliteral">&#39;./{*}procedure-designator/&#39;</span> +</div>
-<div class="line"><a name="l01507"></a><span class="lineno"> 1507</span>&#160;                                                                    <span class="stringliteral">&#39;{*}named-E/{*}N&#39;</span>)).upper()</div>
-<div class="line"><a name="l01508"></a><span class="lineno"> 1508</span>&#160;                                    <span class="keywordflow">if</span> callName == name:</div>
-<div class="line"><a name="l01509"></a><span class="lineno"> 1509</span>&#160;                                        insertInArgList(varName, varNameToUse, pos, callStmt)</div>
-<div class="line"><a name="l01510"></a><span class="lineno"> 1510</span>&#160;                                        isCalled = <span class="keyword">True</span></div>
-<div class="line"><a name="l01511"></a><span class="lineno"> 1511</span>&#160;                            <span class="keywordflow">else</span>:</div>
-<div class="line"><a name="l01512"></a><span class="lineno"> 1512</span>&#160;                                <span class="comment"># We look for function use</span></div>
-<div class="line"><a name="l01513"></a><span class="lineno"> 1513</span>&#160;                                <span class="keywordflow">for</span> funcCall <span class="keywordflow">in</span> scopeUp.findall(</div>
-<div class="line"><a name="l01514"></a><span class="lineno"> 1514</span>&#160;                                                <span class="stringliteral">&#39;.//{*}named-E/{*}R-LT/{*}parens-R/&#39;</span> +</div>
-<div class="line"><a name="l01515"></a><span class="lineno"> 1515</span>&#160;                                                <span class="stringliteral">&#39;{*}element-LT/../../..&#39;</span>):</div>
-<div class="line"><a name="l01516"></a><span class="lineno"> 1516</span>&#160;                                    funcName = n2name(funcCall.find(<span class="stringliteral">&#39;./{*}N&#39;</span>)).upper()</div>
-<div class="line"><a name="l01517"></a><span class="lineno"> 1517</span>&#160;                                    <span class="keywordflow">if</span> funcName == name:</div>
-<div class="line"><a name="l01518"></a><span class="lineno"> 1518</span>&#160;                                        insertInArgList(varName, varNameToUse, pos, funcCall)</div>
-<div class="line"><a name="l01519"></a><span class="lineno"> 1519</span>&#160;                                        isCalled = <span class="keyword">True</span></div>
-<div class="line"><a name="l01520"></a><span class="lineno"> 1520</span>&#160;                            <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><a name="l01521"></a><span class="lineno"> 1521</span>&#160;                                pft.write()</div>
-<div class="line"><a name="l01522"></a><span class="lineno"> 1522</span>&#160;                                pft.close()</div>
-<div class="line"><a name="l01523"></a><span class="lineno"> 1523</span>&#160; </div>
-<div class="line"><a name="l01524"></a><span class="lineno"> 1524</span>&#160;                            <span class="keywordflow">if</span> isCalled:</div>
-<div class="line"><a name="l01525"></a><span class="lineno"> 1525</span>&#160;                                <span class="comment"># We must check in the scope (or upper scopes) if an interface</span></div>
-<div class="line"><a name="l01526"></a><span class="lineno"> 1526</span>&#160;                                <span class="comment"># block declares the routine</span></div>
-<div class="line"><a name="l01527"></a><span class="lineno"> 1527</span>&#160;                                <span class="keywordflow">for</span> interface <span class="keywordflow">in</span> self.findall(<span class="stringliteral">&#39;.//{*}interface-construct/{*}&#39;</span> +</div>
-<div class="line"><a name="l01528"></a><span class="lineno"> 1528</span>&#160;                                                              <span class="stringliteral">&#39;program-unit/{*}subroutine-stmt/&#39;</span> +</div>
-<div class="line"><a name="l01529"></a><span class="lineno"> 1529</span>&#160;                                                              <span class="stringliteral">&#39;{*}subroutine-N/{*}N/../../../&#39;</span>):</div>
-<div class="line"><a name="l01530"></a><span class="lineno"> 1530</span>&#160;                                    <span class="keywordflow">if</span> n2name(interface.find(<span class="stringliteral">&#39;./{*}subroutine-stmt/&#39;</span> +</div>
-<div class="line"><a name="l01531"></a><span class="lineno"> 1531</span>&#160;                                                             <span class="stringliteral">&#39;{*}subroutine-N/&#39;</span> +</div>
-<div class="line"><a name="l01532"></a><span class="lineno"> 1532</span>&#160;                                                             <span class="stringliteral">&#39;{*}N&#39;</span>)).upper() == name:</div>
-<div class="line"><a name="l01533"></a><span class="lineno"> 1533</span>&#160;                                        <span class="comment"># We must add the argument to the interface</span></div>
-<div class="line"><a name="l01534"></a><span class="lineno"> 1534</span>&#160;                                        <span class="keywordflow">raise</span> <a class="code" href="classpyfortool_1_1util_1_1PYFTError.html">PYFTError</a>(<span class="stringliteral">&#39;This case is not yet implemented&#39;</span>)</div>
+<div class="line"><a name="l01445"></a><span class="lineno"> 1445</span>&#160;                        pft = <span class="keywordtype">None</span></div>
+<div class="line"><a name="l01446"></a><span class="lineno"> 1446</span>&#160;                        <span class="keywordflow">try</span>:</div>
+<div class="line"><a name="l01447"></a><span class="lineno"> 1447</span>&#160;                            <span class="keywordflow">if</span> self.getFileName() == os.path.normpath(filename):</div>
+<div class="line"><a name="l01448"></a><span class="lineno"> 1448</span>&#160;                                <span class="comment"># interface declared in same file</span></div>
+<div class="line"><a name="l01449"></a><span class="lineno"> 1449</span>&#160;                                xml = self.mainScope</div>
+<div class="line"><a name="l01450"></a><span class="lineno"> 1450</span>&#160;                                pft = <span class="keywordtype">None</span></div>
+<div class="line"><a name="l01451"></a><span class="lineno"> 1451</span>&#160;                            <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l01452"></a><span class="lineno"> 1452</span>&#160;                                pft = <a class="code" href="namespacepyfortool_1_1pyfortool.html#a7d3c957a9fe78161c4db729a401618a0">pyfortool.pyfortool.conservativePYFT</a>(</div>
+<div class="line"><a name="l01453"></a><span class="lineno"> 1453</span>&#160;                                          filename, parser, parserOptions, wrapH, tree=self.tree,</div>
+<div class="line"><a name="l01454"></a><span class="lineno"> 1454</span>&#160;                                          clsPYFT=self._mainScope.__class__)</div>
+<div class="line"><a name="l01455"></a><span class="lineno"> 1455</span>&#160;                                xml = pft</div>
+<div class="line"><a name="l01456"></a><span class="lineno"> 1456</span>&#160;                            scopeInterface = xml.getScopeNode(scopePathInterface)</div>
+<div class="line"><a name="l01457"></a><span class="lineno"> 1457</span>&#160;                            varInterface = scopeInterface.varList.findVar(varName, exactScope=<span class="keyword">True</span>)</div>
+<div class="line"><a name="l01458"></a><span class="lineno"> 1458</span>&#160;                            <span class="keywordflow">if</span> varInterface <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01459"></a><span class="lineno"> 1459</span>&#160;                                scopeInterface.addVar([[scopePathInterface, varName,</div>
+<div class="line"><a name="l01460"></a><span class="lineno"> 1460</span>&#160;                                                        declStmt, pos]])</div>
+<div class="line"><a name="l01461"></a><span class="lineno"> 1461</span>&#160;                                <span class="keywordflow">if</span> moduleVarList <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01462"></a><span class="lineno"> 1462</span>&#160;                                    <span class="comment"># Module variables must be added when var is added</span></div>
+<div class="line"><a name="l01463"></a><span class="lineno"> 1463</span>&#160;                                    xml.addModuleVar(</div>
+<div class="line"><a name="l01464"></a><span class="lineno"> 1464</span>&#160;                                        [(scopePathInterface, moduleName, moduleVarNames)</div>
+<div class="line"><a name="l01465"></a><span class="lineno"> 1465</span>&#160;                                         <span class="keywordflow">for</span> (moduleName, moduleVarNames) <span class="keywordflow">in</span> moduleVarList])</div>
+<div class="line"><a name="l01466"></a><span class="lineno"> 1466</span>&#160;                            <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01467"></a><span class="lineno"> 1467</span>&#160;                                pft.write()</div>
+<div class="line"><a name="l01468"></a><span class="lineno"> 1468</span>&#160;                        <span class="keywordflow">finally</span>:</div>
+<div class="line"><a name="l01469"></a><span class="lineno"> 1469</span>&#160;                            <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01470"></a><span class="lineno"> 1470</span>&#160;                                pft.close()</div>
+<div class="line"><a name="l01471"></a><span class="lineno"> 1471</span>&#160; </div>
+<div class="line"><a name="l01472"></a><span class="lineno"> 1472</span>&#160;            <span class="keywordflow">if</span> var <span class="keywordflow">is</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> self.path <span class="keywordflow">not</span> <span class="keywordflow">in</span> stopScopes:</div>
+<div class="line"><a name="l01473"></a><span class="lineno"> 1473</span>&#160;                <span class="comment"># We must propagates upward</span></div>
+<div class="line"><a name="l01474"></a><span class="lineno"> 1474</span>&#160;                <span class="comment"># scopes calling the current scope</span></div>
+<div class="line"><a name="l01475"></a><span class="lineno"> 1475</span>&#160;                <span class="keywordflow">for</span> scopePathUp <span class="keywordflow">in</span> self.tree.calledByScope(self.path):</div>
+<div class="line"><a name="l01476"></a><span class="lineno"> 1476</span>&#160;                    <span class="keywordflow">if</span> scopePathUp <span class="keywordflow">in</span> stopScopes <span class="keywordflow">or</span> self.tree.isUnderStopScopes(scopePathUp,</div>
+<div class="line"><a name="l01477"></a><span class="lineno"> 1477</span>&#160;                                                                                stopScopes):</div>
+<div class="line"><a name="l01478"></a><span class="lineno"> 1478</span>&#160;                        <span class="comment"># We are on the path to a scope in the stopScopes list, or scopePathUp is</span></div>
+<div class="line"><a name="l01479"></a><span class="lineno"> 1479</span>&#160;                        <span class="comment"># one of the stopScopes</span></div>
+<div class="line"><a name="l01480"></a><span class="lineno"> 1480</span>&#160;                        <span class="comment"># can be defined several times?</span></div>
+<div class="line"><a name="l01481"></a><span class="lineno"> 1481</span>&#160;                        <span class="keywordflow">for</span> filename <span class="keywordflow">in</span> self.tree.scopeToFiles(scopePathUp):</div>
+<div class="line"><a name="l01482"></a><span class="lineno"> 1482</span>&#160;                            pft = <span class="keywordtype">None</span></div>
+<div class="line"><a name="l01483"></a><span class="lineno"> 1483</span>&#160;                            <span class="keywordflow">try</span>:</div>
+<div class="line"><a name="l01484"></a><span class="lineno"> 1484</span>&#160;                                <span class="keywordflow">if</span> self.getFileName() == os.path.normpath(filename):</div>
+<div class="line"><a name="l01485"></a><span class="lineno"> 1485</span>&#160;                                    <span class="comment"># Upper scope is in the same file</span></div>
+<div class="line"><a name="l01486"></a><span class="lineno"> 1486</span>&#160;                                    xml = self.mainScope</div>
+<div class="line"><a name="l01487"></a><span class="lineno"> 1487</span>&#160;                                    pft = <span class="keywordtype">None</span></div>
+<div class="line"><a name="l01488"></a><span class="lineno"> 1488</span>&#160;                                <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l01489"></a><span class="lineno"> 1489</span>&#160;                                    pft = <a class="code" href="namespacepyfortool_1_1pyfortool.html#a7d3c957a9fe78161c4db729a401618a0">pyfortool.pyfortool.conservativePYFT</a>(</div>
+<div class="line"><a name="l01490"></a><span class="lineno"> 1490</span>&#160;                                              filename, parser, parserOptions, wrapH,</div>
+<div class="line"><a name="l01491"></a><span class="lineno"> 1491</span>&#160;                                              tree=self.tree,</div>
+<div class="line"><a name="l01492"></a><span class="lineno"> 1492</span>&#160;                                              clsPYFT=self._mainScope.__class__)</div>
+<div class="line"><a name="l01493"></a><span class="lineno"> 1493</span>&#160;                                    xml = pft</div>
+<div class="line"><a name="l01494"></a><span class="lineno"> 1494</span>&#160;                                scopeUp = xml.getScopeNode(scopePathUp)</div>
+<div class="line"><a name="l01495"></a><span class="lineno"> 1495</span>&#160;                                <span class="comment"># Add the argument and propagate upward</span></div>
+<div class="line"><a name="l01496"></a><span class="lineno"> 1496</span>&#160;                                scopeUp.addArgInTree(</div>
+<div class="line"><a name="l01497"></a><span class="lineno"> 1497</span>&#160;                                    varName, declStmt, pos,</div>
+<div class="line"><a name="l01498"></a><span class="lineno"> 1498</span>&#160;                                    stopScopes, moduleVarList, otherNames,</div>
+<div class="line"><a name="l01499"></a><span class="lineno"> 1499</span>&#160;                                    parser=parser, parserOptions=parserOptions,</div>
+<div class="line"><a name="l01500"></a><span class="lineno"> 1500</span>&#160;                                    wrapH=wrapH)</div>
+<div class="line"><a name="l01501"></a><span class="lineno"> 1501</span>&#160;                                <span class="comment"># Add the argument to calls (subroutine or function)</span></div>
+<div class="line"><a name="l01502"></a><span class="lineno"> 1502</span>&#160;                                name = self.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[1].upper()</div>
+<div class="line"><a name="l01503"></a><span class="lineno"> 1503</span>&#160;                                isCalled = <span class="keyword">False</span></div>
+<div class="line"><a name="l01504"></a><span class="lineno"> 1504</span>&#160;                                varNameToUse = varName</div>
+<div class="line"><a name="l01505"></a><span class="lineno"> 1505</span>&#160;                                <span class="keywordflow">if</span> otherNames <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01506"></a><span class="lineno"> 1506</span>&#160;                                    vOther = [scopeUp.varList.findVar(v, exactScope=<span class="keyword">True</span>)</div>
+<div class="line"><a name="l01507"></a><span class="lineno"> 1507</span>&#160;                                              <span class="keywordflow">for</span> v <span class="keywordflow">in</span> otherNames]</div>
+<div class="line"><a name="l01508"></a><span class="lineno"> 1508</span>&#160;                                    vOther = [v <span class="keywordflow">for</span> v <span class="keywordflow">in</span> vOther <span class="keywordflow">if</span> v <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>]</div>
+<div class="line"><a name="l01509"></a><span class="lineno"> 1509</span>&#160;                                    <span class="keywordflow">if</span> len(vOther) &gt; 0:</div>
+<div class="line"><a name="l01510"></a><span class="lineno"> 1510</span>&#160;                                        varNameToUse = vOther[-1][<span class="stringliteral">&#39;n&#39;</span>]</div>
+<div class="line"><a name="l01511"></a><span class="lineno"> 1511</span>&#160;                                <span class="keywordflow">if</span> self.path.split(<span class="stringliteral">&#39;/&#39;</span>)[-1].split(<span class="stringliteral">&#39;:&#39;</span>)[0] == <span class="stringliteral">&#39;sub&#39;</span>:</div>
+<div class="line"><a name="l01512"></a><span class="lineno"> 1512</span>&#160;                                    <span class="comment"># We look for call statements</span></div>
+<div class="line"><a name="l01513"></a><span class="lineno"> 1513</span>&#160;                                    <span class="keywordflow">for</span> callStmt <span class="keywordflow">in</span> scopeUp.findall(<span class="stringliteral">&#39;.//{*}call-stmt&#39;</span>):</div>
+<div class="line"><a name="l01514"></a><span class="lineno"> 1514</span>&#160;                                        callName = n2name(callStmt.find(</div>
+<div class="line"><a name="l01515"></a><span class="lineno"> 1515</span>&#160;                                            <span class="stringliteral">&#39;./{*}procedure-designator/{*}named-E/{*}N&#39;</span>)).upper()</div>
+<div class="line"><a name="l01516"></a><span class="lineno"> 1516</span>&#160;                                        <span class="keywordflow">if</span> callName == name:</div>
+<div class="line"><a name="l01517"></a><span class="lineno"> 1517</span>&#160;                                            insertInArgList(varName, varNameToUse, pos, callStmt)</div>
+<div class="line"><a name="l01518"></a><span class="lineno"> 1518</span>&#160;                                            isCalled = <span class="keyword">True</span></div>
+<div class="line"><a name="l01519"></a><span class="lineno"> 1519</span>&#160;                                <span class="keywordflow">else</span>:</div>
+<div class="line"><a name="l01520"></a><span class="lineno"> 1520</span>&#160;                                    <span class="comment"># We look for function use</span></div>
+<div class="line"><a name="l01521"></a><span class="lineno"> 1521</span>&#160;                                    <span class="keywordflow">for</span> funcCall <span class="keywordflow">in</span> scopeUp.findall(</div>
+<div class="line"><a name="l01522"></a><span class="lineno"> 1522</span>&#160;                                                    <span class="stringliteral">&#39;.//{*}named-E/{*}R-LT/{*}parens-R/&#39;</span> +</div>
+<div class="line"><a name="l01523"></a><span class="lineno"> 1523</span>&#160;                                                    <span class="stringliteral">&#39;{*}element-LT/../../..&#39;</span>):</div>
+<div class="line"><a name="l01524"></a><span class="lineno"> 1524</span>&#160;                                        funcName = n2name(funcCall.find(<span class="stringliteral">&#39;./{*}N&#39;</span>)).upper()</div>
+<div class="line"><a name="l01525"></a><span class="lineno"> 1525</span>&#160;                                        <span class="keywordflow">if</span> funcName == name:</div>
+<div class="line"><a name="l01526"></a><span class="lineno"> 1526</span>&#160;                                            insertInArgList(varName, varNameToUse, pos, funcCall)</div>
+<div class="line"><a name="l01527"></a><span class="lineno"> 1527</span>&#160;                                            isCalled = <span class="keyword">True</span></div>
+<div class="line"><a name="l01528"></a><span class="lineno"> 1528</span>&#160;                                <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01529"></a><span class="lineno"> 1529</span>&#160;                                    pft.write()</div>
+<div class="line"><a name="l01530"></a><span class="lineno"> 1530</span>&#160;                            <span class="keywordflow">finally</span>:</div>
+<div class="line"><a name="l01531"></a><span class="lineno"> 1531</span>&#160;                                <span class="keywordflow">if</span> pft <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><a name="l01532"></a><span class="lineno"> 1532</span>&#160;                                    pft.close()</div>
+<div class="line"><a name="l01533"></a><span class="lineno"> 1533</span>&#160; </div>
+<div class="line"><a name="l01534"></a><span class="lineno"> 1534</span>&#160;                            <span class="keywordflow">if</span> isCalled:</div>
+<div class="line"><a name="l01535"></a><span class="lineno"> 1535</span>&#160;                                <span class="comment"># We must check in the scope (or upper scopes) if an interface</span></div>
+<div class="line"><a name="l01536"></a><span class="lineno"> 1536</span>&#160;                                <span class="comment"># block declares the routine</span></div>
+<div class="line"><a name="l01537"></a><span class="lineno"> 1537</span>&#160;                                <span class="keywordflow">for</span> interface <span class="keywordflow">in</span> self.findall(<span class="stringliteral">&#39;.//{*}interface-construct/{*}&#39;</span> +</div>
+<div class="line"><a name="l01538"></a><span class="lineno"> 1538</span>&#160;                                                              <span class="stringliteral">&#39;program-unit/{*}subroutine-stmt/&#39;</span> +</div>
+<div class="line"><a name="l01539"></a><span class="lineno"> 1539</span>&#160;                                                              <span class="stringliteral">&#39;{*}subroutine-N/{*}N/../../../&#39;</span>):</div>
+<div class="line"><a name="l01540"></a><span class="lineno"> 1540</span>&#160;                                    <span class="keywordflow">if</span> n2name(interface.find(<span class="stringliteral">&#39;./{*}subroutine-stmt/&#39;</span> +</div>
+<div class="line"><a name="l01541"></a><span class="lineno"> 1541</span>&#160;                                                             <span class="stringliteral">&#39;{*}subroutine-N/&#39;</span> +</div>
+<div class="line"><a name="l01542"></a><span class="lineno"> 1542</span>&#160;                                                             <span class="stringliteral">&#39;{*}N&#39;</span>)).upper() == name:</div>
+<div class="line"><a name="l01543"></a><span class="lineno"> 1543</span>&#160;                                        <span class="comment"># We must add the argument to the interface</span></div>
+<div class="line"><a name="l01544"></a><span class="lineno"> 1544</span>&#160;                                        <span class="keywordflow">raise</span> <a class="code" href="classpyfortool_1_1util_1_1PYFTError.html">PYFTError</a>(<span class="stringliteral">&#39;This case is not yet implemented&#39;</span>)</div>
 <div class="ttc" id="aclasspyfortool_1_1util_1_1PYFTError_html"><div class="ttname"><a href="classpyfortool_1_1util_1_1PYFTError.html">pyfortool.util.PYFTError</a></div><div class="ttdef"><b>Definition:</b> <a href="util_8py_source.html#l00122">util.py:122</a></div></div>
 <div class="ttc" id="aclasspyfortool_1_1variables_1_1VarList_html"><div class="ttname"><a href="classpyfortool_1_1variables_1_1VarList.html">pyfortool.variables.VarList</a></div><div class="ttdef"><b>Definition:</b> <a href="variables_8py_source.html#l00044">variables.py:44</a></div></div>
 <div class="ttc" id="aclasspyfortool_1_1variables_1_1VarList_html_a04eb0462ad2722dbd3c6b548905d7767"><div class="ttname"><a href="classpyfortool_1_1variables_1_1VarList.html#a04eb0462ad2722dbd3c6b548905d7767">pyfortool.variables.VarList.__init__</a></div><div class="ttdeci">def __init__(self, mainScope, _preCompute=None)</div><div class="ttdef"><b>Definition:</b> <a href="variables_8py_source.html#l00048">variables.py:48</a></div></div>
