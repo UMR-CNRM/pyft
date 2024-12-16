@@ -1,0 +1,28 @@
+<map id="pyfortool.scripting.task" name="pyfortool.scripting.task">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,493,179,518"/>
+<area shape="rect" id="Node000002" href="$namespacepyfortool_1_1scripting.html#a94e978462d3c113c2c7203a32a743127" title=" " alt="" coords="227,357,408,397"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,490,267,402,270,407,117,495"/>
+<area shape="rect" id="Node000013" href="$namespacepyfortool_1_1scripting.html#a4ca13b7e3b883248c46c9a1619022908" title=" " alt="" coords="456,645,663,685"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="129,516,457,631,480,638,479,643,455,636,127,521"/>
+<area shape="rect" id="Node000003" href="$namespacepyfortool_1_1scripting.html#a07633ae08cb41e0c2d9df4636c82fc59" title=" " alt="" coords="469,5,650,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="319,357,330,298,354,217,372,173,394,131,422,91,454,55,460,51,463,55,458,59,426,94,399,133,377,176,359,219,336,299,324,358"/>
+<area shape="rect" id="Node000004" href="$namespacepyfortool_1_1scripting.html#a8c8db8bae80bfae752b86a885a33ed3a" title=" " alt="" coords="469,69,650,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="321,356,337,308,363,244,402,177,426,146,454,119,461,114,464,119,458,123,430,150,406,180,368,247,342,310,326,358"/>
+<area shape="rect" id="Node000005" href="$namespacepyfortool_1_1scripting.html#ab18517b05c28dd228919d9bf08fc270e" title=" " alt="" coords="469,133,650,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="325,356,344,319,372,273,409,225,454,183,463,177,466,182,458,187,413,228,377,276,349,322,330,358"/>
+<area shape="rect" id="Node000006" href="$namespacepyfortool_1_1scripting.html#ab4a5e09733262657de84e87331f38a4e" title=" " alt="" coords="469,197,650,237"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="333,355,384,302,418,272,455,247,467,240,470,245,457,252,421,277,388,306,337,359"/>
+<area shape="rect" id="Node000007" href="$namespacepyfortool_1_1scripting.html#aa4ab26782cb90693d2cc5d1159d1770c" title=" " alt="" coords="469,261,650,301"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="357,355,455,311,476,303,478,308,457,316,359,360"/>
+<area shape="rect" id="Node000008" href="$namespacepyfortool_1_1scripting.html#a71bcd076f963d14b07348aa1c3a13f7b" title=" " alt="" coords="469,325,650,365"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="408,363,455,356,455,362,408,368"/>
+<area shape="rect" id="Node000009" href="$namespacepyfortool_1_1scripting.html#a33ffaf2864cb476ced14ef21ce40a85e" title=" " alt="" coords="469,389,650,429"/>
+<area shape="poly" id="edge8_Node000002_Node000009" title=" " alt="" coords="408,387,455,393,455,398,408,392"/>
+<area shape="rect" id="Node000010" href="$namespacepyfortool_1_1scripting.html#a171dc02843e5c8b12dba260f527071fd" title=" " alt="" coords="469,453,650,493"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="359,395,457,439,478,446,476,451,455,444,357,400"/>
+<area shape="rect" id="Node000011" href="$namespacepyfortool_1_1scripting.html#a2d78c99d45c993bf5e662c0264017bcc" title=" " alt="" coords="469,517,650,557"/>
+<area shape="poly" id="edge10_Node000002_Node000011" title=" " alt="" coords="337,396,388,449,421,478,457,503,470,509,467,514,455,508,418,482,384,453,333,399"/>
+<area shape="rect" id="Node000012" href="$namespacepyfortool_1_1scripting.html#a363b9908a9d247a6e70eddbf8fef6757" title=" " alt="" coords="469,581,650,621"/>
+<area shape="poly" id="edge11_Node000002_Node000012" title=" " alt="" coords="334,396,402,495,436,542,458,567,466,573,463,577,454,571,432,546,397,498,330,399"/>
+<area shape="poly" id="edge12_Node000002_Node000013" title=" " alt="" coords="336,396,372,448,410,514,423,548,429,578,437,604,458,631,463,635,459,639,454,635,432,607,424,579,418,550,406,516,367,451,331,399"/>
+</map>

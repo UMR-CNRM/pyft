@@ -1,0 +1,21 @@
+<map id="pyfortool.variables.Variables.removeVar" name="pyfortool.variables.Variables.removeVar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,127,289,153"/>
+<area shape="rect" id="Node000002" href="$namespacepyfortool_1_1variables.html#aae903ac3ca02310752a111161ead0c28" title=" " alt="" coords="394,5,543,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,125,336,61,382,47,383,52,338,67,179,130"/>
+<area shape="rect" id="Node000003" href="$classpyfortool_1_1variables_1_1Variables.html#adb598123892010ce83555ca4dd02ad2c" title=" " alt="" coords="929,113,1142,153"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,125,270,114,337,105,493,98,650,100,794,108,915,118,914,123,794,113,650,105,493,104,338,111,271,119,209,130"/>
+<area shape="rect" id="Node000006" href="$classpyfortool_1_1scope_1_1PYFTscope.html#afcd42c5faa043bd829b59f482116849f" title=" " alt="" coords="920,203,1151,243"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="223,150,338,169,493,199,560,211,648,220,781,226,906,225,906,231,781,231,648,225,560,216,492,204,337,175,223,155"/>
+<area shape="rect" id="Node000007" href="$classpyfortool_1_1variables_1_1Variables.html#ae46114b89dc670483d638236efeaedeb" title=" " alt="" coords="337,120,600,160"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="289,146,323,146,323,152,289,152"/>
+<area shape="rect" id="Node000004" href="$classpyfortool_1_1variables_1_1Variables.html#a52cb671d5fe7c0218a6e819a0b383bf5" title=" " alt="" coords="1199,113,1412,153"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1142,131,1185,131,1185,136,1142,136"/>
+<area shape="rect" id="Node000005" href="$classpyfortool_1_1scope_1_1PYFTscope.html#a9b81d00354a3f9b35c4c38b65d502918" title=" " alt="" coords="1460,113,1723,153"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1412,131,1446,131,1446,136,1412,136"/>
+<area shape="poly" id="edge11_Node000007_Node000001" title=" " alt="" coords="337,134,303,134,303,128,337,128"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="600,136,915,132,915,137,600,141"/>
+<area shape="rect" id="Node000008" href="$classpyfortool_1_1variables_1_1Variables.html#a1c3a8ea8659169a8fdc5dba78676fe40" title=" " alt="" coords="648,171,872,211"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="585,157,635,166,634,171,584,163"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="856,168,925,154,926,159,857,173"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="873,201,907,205,906,210,872,206"/>
+</map>

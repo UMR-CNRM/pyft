@@ -1,0 +1,18 @@
+<map id="pyfortool.variables.Variables.checkIntent" name="pyfortool.variables.Variables.checkIntent">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,81,256,121"/>
+<area shape="rect" id="Node000002" href="$classpyfortool_1_1scope_1_1PYFTscope.html#a5ce15a70bc7948feff004ffcf1787584" title=" " alt="" coords="323,51,542,91"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="256,86,310,81,310,86,257,91"/>
+<area shape="rect" id="Node000006" href="$classpyfortool_1_1variables_1_1Variables.html#a3887efab390d8d20867b9be1b4c6ebd9" title=" " alt="" coords="304,116,561,141"/>
+<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="257,110,291,113,290,118,256,115"/>
+<area shape="rect" id="Node000003" href="$classpyfortool_1_1scope_1_1ElementView.html#a1dbaf54daab3dba3a8d608ab623ca736" title=" " alt="" coords="609,29,849,55"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="542,58,595,53,596,58,542,63"/>
+<area shape="rect" id="Node000005" href="$classpyfortool_1_1scope_1_1PYFTscope.html#afcd42c5faa043bd829b59f482116849f" title=" " alt="" coords="614,79,845,119"/>
+<area shape="poly" id="edge6_Node000002_Node000005" title=" " alt="" coords="542,79,601,85,600,90,542,84"/>
+<area shape="poly" id="edge5_Node000003_Node000003" title=" " alt="" coords="685,31,675,21,680,11,699,5,729,3,769,7,779,12,783,18,779,20,776,16,767,12,729,8,700,10,684,15,681,20,689,27"/>
+<area shape="rect" id="Node000004" href="$classpyfortool_1_1scope_1_1ElementView.html#a7a1db7bc1c5100e0e9b813edf25d9239" title=" " alt="" coords="897,22,1113,62"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="849,48,883,48,883,54,849,54"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="897,36,863,36,863,30,897,31"/>
+<area shape="poly" id="edge8_Node000006_Node000005" title=" " alt="" coords="561,113,600,109,601,115,562,119"/>
+<area shape="rect" id="Node000007" href="$classpyfortool_1_1scope_1_1PYFTscope.html#a0fe49a63a383a5bfbf0925e2ad34f4f4" title=" " alt="" coords="616,144,843,169"/>
+<area shape="poly" id="edge9_Node000006_Node000007" title=" " alt="" coords="562,138,603,142,602,147,561,143"/>
+</map>

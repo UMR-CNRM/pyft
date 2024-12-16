@@ -1,3 +1,19 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpyfortool_1_1tree_1_1Tree.html" title=" " alt="" coords="5,5,148,32"/>
+<area shape="rect" id="Node000000" href="$classpyfortool_1_1applications_1_1Applications.html" title=" " alt="" coords="5,5,253,31"/>
+<area shape="rect" id="Node000001" href="$classpyfortool_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="301,153,496,179"/>
+<area shape="poly" id="edge2_Node000000_Node000001" title=" " alt="" coords="237,32,255,40,297,65,335,96,388,151,385,155,332,100,294,70,252,44,235,37"/>
+<area shape="rect" id="Node000002" href="$classpyfortool_1_1pyfortool_1_1PYFT.html" title=" " alt="" coords="544,153,723,179"/>
+<area shape="poly" id="edge3_Node000001_Node000002" title=" " alt="" coords="509,163,544,163,544,169,509,169"/>
+<area shape="rect" id="Node000003" href="$classpyfortool_1_1cosmetics_1_1Cosmetics.html" title=" " alt="" coords="18,55,241,80"/>
+<area shape="poly" id="edge4_Node000003_Node000001" title=" " alt="" coords="227,81,254,89,324,120,379,151,376,155,321,124,252,94,225,86"/>
+<area shape="rect" id="Node000004" href="$classpyfortool_1_1cpp_1_1Cpp.html" title=" " alt="" coords="61,104,198,129"/>
+<area shape="poly" id="edge5_Node000004_Node000001" title=" " alt="" coords="212,129,329,151,328,156,211,134"/>
+<area shape="rect" id="Node000005" href="$classpyfortool_1_1scope_1_1ElementView.html" title=" " alt="" coords="23,153,236,179"/>
+<area shape="poly" id="edge6_Node000005_Node000001" title=" " alt="" coords="250,163,301,163,301,169,250,169"/>
+<area shape="rect" id="Node000006" href="$classpyfortool_1_1openacc_1_1Openacc.html" title=" " alt="" coords="30,203,229,228"/>
+<area shape="poly" id="edge7_Node000006_Node000001" title=" " alt="" coords="212,198,328,176,329,181,213,203"/>
+<area shape="rect" id="Node000007" href="$classpyfortool_1_1statements_1_1Statements.html" title=" " alt="" coords="10,252,249,277"/>
+<area shape="poly" id="edge8_Node000007_Node000001" title=" " alt="" coords="221,246,252,237,321,207,375,176,378,181,323,212,254,242,222,251"/>
+<area shape="rect" id="Node000008" href="$classpyfortool_1_1variables_1_1Variables.html" title=" " alt="" coords="25,301,234,327"/>
+<area shape="poly" id="edge9_Node000008_Node000001" title=" " alt="" coords="232,295,252,286,294,261,331,231,385,177,388,181,335,235,297,265,255,291,234,300"/>
 </map>

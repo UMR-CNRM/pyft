@@ -1,11 +1,5 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classpyfortool_1_1applications_1_1Applications.html" title=" " alt="" coords="5,5,253,32"/>
-<area shape="rect" id="node2" href="$classpyfortool_1_1scope_1_1PYFTscope.html" title=" " alt="" coords="301,157,496,184"/>
-<area shape="rect" id="node3" href="$classpyfortool_1_1pyfortool_1_1PYFT.html" title=" " alt="" coords="544,157,723,184"/>
-<area shape="rect" id="node4" href="$classpyfortool_1_1cosmetics_1_1Cosmetics.html" title=" " alt="" coords="18,56,241,83"/>
-<area shape="rect" id="node5" href="$classpyfortool_1_1cpp_1_1Cpp.html" title=" " alt="" coords="61,107,198,133"/>
-<area shape="rect" id="node6" href="$classpyfortool_1_1scope_1_1ElementView.html" title=" " alt="" coords="23,157,236,184"/>
-<area shape="rect" id="node7" href="$classpyfortool_1_1openacc_1_1Openacc.html" title=" " alt="" coords="30,208,229,235"/>
-<area shape="rect" id="node8" href="$classpyfortool_1_1statements_1_1Statements.html" title=" " alt="" coords="10,259,249,285"/>
-<area shape="rect" id="node9" href="$classpyfortool_1_1variables_1_1Variables.html" title=" " alt="" coords="25,309,234,336"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,5,92,31"/>
+<area shape="rect" id="Node000001" href="$classpyfortool_1_1util_1_1PYFTError.html" title=" " alt="" coords="140,5,312,31"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="106,15,140,15,140,21,106,21"/>
 </map>
