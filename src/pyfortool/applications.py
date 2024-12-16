@@ -312,7 +312,7 @@ class Applications():
         self.setFalseIfStmt('OCND2', simplify=simplify)
 
     @debugDecor
-    def addMPPDB_CHECKS(self):
+    def addMPPDB_CHECKS(self, printsMode=False):
 
         """
         Add MPPDB_CHEKS on all intent REAL arrays on subroutines.
@@ -335,7 +335,24 @@ class Applications():
           !Check all OUT arrays
           CALL MPPDB_CHECK(PLM, "BL89 end:PLM")
         END IF
+        param printsMode: if True, instead of CALL MPPDB_CHECK, add fortran prints for debugging
         """
+        def addPrints_statement(var, typeofPrints='minmax'):
+            ifBeg, ifEnd = '', ''
+            if var['as']: # If array
+                if typeofPrints=='minmax':
+                    strMSG = 'MINMAX ' + var['n'] + ' = \"' + ',MINVAL('+var['n']+'), MAXVAL('+var['n']+')'
+                elif typeofPrints=='shape':
+                    strMSG = 'SHAPE ' + var['n'] + ' = \"' + ',SHAPE('+var['n']+')'
+                else:
+                    raise PYFTError('typeofPrints is either minmax or shape in addPrints_statement')
+            else:
+                strMSG = var['n'] + ' = \",' + var['n']
+            if var['opt']:
+                ifBeg = ifBeg + 'IF (PRESENT(' + var['n'] + ')) THEN\n '
+                ifEnd = ifEnd + '\nEND IF'
+            return createExpr(ifBeg + "print*,\"" + strMSG + ifEnd)[0]
+            
         def addMPPDB_CHECK_statement(var, subRoutineName, strMSG='beg:'):
             ifBeg, ifEnd, addD, addLastDim, addSecondDimType = '', '', '', '', ''
             # Test if the variable is declared with the PHYEX D% structure,
@@ -377,21 +394,34 @@ class Applications():
 
                 # Look for all intent arrays only
                 arraysIn, arraysInOut, arraysOut = [], [], []
-                for var in scope.varList:
-                    if var['arg'] and var['as'] and 'TYPE' not in var['t'] and \
-                       'REAL' in var['t'] and var['scopePath'] == scope.path:
-                        if var['i'] == 'IN':
-                            arraysIn.append(var)
-                        if var['i'] == 'INOUT':
-                            arraysInOut.append(var)
-                        if var['i'] == 'OUT':
-                            arraysOut.append(var)
+                if not printsMode:
+                    for var in scope.varList:
+                        if var['arg'] and var['as'] and 'TYPE' not in var['t'] and \
+                           'REAL' in var['t'] and var['scopePath'] == scope.path:
+                            if var['i'] == 'IN':
+                                arraysIn.append(var)
+                            if var['i'] == 'INOUT':
+                                arraysInOut.append(var)
+                            if var['i'] == 'OUT':
+                                arraysOut.append(var)
+                else:
+                    for var in scope.varList:
+                        if not var['t'] or var['t'] and 'TYPE' not in var['t']:
+                            if var['i'] == 'IN':
+                                arraysIn.append(var)
+                            if var['i'] == 'INOUT':
+                                arraysInOut.append(var)
+                            if var['i'] == 'OUT':
+                                arraysOut.append(var)
                 # Check if there is any intent variables
                 if len(arraysIn) + len(arraysInOut) + len(arraysOut) == 0:
                     break
 
                 # Add necessary module
-                scope.addModuleVar([(scope.path, 'MODE_MPPDB', None)])
+                if not printsMode:
+                    scope.addModuleVar([(scope.path, 'MODE_MPPDB', None)])
+                else:
+                    scope.addModuleVar([(scope.path, 'MODD_BLANK_n', ['LDUMMY1'])])
 
                 # Prepare some FORTRAN comments
                 commentIN = createElem('C', text='!Check all IN arrays', tail='\n')
@@ -400,48 +430,77 @@ class Applications():
 
                 # 1) variables IN and INOUT block (beggining of the routine)
                 if len(arraysIn) + len(arraysInOut) > 0:
-                    ifMPPDBinit = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
+                    if not printsMode:
+                        ifMPPDBinit = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
+                    else:
+                        ifMPPDBinit = createExpr("IF (LDUMMY1) THEN\n  END IF")[0]
                     ifMPPDB = ifMPPDBinit.find('.//{*}if-block')
 
                     # Variables IN
                     if len(arraysIn) > 0:
                         ifMPPDB.insert(1, commentIN)
                         for i, var in enumerate(arraysIn):
-                            ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
+                            if not printsMode:
+                                ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
                                                                            strMSG='beg:'))
+                            else:
+                                ifMPPDB.insert(2 + i, addPrints_statement(var, typeofPrints='minmax'))
+                                ifMPPDB.insert(3 + i, addPrints_statement(var, typeofPrints='shape'))
 
                     # Variables INOUT
                     if len(arraysInOut) > 0:
                         shiftLineNumber = 2 if len(arraysIn) > 0 else 1
-                        ifMPPDB.insert(len(arraysIn) + shiftLineNumber, commentINOUT)
+                        if not printsMode:
+                            ifMPPDB.insert(len(arraysIn) + shiftLineNumber, commentINOUT)
+                        else:
+                            ifMPPDB.insert(len(arraysIn)*2 + shiftLineNumber-1, commentINOUT)
+
                         for i, var in enumerate(arraysInOut):
-                            ifMPPDB.insert(len(arraysIn) + shiftLineNumber + 1 + i,
+                            if not printsMode:
+                                ifMPPDB.insert(len(arraysIn) + shiftLineNumber + 1 + i,
                                            addMPPDB_CHECK_statement(var, subRoutineName,
                                                                     strMSG='beg:'))
+                            else:
+                                ifMPPDB.insert(len(arraysIn) + shiftLineNumber + 1 + i,
+                                           addPrints_statement(var, typeofPrints='minmax'))
+                                
 
                     # Add the new IN and INOUT block
                     scope.insertStatement(scope.indent(ifMPPDBinit), first=True)
 
                 # 2) variables INOUT and OUT block (end of the routine)
                 if len(arraysInOut) + len(arraysOut) > 0:
-                    ifMPPDBend = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
+                    if not printsMode:
+                        ifMPPDBend = createExpr("IF (MPPDB_INITIALIZED) THEN\n  END IF")[0]
+                    else:
+                        ifMPPDBend = createExpr("IF (LDUMMY1) THEN\n  END IF")[0]
                     ifMPPDB = ifMPPDBend.find('.//{*}if-block')
 
                     # Variables INOUT
                     if len(arraysInOut) > 0:
                         ifMPPDB.insert(1, commentINOUT)
                         for i, var in enumerate(arraysInOut):
-                            ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
+                            if not printsMode:
+                                ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
                                                                            strMSG='end:'))
+                            else:
+                                ifMPPDB.insert(2 + i, addPrints_statement(var, typeofPrints='minmax'))
 
                     # Variables OUT
                     if len(arraysOut) > 0:
                         shiftLineNumber = 2 if len(arraysInOut) > 0 else 1
-                        ifMPPDB.insert(len(arraysInOut) + shiftLineNumber, commentOUT)
+                        if not printsMode:
+                            ifMPPDB.insert(len(arraysInOut) + shiftLineNumber, commentOUT)
+                        else:
+                            ifMPPDB.insert(len(arraysInOut)*2 + shiftLineNumber-1, commentOUT)
                         for i, var in enumerate(arraysOut):
-                            ifMPPDB.insert(len(arraysInOut) + shiftLineNumber + 1 + i,
+                            if not printsMode:
+                                ifMPPDB.insert(len(arraysInOut) + shiftLineNumber + 1 + i,
                                            addMPPDB_CHECK_statement(var, subRoutineName,
                                                                     strMSG='end:'))
+                            else:
+                                ifMPPDB.insert(len(arraysInOut) + shiftLineNumber + 1 + i,
+                                           addPrints_statement(var, typeofPrints='minmax'))
 
                     # Add the new INOUT and OUT block
                     scope.insertStatement(scope.indent(ifMPPDBend), first=False)
