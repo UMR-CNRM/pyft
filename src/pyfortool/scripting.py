@@ -538,7 +538,8 @@ def updateParserApplications(parser):
                                help='Add MPPDB_CHEKS bit-repro checking routines of MesoNH for ' +
                                     'all in and inout arrays in subroutines')
     gApplications.add_argument('--addPrints', default=False, action='store_true',
-                               help='Add Prints of min/maxval and shape of all in, out, inout arguments of all scopes')
+                               help='Add Prints of min/maxval and shape of all in, out, inout ' +
+                                    'arguments of all scopes')
     gApplications.add_argument('--shumanFUNCtoCALL', default=False, action='store_true',
                                help='Transform shuman functions to call statements')
     gApplications.add_argument('--mathFunctoBRFunc', default=False, action='store_true',

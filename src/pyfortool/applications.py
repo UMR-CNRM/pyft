@@ -339,11 +339,12 @@ class Applications():
         """
         def addPrints_statement(var, typeofPrints='minmax'):
             ifBeg, ifEnd = '', ''
-            if var['as']: # If array
-                if typeofPrints=='minmax':
-                    strMSG = 'MINMAX ' + var['n'] + ' = \"' + ',MINVAL('+var['n']+'), MAXVAL('+var['n']+')'
-                elif typeofPrints=='shape':
-                    strMSG = 'SHAPE ' + var['n'] + ' = \"' + ',SHAPE('+var['n']+')'
+            if var['as']:  # If array
+                varName = var['n']
+                if typeofPrints == 'minmax':
+                    strMSG = f'MINMAX {varName} = \",MINVAL({varName}), MAXVAL({varName})'
+                elif typeofPrints == 'shape':
+                    strMSG = f'SHAPE {varName} = \",SHAPE({varName})'
                 else:
                     raise PYFTError('typeofPrints is either minmax or shape in addPrints_statement')
             else:
@@ -352,7 +353,7 @@ class Applications():
                 ifBeg = ifBeg + 'IF (PRESENT(' + var['n'] + ')) THEN\n '
                 ifEnd = ifEnd + '\nEND IF'
             return createExpr(ifBeg + "print*,\"" + strMSG + ifEnd)[0]
-            
+
         def addMPPDB_CHECK_statement(var, subRoutineName, strMSG='beg:'):
             ifBeg, ifEnd, addD, addLastDim, addSecondDimType = '', '', '', '', ''
             # Test if the variable is declared with the PHYEX D% structure,
@@ -442,10 +443,12 @@ class Applications():
                         for i, var in enumerate(arraysIn):
                             if not printsMode:
                                 ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
-                                                                           strMSG='beg:'))
+                                                                               strMSG='beg:'))
                             else:
-                                ifMPPDB.insert(2 + i, addPrints_statement(var, typeofPrints='minmax'))
-                                ifMPPDB.insert(3 + i, addPrints_statement(var, typeofPrints='shape'))
+                                ifMPPDB.insert(2 + i, addPrints_statement(var,
+                                                                          typeofPrints='minmax'))
+                                ifMPPDB.insert(3 + i, addPrints_statement(var,
+                                                                          typeofPrints='shape'))
 
                     # Variables INOUT
                     if len(arraysInOut) > 0:
@@ -458,12 +461,11 @@ class Applications():
                         for i, var in enumerate(arraysInOut):
                             if not printsMode:
                                 ifMPPDB.insert(len(arraysIn) + shiftLineNumber + 1 + i,
-                                           addMPPDB_CHECK_statement(var, subRoutineName,
-                                                                    strMSG='beg:'))
+                                               addMPPDB_CHECK_statement(var, subRoutineName,
+                                                                        strMSG='beg:'))
                             else:
                                 ifMPPDB.insert(len(arraysIn) + shiftLineNumber + 1 + i,
-                                           addPrints_statement(var, typeofPrints='minmax'))
-                                
+                                               addPrints_statement(var, typeofPrints='minmax'))
 
                     # Add the new IN and INOUT block
                     scope.insertStatement(scope.indent(ifMPPDBinit), first=True)
@@ -482,9 +484,10 @@ class Applications():
                         for i, var in enumerate(arraysInOut):
                             if not printsMode:
                                 ifMPPDB.insert(2 + i, addMPPDB_CHECK_statement(var, subRoutineName,
-                                                                           strMSG='end:'))
+                                                                               strMSG='end:'))
                             else:
-                                ifMPPDB.insert(2 + i, addPrints_statement(var, typeofPrints='minmax'))
+                                ifMPPDB.insert(2 + i, addPrints_statement(var,
+                                                                          typeofPrints='minmax'))
 
                     # Variables OUT
                     if len(arraysOut) > 0:
@@ -496,11 +499,11 @@ class Applications():
                         for i, var in enumerate(arraysOut):
                             if not printsMode:
                                 ifMPPDB.insert(len(arraysInOut) + shiftLineNumber + 1 + i,
-                                           addMPPDB_CHECK_statement(var, subRoutineName,
-                                                                    strMSG='end:'))
+                                               addMPPDB_CHECK_statement(var, subRoutineName,
+                                                                        strMSG='end:'))
                             else:
                                 ifMPPDB.insert(len(arraysInOut) + shiftLineNumber + 1 + i,
-                                           addPrints_statement(var, typeofPrints='minmax'))
+                                               addPrints_statement(var, typeofPrints='minmax'))
 
                     # Add the new INOUT and OUT block
                     scope.insertStatement(scope.indent(ifMPPDBend), first=False)
